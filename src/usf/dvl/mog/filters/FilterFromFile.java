@@ -15,24 +15,31 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
-import usf.dvl.common.DistanceMatrix;
+import processing.core.PApplet;
 import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
-public class FilterEccentricity extends Filter {
+public class FilterFromFile extends FilterFunction {
 
-	public FilterEccentricity(Graph graph, float p) {
+	public FilterFromFile( PApplet p, Graph graph, String filename) {
 
-		DistanceMatrix mat = graph.shortestpath_distance();
+		String [] lines = p.loadStrings( filename );
 
-		for (int i = 0; i < graph.getNodeCount(); i++ ) {
-			put(  graph.nodes.get(i), new Double( mat.row_max(i)) );
+		for( int i = 1; i < lines.length; i++ ){
+			String [] parts = lines[i].split("\\s+");
+			if( parts.length >= 2 ){
+				int    vid = Integer.parseInt(parts[0]);
+				double val = Double.parseDouble(parts[1]);
+				put( graph.nodes.get(vid), val);
+			}
 		}
 
-		finalize();
+		finalize_init();
 	}
 
-	public String getName() { return "Eccentricity"; }
-	public String getShortName() { return "Eccentricity"; }
+	public String getName() { return "Loaded From File"; }
+	public String getShortName() { return "From File"; }
+
 }

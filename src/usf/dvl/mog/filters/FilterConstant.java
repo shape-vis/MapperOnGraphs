@@ -15,39 +15,21 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
 import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
-public class FilterLocalDensity extends Filter {
+public class FilterConstant extends FilterFunction {
 
-	public FilterLocalDensity(Graph graph, float eps, int Type) {
-
+	public FilterConstant(Graph graph, double val) {
 		for (int i = 0; i < graph.getNodeCount(); i++) {
-			Graph.GraphVertex v1 = graph.nodes.get(i);
-
-			if (Type == 2) {
-				double sum = 0;
-				for (Graph.GraphVertex v : v1.getAdjacentVertices()) {
-					for (Graph.GraphVertex v2 : v.getAdjacentVertices()) {
-						if (!v1.isAdjacent(v2)) {
-							sum += (double) Math.exp(-1 / eps); // assuming the distance between v and v1 is 1
-						}
-					}
-
-				}
-				put(v1, sum);
-			}
-
-			else {
-				put(v1, (double) v1.getAdjacent().size() * (double) Math.exp(-1 / eps));
-			}
+			put( graph.nodes.get(i), val );
 		}
-
-		finalize();
+		finalize_init();
 	}
-
-	public String getName() { return "Local Density"; }
-	public String getShortName() { return "Local Density"; }
+	
+	public String getName() { return "Constant"; }
+	public String getShortName() { return "Constant"; }
 
 }

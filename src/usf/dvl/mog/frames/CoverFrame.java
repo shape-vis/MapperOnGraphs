@@ -27,9 +27,9 @@ import usf.dvl.draw.DFrame;
 import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.draw.frames.DHistogram;
 import usf.dvl.draw.objects.DragableResizeableBox;
-import usf.dvl.graph.mapper.Cover;
-import usf.dvl.graph.mapper.Interval;
 import usf.dvl.mog.PAppletMOG;
+import usf.dvl.tda.mapper.Cover;
+import usf.dvl.tda.mapper.CoverElement;
 
 public class CoverFrame extends DFrame {
 
@@ -133,9 +133,9 @@ public class CoverFrame extends DFrame {
 
 	private class DCover extends DragableResizeableBox {
 
-		private Interval ival;
+		private CoverElement ival;
 
-		public DCover( PApplet p, int idx, Interval _ival ){
+		public DCover( PApplet p, int idx, CoverElement _ival ){
 			super(p,idx);
 			ival = _ival;
 			this.setColorScheme( new CScheme() );

@@ -15,30 +15,25 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
-import processing.core.PApplet;
+import usf.dvl.common.DistanceMatrix;
 import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
-public class FilterFromFile extends Filter {
+public class FilterAGD extends FilterFunction {
 
-	public FilterFromFile( PApplet p, Graph graph, String filename) {
+	public FilterAGD(Graph graph) {
+		DistanceMatrix mat = graph.shortestpath_distance();
+		double l = mat.getRowCount();
 
-		String [] lines = p.loadStrings( filename );
-
-		for( int i = 1; i < lines.length; i++ ){
-			String [] parts = lines[i].split("\\s+");
-			if( parts.length >= 2 ){
-				int    vid = Integer.parseInt(parts[0]);
-				double val = Double.parseDouble(parts[1]);
-				put( graph.nodes.get(vid), val);
-			}
+		for (int i = 0; i < graph.getNodeCount(); i++) {
+			put( graph.nodes.get(i), 1.0 / l * mat.row_sum(i) );
 		}
 
-		finalize();
+		finalize_init();
 	}
 
-	public String getName() { return "Loaded From File"; }
-	public String getShortName() { return "From File"; }
-
+	public String getName() { return "Average Geodesic Distance"; }
+	public String getShortName() { return "AGD"; }
 }

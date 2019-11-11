@@ -22,11 +22,11 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 import usf.dvl.draw.color.SequentialColormap;
-import usf.dvl.graph.mapper.Interval;
-import usf.dvl.graph.mapper.Mapper;
 import usf.dvl.mog.frames.MainFrame;
 import usf.dvl.mog.frames.MapperFrame;
 import usf.dvl.processing.PFrameApplet;
+import usf.dvl.tda.mapper.CoverElement;
+import usf.dvl.tda.mapper.Mapper;
 
 public class PAppletMOG extends PFrameApplet<MainFrame> {
 
@@ -34,7 +34,7 @@ public class PAppletMOG extends PFrameApplet<MainFrame> {
 		PApplet.main(new String[] { "usf.dvl.mog.PAppletMOG" });
 	}
 
-
+ 
 
 	// adjust these
 	public static float fdlRestingLength = 20;
@@ -68,7 +68,7 @@ public class PAppletMOG extends PFrameApplet<MainFrame> {
 	public static Mapper.MapperVertex selectedVertex = null;
 	public static Mapper.MapperVertex selectedEdgeV0 = null;
 	public static Mapper.MapperVertex selectedEdgeV1 = null;
-	public static Interval selectedInterval = null;
+	public static CoverElement selectedInterval = null;
 
 	public static ArrayList<SequentialColormap> colmaps = new ArrayList<SequentialColormap>();
 

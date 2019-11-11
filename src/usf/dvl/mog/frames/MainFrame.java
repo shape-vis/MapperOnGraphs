@@ -25,12 +25,12 @@ import usf.dvl.draw.DMultiFrame;
 import usf.dvl.draw.DObject;
 import usf.dvl.draw.objects.CheckableBox;
 import usf.dvl.draw.objects.OptionListFrame;
-import usf.dvl.graph.mapper.filter.FilterAGD;
-import usf.dvl.graph.mapper.filter.FilterDensity;
-import usf.dvl.graph.mapper.filter.FilterEccentricity;
-import usf.dvl.graph.mapper.filter.FilterEigenFunctions;
 import usf.dvl.mog.GraphData;
 import usf.dvl.mog.PAppletMOG;
+import usf.dvl.mog.filters.FilterAGD;
+import usf.dvl.mog.filters.FilterDensity;
+import usf.dvl.mog.filters.FilterEccentricity;
+import usf.dvl.mog.filters.FilterEigenFunctions;
 
 
 public class MainFrame extends DMultiFrame<DObject> {
