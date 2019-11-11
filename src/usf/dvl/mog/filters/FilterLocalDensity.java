@@ -15,24 +15,40 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
-import usf.dvl.common.DistanceMatrix;
 import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
-public class FilterAGD extends Filter {
+public class FilterLocalDensity extends FilterFunction {
 
-	public FilterAGD(Graph graph) {
-		DistanceMatrix mat = graph.shortestpath_distance();
-		double l = mat.getRowCount();
+	public FilterLocalDensity(Graph graph, float eps, int Type) {
 
 		for (int i = 0; i < graph.getNodeCount(); i++) {
-			put( graph.nodes.get(i), new Double( 1.0 / l * mat.row_sum(i) ) );
+			Graph.GraphVertex v1 = graph.nodes.get(i);
+
+			if (Type == 2) {
+				double sum = 0;
+				for (Graph.GraphVertex v : v1.getAdjacentVertices()) {
+					for (Graph.GraphVertex v2 : v.getAdjacentVertices()) {
+						if (!v1.isAdjacent(v2)) {
+							sum += (double) Math.exp(-1 / eps); // assuming the distance between v and v1 is 1
+						}
+					}
+
+				}
+				put(v1, sum);
+			}
+
+			else {
+				put(v1, (double) v1.getAdjacent().size() * (double) Math.exp(-1 / eps));
+			}
 		}
 
-		finalize();
+		finalize_init();
 	}
 
-	public String getName() { return "Average Geodesic Distance"; }
-	public String getShortName() { return "AGD"; }
+	public String getName() { return "Local Density"; }
+	public String getShortName() { return "Local Density"; }
+
 }

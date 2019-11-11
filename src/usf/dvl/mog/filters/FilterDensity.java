@@ -15,12 +15,13 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
 import usf.dvl.common.DistanceMatrix;
 import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
-public class FilterDensity extends Filter {
+public class FilterDensity extends FilterFunction {
 
 	public FilterDensity( Graph graph, float eps) {
 
@@ -28,14 +29,15 @@ public class FilterDensity extends Filter {
 
 		for (int i = 0; i < graph.getNodeCount(); i++ ){
 			Graph.GraphVertex v1 = graph.nodes.get(i);
-			put(v1, new Double( mat.row_sum_exp_sq(i, eps)));
+			put( v1, mat.row_sum_exp_sq(i, eps) );
 		}
 
+		/*
 		//normalize so that the sum of all values is one
 		double sum=0;
 		for (int i = 0; i < graph.getNodeCount(); i++ ) {
 			Graph.GraphVertex v1 = graph.nodes.get(i);
-			sum+=get(v1);
+			sum+=filter.get(v1);
 		}
 
 		//reassign the filter value  
@@ -44,8 +46,9 @@ public class FilterDensity extends Filter {
 			double oldval=get(v1); 
 			put(v1, oldval/sum);
 		}
+		*/
 
-		finalize();
+		finalize_init();
 	}
 
 	public String getName() { return "Density"; }

@@ -15,35 +15,25 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 */
-package usf.dvl.graph.mapper.filter;
+package usf.dvl.mog.filters;
 
-import java.util.List;
-
-import org.ejml.simple.SimpleMatrix;
-
+import usf.dvl.common.DistanceMatrix;
 import usf.dvl.graph.Graph;
-import usf.dvl.graph.LaplacianMatrix.Eigen;
+import usf.dvl.tda.mapper.FilterFunction;
 
+public class FilterEccentricity extends FilterFunction {
 
-public class FilterEigenFunctions extends Filter {
+	public FilterEccentricity(Graph graph, float p) {
 
-	int which;
-	
-	public FilterEigenFunctions( Graph graph, int whichone) {
-		which = whichone;
-
-		List<Eigen> alleig = graph.toGraphLaplacian().eigen();
-		SimpleMatrix eig = alleig.get(whichone).getEigenVector();
+		DistanceMatrix mat = graph.shortestpath_distance();
 
 		for (int i = 0; i < graph.getNodeCount(); i++ ) {
-			Graph.GraphVertex v1 = graph.nodes.get(i);
-			put(v1, eig.get(i));  
+			put( graph.nodes.get(i), mat.row_max(i) );
 		}
 
-		finalize();
+		finalize_init();
 	}
 
-	public String getName() { return "Eigen Function " + which; }
-	public String getShortName() { return "Eigen Func " + which; }
-	
+	public String getName() { return "Eccentricity"; }
+	public String getShortName() { return "Eccentricity"; }
 }
