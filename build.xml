@@ -3,10 +3,10 @@
   <target name ="makejar" description="Create a jar for the project">
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <jar jarfile="./release/usfdvl-mog.jar" basedir="bin"/> 
-	<copy file="./usfdvl-common/release/usfdvl-common.jar" tofile="./release/usfdvl-common.jar" />
-	<copy file="./usfdvl-topology/release/usfdvl-topology.jar" tofile="./release/usfdvl-topology.jar" />
-	<copy file="./lib/EJML.jar" tofile="./release/EJML.jar" />
+    <jar jarfile="./visualization/code/usfdvl-mog.jar" basedir="bin"/> 
+	<copy file="./usfdvl-common/release/usfdvl-common.jar" tofile="./visualization/code/usfdvl-common.jar" />
+	<copy file="./usfdvl-topology/release/usfdvl-topology.jar" tofile="./visualization/code/usfdvl-topology.jar" />
+	<copy file="./lib/EJML.jar" tofile="./visualization/code/EJML.jar" />
   </target> 
 </project>
 
