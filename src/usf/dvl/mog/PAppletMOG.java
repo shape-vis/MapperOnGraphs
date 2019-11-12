@@ -70,7 +70,7 @@ public class PAppletMOG extends PFrameApplet<MainFrame> {
 	public static Mapper.MapperVertex selectedEdgeV1 = null;
 	public static CoverElement selectedInterval = null;
 
-	public static ArrayList<SequentialColormap> colmaps = new ArrayList<SequentialColormap>();
+	public ArrayList<SequentialColormap> colmaps = new ArrayList<SequentialColormap>();
 
 
 	public PAppletMOG() {
@@ -106,10 +106,10 @@ public class PAppletMOG extends PFrameApplet<MainFrame> {
 		String filename = selection.getAbsolutePath();
 		MainFrame mv = new MainFrame(this);
 		if( filename.toLowerCase().endsWith(".json") ){
-			mv.setData( GraphData.parseJSON( this, filename ) );
+			mv.setData( GraphData.parseJSON( this, filename ), colmaps );
 		}
 		else{
-			mv.setData( GraphData.parseTXT( this, filename ) );
+			mv.setData( GraphData.parseTXT( this, filename ), colmaps  );
 		}
 		setFrame( mv );			
 	}

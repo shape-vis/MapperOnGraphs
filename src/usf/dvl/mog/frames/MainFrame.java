@@ -23,6 +23,7 @@ import processing.core.PApplet;
 import usf.dvl.draw.DColorScheme;
 import usf.dvl.draw.DMultiFrame;
 import usf.dvl.draw.DObject;
+import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.draw.objects.CheckableBox;
 import usf.dvl.draw.objects.OptionListFrame;
 import usf.dvl.mog.GraphData;
@@ -47,7 +48,7 @@ public class MainFrame extends DMultiFrame<DObject> {
 	}
 
 
-	public void setData( GraphData _gdata ) {
+	public void setData( GraphData _gdata, ArrayList<SequentialColormap> colmaps ) {
 		gdata = _gdata;
 
 		fdd = new GraphFrame( papplet, gdata );
@@ -66,7 +67,7 @@ public class MainFrame extends DMultiFrame<DObject> {
 		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 5), 5, 0.2f ) );
 
 		for( int i = 0; i < mapper.size(); i++ ){
-			mapper.get(i).setColormap( PAppletMOG.colmaps.get(i%PAppletMOG.colmaps.size()) );
+			mapper.get(i).setColormap( colmaps.get(i%colmaps.size()) );
 		}
 		
 		addFrames( mapper.get(0) );
