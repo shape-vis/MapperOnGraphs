@@ -26,13 +26,11 @@ import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.graph.Graph;
 import usf.dvl.graph.Graph.GraphEdge;
 import usf.dvl.graph.Graph.GraphVertex;
-import usf.dvl.graph.layout.forcedirected.ForceDirectedLayoutFrame;
 import usf.dvl.graph.layout.forcedirected.ForceDirectedLayoutVertex;
+import usf.dvl.mog.FrameManager;
 import usf.dvl.mog.MapperOnGraphs;
-import usf.dvl.mog.PAppletMOG;
 import usf.dvl.tda.mapper.Cover;
 import usf.dvl.tda.mapper.FilterFunction;
-import usf.dvl.tda.mapper.Mapper;
 import usf.dvl.tda.mapper.MapperGraph;
 import usf.dvl.tda.mapper.MapperGraph.MapperVertex;
 
@@ -99,6 +97,7 @@ public class MapperFrame extends DMultiFrame<DFrame> {
 
 
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void update() {
 		
@@ -148,33 +147,33 @@ public class MapperFrame extends DMultiFrame<DFrame> {
 		
 		
 		if( selected ){
-			PAppletMOG.selectedVertex = null;
-			PAppletMOG.selectedEdgeV0 = null;
-			PAppletMOG.selectedEdgeV1 = null;
+			FrameManager.selectedVertex = null;
+			FrameManager.selectedEdgeV0 = null;
+			FrameManager.selectedEdgeV1 = null;
 			selected = false;
 		}
 
 		if( fdl.getSelectedPoint() >= 0){
-			PAppletMOG.selectedFunction = this;
-			PAppletMOG.selectedColormap = colormap;
-			PAppletMOG.selectedVertex = (Mapper.MapperVertex)mapperG.nodes.get( fdl.getSelectedPoint() );
+			FrameManager.selectedFunction = this;
+			FrameManager.selectedColormap = colormap;
+			FrameManager.selectedVertex = (MapperOnGraphs.MapperVertex)mapperG.nodes.get( fdl.getSelectedPoint() );
 			selected = true;
 		}
 
 
-		if( PAppletMOG.selectedInterval != null && cover.contains(PAppletMOG.selectedInterval) ){
-			PAppletMOG.selectedFunction = this;
-			PAppletMOG.selectedColormap = colormap;
+		if( FrameManager.selectedInterval != null && cover.contains(FrameManager.selectedInterval) ){
+			FrameManager.selectedFunction = this;
+			FrameManager.selectedColormap = colormap;
 			selected = true;
 		}
 
 
 		if( fdl.getSelectedLine() >= 0 ){
-			PAppletMOG.selectedFunction = this;
-			PAppletMOG.selectedColormap = colormap;
+			FrameManager.selectedFunction = this;
+			FrameManager.selectedColormap = colormap;
 			GraphEdge e = mapperG.edges.get( fdl.getSelectedLine() );
-			PAppletMOG.selectedEdgeV0 = (Mapper.MapperVertex)mapperG.nodes.get( mapperG.getVertexIndex(e.v0) );
-			PAppletMOG.selectedEdgeV1 = (Mapper.MapperVertex)mapperG.nodes.get( mapperG.getVertexIndex(e.v1) );
+			FrameManager.selectedEdgeV0 = (MapperOnGraphs.MapperVertex)mapperG.nodes.get( mapperG.getVertexIndex(e.v0) );
+			FrameManager.selectedEdgeV1 = (MapperOnGraphs.MapperVertex)mapperG.nodes.get( mapperG.getVertexIndex(e.v1) );
 			selected = true;
 		}
 
