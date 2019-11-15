@@ -27,7 +27,6 @@ import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.draw.objects.CheckableBox;
 import usf.dvl.draw.objects.OptionListFrame;
 import usf.dvl.mog.GraphData;
-import usf.dvl.mog.PAppletMOG;
 import usf.dvl.mog.filters.FilterAGD;
 import usf.dvl.mog.filters.FilterDensity;
 import usf.dvl.mog.filters.FilterEccentricity;

@@ -21,7 +21,7 @@ import processing.core.PApplet;
 import usf.dvl.graph.Graph;
 import usf.dvl.graph.Graph.GraphVertex;
 import usf.dvl.graph.layout.forcedirected.ForceDirectedLayoutFrame;
-import usf.dvl.mog.PAppletMOG;
+import usf.dvl.mog.FrameManager;
 
 public class GraphFrame extends ForceDirectedLayoutFrame {
 
@@ -37,11 +37,11 @@ public class GraphFrame extends ForceDirectedLayoutFrame {
 		
 		enablePointSelection( 8 );
 		
-		this.currTimestep        = PAppletMOG.fdlTimestep;
-		this.currPullScaleFactor = PAppletMOG.fdlPullScaleFactor;
-		this.currCoulombConstant = PAppletMOG.fdlCoulombConstant;
-		this.currSpringConstant  = PAppletMOG.fdlSpringConstant;
-		this.currRestingLength   = PAppletMOG.fdlRestingLength;
+		this.currTimestep        = FrameManager.fdlTimestep;
+		this.currPullScaleFactor = FrameManager.fdlPullScaleFactor;
+		this.currCoulombConstant = FrameManager.fdlCoulombConstant;
+		this.currSpringConstant  = FrameManager.fdlSpringConstant;
+		this.currRestingLength   = FrameManager.fdlRestingLength;
 
 	}
 
@@ -53,29 +53,29 @@ public class GraphFrame extends ForceDirectedLayoutFrame {
 		public int getFill( int idx ){
 
 			GraphVertex v = g.nodes.get(idx);
-			double filterVal = (PAppletMOG.selectedFunction!=null) ? PAppletMOG.selectedFunction.filter.get(v) : Double.NaN;
+			double filterVal = (FrameManager.selectedFunction!=null) ? FrameManager.selectedFunction.filter.get(v) : Double.NaN;
 
-			if( PAppletMOG.selectedVertex!=null ){
-				if( PAppletMOG.selectedVertex.cc.contains(v) ) return papplet.color(0,0,255); 
+			if( FrameManager.selectedVertex!=null ){
+				if( FrameManager.selectedVertex.cc.contains(v) ) return papplet.color(0,0,255); 
 				return papplet.color( 150 );
 			}
 			
-			if( PAppletMOG.selectedInterval!=null ){
-				if( PAppletMOG.selectedInterval.inIntervalInclusive(filterVal) ) return papplet.color(0,0,255);
+			if( FrameManager.selectedInterval!=null ){
+				if( FrameManager.selectedInterval.inIntervalInclusive(filterVal) ) return papplet.color(0,0,255);
 				return papplet.color( 150 );
 			}
 			
-			if( PAppletMOG.selectedEdgeV0 != null && PAppletMOG.selectedEdgeV1 != null ){
-				boolean in0 = PAppletMOG.selectedEdgeV0.cc.contains(v);
-				boolean in1 = PAppletMOG.selectedEdgeV1.cc.contains(v);
+			if( FrameManager.selectedEdgeV0 != null && FrameManager.selectedEdgeV1 != null ){
+				boolean in0 = FrameManager.selectedEdgeV0.cc.contains(v);
+				boolean in1 = FrameManager.selectedEdgeV1.cc.contains(v);
 				if( in0 && in1 ) return papplet.color(0,0,255);
 				if( in0 ) return papplet.color(130,0,255);
 				if( in1 ) return papplet.color(0,130,255);
 				return papplet.color( 150 );
 			}
 
-			if( PAppletMOG.selectedColormap!=null){
-				return PAppletMOG.selectedColormap.getQuantizedColor((float)filterVal);
+			if( FrameManager.selectedColormap!=null){
+				return FrameManager.selectedColormap.getQuantizedColor((float)filterVal);
 			}
 			return papplet.color( 150 );
 		}

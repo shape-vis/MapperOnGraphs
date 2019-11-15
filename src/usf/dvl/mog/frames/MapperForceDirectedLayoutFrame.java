@@ -5,7 +5,7 @@ import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.graph.Graph.GraphEdge;
 import usf.dvl.graph.Graph.GraphVertex;
 import usf.dvl.graph.layout.forcedirected.ForceDirectedLayoutFrame;
-import usf.dvl.mog.PAppletMOG;
+import usf.dvl.mog.FrameManager;
 import usf.dvl.tda.mapper.Mapper;
 import usf.dvl.tda.mapper.MapperGraph;
 import usf.dvl.tda.mapper.MapperGraph.MapperVertex;
@@ -15,6 +15,7 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 	private MapperGraph<GraphVertex> mapperG;
 	private SequentialColormap colormap;
 
+	@SuppressWarnings("rawtypes")
 	MapperForceDirectedLayoutFrame( PApplet p, MapperGraph<GraphVertex> _mapperG, int w, int h ){
 		super( p, _mapperG, true );
 
@@ -26,11 +27,11 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 		setColorScheme( points );
 		setLineColorScheme( lines );
 
-		this.currTimestep        = PAppletMOG.fdmTimestep;
-		this.currPullScaleFactor = PAppletMOG.fdmPullScaleFactor;
-		this.currCoulombConstant = PAppletMOG.fdmCoulombConstant;
-		this.currSpringConstant  = PAppletMOG.fdmSpringConstant;
-		this.currRestingLength   = PAppletMOG.fdmRestingLength;
+		this.currTimestep        = FrameManager.fdmTimestep;
+		this.currPullScaleFactor = FrameManager.fdmPullScaleFactor;
+		this.currCoulombConstant = FrameManager.fdmCoulombConstant;
+		this.currSpringConstant  = FrameManager.fdmSpringConstant;
+		this.currRestingLength   = FrameManager.fdmRestingLength;
 
 		enablePointSelection( 8 );
 		enableLineSelection(4);
@@ -41,6 +42,7 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void loadGraph( Mapper _g, boolean loadDefaultForces ) {
 		super.loadGraph(_g, loadDefaultForces);
 		for( GraphVertex v : _g.nodes) {
@@ -49,20 +51,24 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 	}
 
 
+	
 	class FDMPoints extends DefaultFDLPoints {
 
+		@SuppressWarnings("unchecked")
 		public float getPointSize(int idx){
 			Mapper.MapperVertex v = (Mapper.MapperVertex)mapperG.getVertex(idx);
-			return PApplet.constrain( (float)v.cc.size()*PAppletMOG.vsize, 2.0f, 8.0f ) ;
+			return PApplet.constrain( (float)v.cc.size()*FrameManager.vsize, 2.0f, 8.0f ) ;
 		}
-		public int getSetID(int idx){ return 0; } 
+		public int getSetID(int idx){ return 0; }
+		
+		@SuppressWarnings("unchecked")
 		public int getFill( int idx ){
 			Mapper.MapperVertex v = (Mapper.MapperVertex)mapperG.getVertex(idx);
 
-			if( v.ival == PAppletMOG.selectedInterval ) return papplet.color(0,0,255);
-			if( v == PAppletMOG.selectedVertex ) return papplet.color(0,0,255);
-			if( v == PAppletMOG.selectedEdgeV0 ) return papplet.color(130,0,255);
-			if( v == PAppletMOG.selectedEdgeV1 ) return papplet.color(0,130,255);
+			if( v.ival == FrameManager.selectedInterval ) return papplet.color(0,0,255);
+			if( v == FrameManager.selectedVertex ) return papplet.color(0,0,255);
+			if( v == FrameManager.selectedEdgeV0 ) return papplet.color(130,0,255);
+			if( v == FrameManager.selectedEdgeV1 ) return papplet.color(0,130,255);
 
 
 			if( idx == getSelectedPoint() ) { return 0; }

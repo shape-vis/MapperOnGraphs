@@ -27,7 +27,7 @@ import usf.dvl.draw.DFrame;
 import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.draw.frames.DHistogram;
 import usf.dvl.draw.objects.DragableResizeableBox;
-import usf.dvl.mog.PAppletMOG;
+import usf.dvl.mog.FrameManager;
 import usf.dvl.tda.mapper.Cover;
 import usf.dvl.tda.mapper.CoverElement;
 
@@ -120,7 +120,7 @@ public class CoverFrame extends DFrame {
 		for( DCover c : dcovers ){
 			c.mouseReleased();
 		}
-		PAppletMOG.selectedInterval = null;
+		FrameManager.selectedInterval = null;
 		return false;
 	}  
 
@@ -143,7 +143,7 @@ public class CoverFrame extends DFrame {
 		
 		@Override public boolean mousePressed( ){
 			if( super.mousePressed() ){
-				PAppletMOG.selectedInterval = ival;
+				FrameManager.selectedInterval = ival;
 				return true;   
 			}
 			return false;
@@ -151,7 +151,7 @@ public class CoverFrame extends DFrame {
 
 		@Override public void draw() {
 			super.draw();
-			if( PAppletMOG.selectedInterval == ival ) ival.setInterval( mapPositionToValue( v0+h ), mapPositionToValue( v0 ) );
+			if( FrameManager.selectedInterval == ival ) ival.setInterval( mapPositionToValue( v0+h ), mapPositionToValue( v0 ) );
 		}
 
 		class CScheme extends DColorScheme.Default {
@@ -162,13 +162,13 @@ public class CoverFrame extends DFrame {
 			}
 			@Override public int getFill( int idx ){
 				int col = colormap.getQuantizedColor( (float)ival.getMid() );
-				if( PAppletMOG.selectedVertex!=null && PAppletMOG.selectedVertex.ival == ival )
+				if( FrameManager.selectedVertex!=null && FrameManager.selectedVertex.ival == ival )
 					col = papplet.color(0,0,255);
-				if( PAppletMOG.selectedInterval == ival )
+				if( FrameManager.selectedInterval == ival )
 					col = papplet.color(0,0,255);
-				if( PAppletMOG.selectedEdgeV0 !=null && PAppletMOG.selectedEdgeV0.ival == ival )
+				if( FrameManager.selectedEdgeV0 !=null && FrameManager.selectedEdgeV0.ival == ival )
 					col = papplet.color(130,0,255);
-				if( PAppletMOG.selectedEdgeV1 !=null && PAppletMOG.selectedEdgeV1.ival == ival )
+				if( FrameManager.selectedEdgeV1 !=null && FrameManager.selectedEdgeV1.ival == ival )
 					col = papplet.color(0,130,255);
 				return col;
 			}
