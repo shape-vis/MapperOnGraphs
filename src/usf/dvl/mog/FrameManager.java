@@ -7,9 +7,15 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.event.MouseEvent;
 import usf.dvl.draw.color.SequentialColormap;
+import usf.dvl.graph.Graph;
+import usf.dvl.mog.filters.FilterAGD;
+import usf.dvl.mog.filters.FilterDensity;
+import usf.dvl.mog.filters.FilterEccentricity;
+import usf.dvl.mog.filters.FilterEigenFunctions;
 import usf.dvl.mog.frames.MainFrame;
 import usf.dvl.mog.frames.MapperFrame;
 import usf.dvl.tda.mapper.CoverElement;
+import usf.dvl.tda.mapper.FilterFunction;
 
 
 
@@ -87,13 +93,29 @@ public class FrameManager {
 
 	public void fileSelected(File selection) {
 		String filename = selection.getAbsolutePath();
-		MainFrame mv = new MainFrame(papplet);
 		if( filename.toLowerCase().endsWith(".json") ){
-			mv.setData( GraphData.parseJSON( papplet, filename ), colmaps );
+			setdata( GraphData.parseJSON( papplet, filename ) );
 		}
 		else{
-			mv.setData( GraphData.parseTXT( papplet, filename ), colmaps  );
+			setdata( GraphData.parseTXT( papplet, filename ) );
 		}
+	}
+	
+	public void setdata( Graph gd ) {
+		MainFrame mv = new MainFrame(papplet);
+		
+		ArrayList<FilterFunction> ff = new ArrayList<FilterFunction>();
+		ff.add( new FilterDensity( gd, 2 ) );
+		ff.add( new FilterAGD( gd ) );
+		ff.add( new FilterEccentricity( gd, 2) );
+		ff.add( new FilterEigenFunctions( gd, 0) );
+		ff.add( new FilterEigenFunctions( gd, 1) );
+		ff.add( new FilterEigenFunctions( gd, 2) );
+		ff.add( new FilterEigenFunctions( gd, 3) );
+		ff.add( new FilterEigenFunctions( gd, 4) );
+		ff.add( new FilterEigenFunctions( gd, 5) );
+		
+		mv.setData( gd, ff, colmaps );
 		frame = mv;			
 	}
 

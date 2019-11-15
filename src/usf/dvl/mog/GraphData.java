@@ -19,7 +19,6 @@ package usf.dvl.mog;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Set;
 
 import processing.core.PApplet;
 import processing.data.JSONArray;
@@ -129,26 +128,12 @@ public class GraphData extends Graph {
 	
 	class MVertex extends Graph.GraphVertex { 
 		private String name;
-		private HashMap<String,Object> properties = new HashMap<String,Object>(); 
 		
 		public MVertex( int id, String _name ){
 			name = _name;
 			nodeNames.put( name, id );
 		}
 		
-		public void setProperty( String prop_name, Object value ) {
-			properties.put(prop_name, value);
-		}
-		
-		public Object getProperty( String prop_name ) {
-			if( !properties.containsKey(prop_name) ) return null;
-			return properties.get(prop_name);
-		}
-		
-		public Set<String> listProperties( ) {
-			return properties.keySet();
-		}
-
 		public String getName(){ return name; }
 
 		@Override public String toString(){ return name; }
