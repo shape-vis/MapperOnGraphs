@@ -26,16 +26,13 @@ import usf.dvl.draw.DObject;
 import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.draw.objects.CheckableBox;
 import usf.dvl.draw.objects.OptionListFrame;
-import usf.dvl.mog.GraphData;
-import usf.dvl.mog.filters.FilterAGD;
-import usf.dvl.mog.filters.FilterDensity;
-import usf.dvl.mog.filters.FilterEccentricity;
-import usf.dvl.mog.filters.FilterEigenFunctions;
+import usf.dvl.graph.Graph;
+import usf.dvl.tda.mapper.FilterFunction;
 
 
 public class MainFrame extends DMultiFrame<DObject> {
 
-	private GraphData gdata;
+	private Graph gdata;
 	private GraphFrame fdd;
 	private ArrayList<MapperFrame> mapper = new ArrayList<MapperFrame>();
 	private OptionListFrame selBoxes0, selBoxes1;
@@ -47,7 +44,7 @@ public class MainFrame extends DMultiFrame<DObject> {
 	}
 
 
-	public void setData( GraphData _gdata, ArrayList<SequentialColormap> colmaps ) {
+	public void setData( Graph _gdata, ArrayList<FilterFunction> filterFuncs, ArrayList<SequentialColormap> colmaps ) {
 		gdata = _gdata;
 
 		fdd = new GraphFrame( papplet, gdata );
@@ -55,15 +52,9 @@ public class MainFrame extends DMultiFrame<DObject> {
 		
 
 		mapper.clear();
-		mapper.add( new MapperFrame( papplet, gdata, new FilterDensity( gdata, 2 ), 5, 0.1f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterAGD( gdata ), 3, 0.1f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEccentricity( gdata, 2), 5, 0.1f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 0), 5, 0.2f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 1), 5, 0.2f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 2), 5, 0.2f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 3), 5, 0.2f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 4), 5, 0.2f ) );
-		mapper.add( new MapperFrame( papplet, gdata, new FilterEigenFunctions( gdata, 5), 5, 0.2f ) );
+		for( FilterFunction f : filterFuncs ) {
+			mapper.add( new MapperFrame( papplet, gdata, f, 5, 0.15f ) );
+		}
 
 		for( int i = 0; i < mapper.size(); i++ ){
 			mapper.get(i).setColormap( colmaps.get(i%colmaps.size()) );
