@@ -1,3 +1,20 @@
+/*    Mapper On Graphs: A Mapper-based Topological Data Analysis tool for graphs 
+ *    Copyright (C) Paul Rosen 2018-2019
+ *    Additional Authors: Mustafa Hajij
+ *    
+ *    This program is free software: you can redistribute it and/or modify     
+ *    it under the terms of the GNU General Public License as published by 
+ *    the Free Software Foundation, either version 3 of the License, or 
+ *    (at your option) any later version. 
+ *     
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ *    GNU General Public License for more details.
+ *    
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+*/
 package usf.dvl.mog.frames;
 
 import processing.core.PApplet;
@@ -37,15 +54,16 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 		enableLineSelection(4);
 
 		for( GraphVertex v : mapperG.nodes) {
-			fdl.setMass( v, ((MapperVertex)v).cc.size() * 10 );
+			fdl.setMass( v, ((MapperVertex)v).cc.size() * 2 );
 		}
 
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void loadGraph( Mapper _g, boolean loadDefaultForces ) {
-		super.loadGraph(_g, loadDefaultForces);
-		for( GraphVertex v : _g.nodes) {
+	public void loadGraph( MapperGraph<GraphVertex> _g, boolean loadDefaultForces ) {
+		mapperG = _g;
+		super.loadGraph(mapperG, loadDefaultForces);
+		for( GraphVertex v : mapperG.nodes) {
 			fdl.setMass( v, ((MapperVertex)v).cc.size() * 2 );
 		}		
 	}
@@ -56,13 +74,17 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 
 		@SuppressWarnings("unchecked")
 		public float getPointSize(int idx){
+			if( idx >= mapperG.getNodeCount() ) return 0;
 			Mapper.MapperVertex v = (Mapper.MapperVertex)mapperG.getVertex(idx);
 			return PApplet.constrain( (float)v.cc.size()*FrameManager.vsize, 2.0f, 8.0f ) ;
+			//return PApplet.constrain( (float)v.cc.size()*FrameManager.vsize, 2.0f, 16.0f ) ;
 		}
 		public int getSetID(int idx){ return 0; }
 		
 		@SuppressWarnings("unchecked")
 		public int getFill( int idx ){
+			if( idx >= mapperG.getNodeCount() ) return 0;
+			
 			Mapper.MapperVertex v = (Mapper.MapperVertex)mapperG.getVertex(idx);
 
 			if( v.ival == FrameManager.selectedInterval ) return papplet.color(0,0,255);
@@ -98,7 +120,7 @@ public class MapperForceDirectedLayoutFrame  extends ForceDirectedLayoutFrame {
 		public int getFill( int idx ){ return 0; }
 		public int getStroke( int idx ){
 			if( getSelectedLine() == idx ) return papplet.color(0,0,255);
-			return papplet.color(100); 
+			return papplet.color(100,50); 
 		}
 		public int getShadow( ){ return papplet.color(200); }
 	}  

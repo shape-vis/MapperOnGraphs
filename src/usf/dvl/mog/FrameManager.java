@@ -1,11 +1,31 @@
+/*    Mapper On Graphs: A Mapper-based Topological Data Analysis tool for graphs 
+ *    Copyright (C) Paul Rosen 2018-2019
+ *    Additional Authors: Mustafa Hajij
+ *    
+ *    This program is free software: you can redistribute it and/or modify     
+ *    it under the terms of the GNU General Public License as published by 
+ *    the Free Software Foundation, either version 3 of the License, or 
+ *    (at your option) any later version. 
+ *     
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ *    GNU General Public License for more details.
+ *    
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+*/
 package usf.dvl.mog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.event.MouseEvent;
+import usf.dvl.draw.DMultiFrame;
+import usf.dvl.draw.DObject;
 import usf.dvl.draw.color.SequentialColormap;
 import usf.dvl.graph.Graph;
 import usf.dvl.mog.filters.FilterAGD;
@@ -21,7 +41,7 @@ import usf.dvl.tda.mapper.FilterFunction;
 
 public class FrameManager {
 
-	private MainFrame frame = null;
+	private DMultiFrame<DObject> frame = null;
 
 	
 	// adjust these
@@ -31,18 +51,17 @@ public class FrameManager {
 	public static float fdlEdgeScale = 0.3f;
 	public static float fdlSpringConstant = 50f; // this controls compactness
 	public static float fdlPullScaleFactor = 1;
-	public static float fdlCoulombConstant = 100; // this controls resistence (changed 100 to airports)
-
-
+	public static float fdlCoulombConstant = 100; // this controls resistance
+	
 	public static float vsize=0.4f;
 	public static float fdmRestingLength = 50;
 	public static float fdmCoulombConstant = 500;
 	public static float fdmSpringConstant = 7.5f;
 	public static float fdmPullScaleFactor = 10;
 	public static float fdmTimestep = 0.1f;
+	
 
-
-	String datapath = "/Users/prosen/Code/MapperOnGraphs/testData/.";
+	//String datapath = "/Users/prosen/Code/MapperOnGraphs/testData/.";
 
 	
 	public static SequentialColormap selectedColormap = null;
@@ -88,35 +107,60 @@ public class FrameManager {
 	public void setup() {
 		papplet.ortho();
 
-		papplet.selectInput( "Select Graph", "fileSelected", new File(datapath) );
+		papplet.selectInput( "Select Graph", "fileSelected" ); //, new File(datapath) );
 	}
 
 	public void fileSelected(File selection) {
-		String filename = selection.getAbsolutePath();
-		if( filename.toLowerCase().endsWith(".json") ){
-			setdata( GraphData.parseJSON( papplet, filename ) );
+		papplet.noLoop();
+		try {
+			String filename = selection.getAbsolutePath();
+			if( filename.toLowerCase().endsWith(".json") ){
+				setdata( new GraphJSON( papplet, filename ) );
+			}
+			else if( filename.toLowerCase().endsWith(".graph") ){
+				GraphFile gf = new GraphFile( filename );
+				gf.loadScalar( "pagerank", filename.substring(0,filename.length()-6) + ".scalar"  );
+				setdata( gf );
+			}
+			else if( filename.toLowerCase().endsWith(".scalar") ){
+				GraphFile gf = new GraphFile( filename.substring(0,filename.length()-7) + ".graph" );
+				gf.loadScalar( "pagerank", filename  );
+				setdata( gf );
+			}
+			else{
+				setdata( new GraphTXT( papplet, filename ) );
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		else{
-			setdata( GraphData.parseTXT( papplet, filename ) );
-		}
+		papplet.loop();
 	}
 	
 	public void setdata( Graph gd ) {
 		MainFrame mv = new MainFrame(papplet);
 		
 		ArrayList<FilterFunction> ff = new ArrayList<FilterFunction>();
-		ff.add( new FilterDensity( gd, 2 ) );
-		ff.add( new FilterAGD( gd ) );
-		ff.add( new FilterEccentricity( gd, 2) );
-		ff.add( new FilterEigenFunctions( gd, 0) );
-		ff.add( new FilterEigenFunctions( gd, 1) );
-		ff.add( new FilterEigenFunctions( gd, 2) );
-		ff.add( new FilterEigenFunctions( gd, 3) );
-		ff.add( new FilterEigenFunctions( gd, 4) );
-		ff.add( new FilterEigenFunctions( gd, 5) );
+		System.out.println( "computing density" ); ff.add( new FilterDensity( gd, 2 ) );
+		System.out.println( "computing agd" ); ff.add( new FilterAGD( gd ) );
+		System.out.println( "computing eccentricity" ); ff.add( new FilterEccentricity( gd, 2) );
+		System.out.println( "computing eigen function 0" ); ff.add( new FilterEigenFunctions( gd, 0) );
+		System.out.println( "computing eigen function 1" ); ff.add( new FilterEigenFunctions( gd, 1) );
+		System.out.println( "computing eigen function 2" ); ff.add( new FilterEigenFunctions( gd, 2) );
+		System.out.println( "computing eigen function 3" ); ff.add( new FilterEigenFunctions( gd, 3) );
+		System.out.println( "computing eigen function 4" ); ff.add( new FilterEigenFunctions( gd, 4) );
+		System.out.println( "computing eigen function 5" ); ff.add( new FilterEigenFunctions( gd, 5) );
 		
 		mv.setData( gd, ff, colmaps );
 		frame = mv;			
+	}
+	
+	public void setdata( GraphFile gf ) {
+		
+		MapperFrame mapper = new MapperFrame( papplet, gf, gf.getFilterFunctions().get(0), 5, 0.15f );
+		mapper.setColormap( colmaps.get( 0 ) );
+		mapper.coverD.lock(); 
+		frame = mapper;
+	
 	}
 
 	
@@ -174,6 +218,9 @@ public class FrameManager {
 			//case 'p': savePDF(); break;
 			case 'v': saveVideo = !saveVideo; break;
 			case 's': saveImage = true; break;
+			case 'c':
+				if( frame instanceof MapperFrame ) { ((MapperFrame)frame).toggleControlsVisible(); }
+				if( frame instanceof MainFrame ) { ((MainFrame)frame).toggleControlsVisible(); } 
 		}
 	}
 	public void mousePressed( ) { 

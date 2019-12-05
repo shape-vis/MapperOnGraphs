@@ -7,6 +7,7 @@
 	<copy file="./usfdvl-common/release/usfdvl-common.jar" tofile="./visualization/code/usfdvl-common.jar" />
 	<copy file="./usfdvl-topology/release/usfdvl-topology.jar" tofile="./visualization/code/usfdvl-topology.jar" />
 	<copy file="./lib/EJML.jar" tofile="./visualization/code/EJML.jar" />
+	<copy file="./lib/controlP5.jar" tofile="./visualization/code/controlP5.jar" />
   </target> 
 </project>
 

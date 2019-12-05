@@ -18,6 +18,7 @@
 package usf.dvl.mog.frames;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import processing.core.PApplet;
 import usf.dvl.draw.DColorScheme;
@@ -44,25 +45,29 @@ public class MainFrame extends DMultiFrame<DObject> {
 	}
 
 
-	public void setData( Graph _gdata, ArrayList<FilterFunction> filterFuncs, ArrayList<SequentialColormap> colmaps ) {
+	public void setData( Graph _gdata, List<FilterFunction> filterFuncs, ArrayList<SequentialColormap> colmaps ) {
 		gdata = _gdata;
 
 		fdd = new GraphFrame( papplet, gdata );
 		addFrame(fdd);
-		
 
 		mapper.clear();
 		for( FilterFunction f : filterFuncs ) {
-			mapper.add( new MapperFrame( papplet, gdata, f, 5, 0.15f ) );
+			mapper.add( new MapperFrame( papplet, gdata, f, 4, 0.15f ) );
+		}
+		if( filterFuncs.size() == 1 ) { 
+			mapper.add( new MapperFrame( papplet, gdata, filterFuncs.get(0), 5, 0.15f ) );
 		}
 
 		for( int i = 0; i < mapper.size(); i++ ){
 			mapper.get(i).setColormap( colmaps.get(i%colmaps.size()) );
+			mapper.get(i).shift_controls = 200;
+			mapper.get(i).hideControls();
+			mapper.get(i).matchPositions = true;
 		}
 		
 		addFrames( mapper.get(0) );
 		addFrames( mapper.get(1) );
-		
 
 		DColorScheme selCol = DColorScheme.Default.createFillStrokeOnly( papplet.color(100),  papplet.color(0), 2 );
 		DColorScheme selTxt = DColorScheme.Default.createFillStrokeOnly( papplet.color(255),  papplet.color(0), 1 );
@@ -129,9 +134,22 @@ public class MainFrame extends DMultiFrame<DObject> {
 	}
 	
 	
+  public void toggleControlsVisible(){ 
+		fdd.toggleControlsVisible();
+  }
+
+	
+	
 	@Override public void update() {
+
 		fdd.setPosition( 705, 0, getWidth()-705, h );
 		
+		for( int i = 0; i < mapper.size(); i++ ){
+			if( fdd.controlsVisible() && (i == selBoxes0.getCurrentSelection() || i == selBoxes1.getCurrentSelection()) ) 
+				mapper.get(i).showControls();
+			else
+				mapper.get(i).hideControls();			
+		}
 		MapperFrame mframe0 = mapper.get( selBoxes0.getCurrentSelection() );
 		mframe0.setPosition( 5, 5, 590, h/2-10 );
 		setFrame( 1, mframe0 );
@@ -142,20 +160,20 @@ public class MainFrame extends DMultiFrame<DObject> {
 		
 		selBoxes0.enableAllOptions();
 		selBoxes0.disableOption( selBoxes1.getCurrentSelection() );
-		selBoxes0.setPosition( 595, 10, 105, 200 );
-		eqlBox0.setPosition( 595, 240, 105, 20);
+		selBoxes0.setPosition( 595, 10, 105, 180 );
+		eqlBox0.setPosition( 595, 200, 105, 20);
 		eqlBox0.setValue( mframe0.isEqualized() );
 
 		selBoxes1.enableAllOptions();
 		selBoxes1.disableOption( selBoxes0.getCurrentSelection() );
-		selBoxes1.setPosition( 595, h/2+10, 105, 200 );
-		eqlBox1.setPosition( 595, h/2+240, 105, 20);
+		selBoxes1.setPosition( 595, h/2+10, 105, 180 );
+		eqlBox1.setPosition( 595, h/2+200, 105, 20);
 		eqlBox1.setValue( mframe1.isEqualized() );
 		
 		resetBox0.setValue(false);
-		resetBox0.setPosition( 595, 265, 105, 20);
+		resetBox0.setPosition( 595, 225, 105, 20);
 		resetBox1.setValue(false);
-		resetBox1.setPosition( 595, h/2+265, 105, 20);
+		resetBox1.setPosition( 595, h/2+225, 105, 20);
 		
 	}
 	

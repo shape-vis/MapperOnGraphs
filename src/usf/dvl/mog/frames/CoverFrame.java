@@ -37,6 +37,8 @@ public class CoverFrame extends DFrame {
 	private DHistogram hist;
 
 	private SequentialColormap colormap;
+	
+	boolean locked = false;
 
 	
 	public CoverFrame( PApplet p, Cover cover ){
@@ -50,6 +52,16 @@ public class CoverFrame extends DFrame {
 		}
 	}
 
+	
+	public void updateCover( Cover cover ) {
+		dcovers.clear();
+		for( int i = 0; i < cover.size(); i++){
+			DCover newD = new DCover( papplet, i, cover.get(i) );
+			dcovers.add(newD);
+		}
+		updateCoverElementPositions( true );
+		
+	}
 
 	public void setColormap( SequentialColormap cm ) {
 		colormap = cm;
@@ -63,17 +75,26 @@ public class CoverFrame extends DFrame {
 		boolean changed = (this.u0!=u0 || this.v0!=v0 || this.w!=w || this.h!=h);
 
 		super.setPosition(u0,v0,w,h);
+		
+		updateCoverElementPositions( changed );
+	}
+	
+	
+	private void updateCoverElementPositions( boolean changed ) {
+		int split = w/2;
+		if( w > 100 ) split = (int)PApplet.map( w, 100, 200, w/2, w*2/3 );
 
 		if( changed ){
-			hist.setPosition( u0+2, v0+2, w/2-5, h-4);
+			hist.setPosition( u0+2, v0+2, split-5, h-4);
 
 			for( int i = 0; i < dcovers.size(); i++ ){
 				DCover c = dcovers.get(i);
 				float cv0 = PApplet.map( (float)c.ival.getMin(), 0, 1, v0+h, v0 );
 				float cv1 = PApplet.map( (float)c.ival.getMax(), 0, 1, v0+h, v0 );
-				c.setPosition( (int)u0+w/2+5, (int)cv1, (int)10, (int)(cv0-cv1) );
+				c.setPosition( (int)u0+split+5, (int)cv1, (int)10, (int)(cv0-cv1) );
 				c.lockX();
 				c.setConstraintsY(v0,v0+h);
+				if( locked ) c.lockY();
 			}     
 		}
 
@@ -90,12 +111,27 @@ public class CoverFrame extends DFrame {
 			numCol = PApplet.max(numCol,col+1);
 		}
 
-		float cw = PApplet.min( 15, (w/2-5)/numCol );
+		float cw = PApplet.min( 20, (split-5)/numCol );
 		for( int i = 0; i < dcovers.size(); i++ ){
 			DCover c = dcovers.get(i);
-			float cu = u0+column[i]*cw + w*1/2+5;
+			float cu = u0+column[i]*cw + split +5;
 			c.setPosition( (int)cu, (int)c.getV0(), (int)cw-2, (int)c.getHeight() );
 		}           
+	}
+	
+	public void lock() {
+		locked = true;
+		for( DCover c : dcovers ){
+			 c.lockY();
+		}
+	}
+	
+	public void unlock() { 
+		locked = false;
+		for( DCover c : dcovers ){
+			 c.unlockY();
+			 c.setConstraintsY(v0,v0+h);
+		}
 	}
 
 
