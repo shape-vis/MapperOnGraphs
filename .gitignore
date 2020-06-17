@@ -4,3 +4,4 @@
 data/pagerank/*.graph
 data/pagerank/*.scalar
 data/pagerank/*.png
+.idea
