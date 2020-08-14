@@ -22,17 +22,24 @@ def get_min_max(values):
     return [values[minkey], values[maxkey]]
 
 
-def get_mapper_components(G, values, intervals, overlap):
-    ret = []
+def form_cover(values, intervals, overlap):
     minmax = get_min_max(values)
     per_interval = (minmax[1] - minmax[0]) / intervals
     overlap_amnt = per_interval * overlap
 
+    ret = []
     for x in range(0, intervals):
         start = minmax[0] + per_interval * x - overlap_amnt
         end = minmax[0] + per_interval * (x + 1) + overlap_amnt
+        ret.append( [start,end] )
 
-        filtered = list(filter(lambda v: start < values[v] < end, values))
+    return ret
+
+
+def get_components(G, values, cover):
+    ret = []
+    for ce in cover:
+        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
         subg = G.subgraph(filtered)
         ret += nx.connected_components(subg)
     return ret
@@ -53,9 +60,9 @@ def get_nodes(values, components):
 def get_links(nodes):
     links = []
     for i in range(0, len(nodes)):
-        node_set = set(nodes[i]['components'])
+        node_set_i = set(nodes[i]['components'])
         for j in range(i + 1, len(nodes)):
-            w = len((set(nodes[i]['components']) & set(nodes[j]['components'])))
+            w = len(node_set_i & set(nodes[j]['components']))
             if w > 0:
                 links.append({"source": nodes[i]['id'], "target": nodes[j]['id'], 'value': w})
     return links
