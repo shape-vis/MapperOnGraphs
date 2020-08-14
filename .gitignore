@@ -9,3 +9,5 @@ flask/__pycache__
 flask/mog/__pycache__
 flask/venv
 venv
+__pycache__
+mog/__pycache__

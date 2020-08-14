@@ -12,18 +12,18 @@ from networkx.readwrite import json_graph
 
 app = Flask(__name__)
 
-data_gen = [ {"in": "../data/source/not_in_paper/football_out.JSON", "out": "../data/small/football_out.json"},
-             {"in": "../data/source/not_in_paper/airport6632_gcc.JSON", "out": "../data/medium/airport6632_gcc.json"} ]
+data_gen = [ {"in": "data/source/not_in_paper/football_out.JSON", "out": "data/small/football_out.json"},
+             {"in": "data/source/not_in_paper/airport6632_gcc.JSON", "out": "data/medium/airport6632_gcc.json"} ]
 
 for file in data_gen:
     if not os.path.exists(file["out"]):
         data.process_datafile( file["in"], file["out"] )
 
 data_sets = {}
-for d0 in os.listdir("../data/"):
-    if os.path.isdir( "../data/" + d0 ):
+for d0 in os.listdir("data/"):
+    if os.path.isdir( "data/" + d0 ):
         data_sets[d0] = {}
-        for d1 in os.listdir("../data/" + d0 ):
+        for d1 in os.listdir("data/" + d0 ):
             if fnmatch.fnmatch(d1.lower(), "*.json") or fnmatch.fnmatch(d1.lower(), "*.graph"):
                 data_sets[d0][d1] = ["average_geodesic_distance", "density", "eccentricity", "eigen_function", "pagerank"]
 # print(data_sets)
@@ -36,7 +36,7 @@ def error(err):
 @app.route('/')
 def send_main():
     try:
-        return send_file('pages/main.html')
+        return send_file('static/main.html')
     except Exception as e:
         return str(e)
 
@@ -59,7 +59,7 @@ def get_graph():
     if ds0 not in data_sets or ds1 not in data_sets[ds0]:
         return "{}"
 
-    return send_file('../data/' + ds0 + "/" + ds1)
+    return send_file('data/' + ds0 + "/" + ds1)
 
 
 @app.route('/mog', methods=['GET', 'POST'])
@@ -78,7 +78,7 @@ def get_mog():
         return "{}"
 
 
-    with open('../data/' + ds0 + "/" + ds1) as json_file:
+    with open('data/' + ds0 + "/" + ds1) as json_file:
         data = json.load(json_file)
 
         nodes = {}
