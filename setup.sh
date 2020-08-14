@@ -14,7 +14,10 @@ python3 -m venv venv
 pip install --upgrade pip
 
 #Within the activated environment, use the following command to install Flask and dependancies:
-pip install wheel Flask numpy python-dotenv watchdog simplejson blinker waitress gunicorn networkx scipy
+pip install wheel
+#pip install Flask numpy python-dotenv watchdog simplejson blinker waitress gunicorn networkx scipy
+pip install -r requirements.txt
+pip freeze > requirements.txt
 
 deactivate
 
