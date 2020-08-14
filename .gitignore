@@ -8,3 +8,4 @@ data/pagerank/*.png
 flask/__pycache__
 flask/mog/__pycache__
 flask/venv
+venv
