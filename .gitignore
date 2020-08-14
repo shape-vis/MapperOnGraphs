@@ -5,3 +5,6 @@ data/pagerank/*.graph
 data/pagerank/*.scalar
 data/pagerank/*.png
 .idea
+flask/__pycache__
+flask/mog/__pycache__
+flask/venv
