@@ -263,7 +263,7 @@
     {"id": "260", "group": 1},
     {"id": "261", "group": 1},
     {"id": "262", "group": 1},
-    {"id": "263", "group": 1},  
+    {"id": "263", "group": 1}
   ],  
   "links": [  
 	    {"source": "0", "target": "1", "value": 1.11233},
@@ -69697,6 +69697,6 @@
     {"source": "263", "target": "259", "value": 1.2258},
     {"source": "263", "target": "260", "value": 1.20131},
     {"source": "263", "target": "261", "value": 1.35019},
-    {"source": "263", "target": "262", "value": 1.38987},
+    {"source": "263", "target": "262", "value": 1.38987}
   ]
 }

@@ -42,7 +42,7 @@
 {"id": "39", "group": 1},
 {"id": "40", "group": 1},
 {"id": "41", "group": 1},
-{"id": "42", "group": 1},
+{"id": "42", "group": 1}
 ], 
 "links": [
     {"source": "0", "target": "1", "value": 0.5},
@@ -1850,6 +1850,6 @@
     {"source": "42", "target": "38", "value": 0.5},
     {"source": "42", "target": "39", "value": 0.479},
     {"source": "42", "target": "40", "value": 0.5},
-    {"source": "42", "target": "41", "value": 0.569},
-  ], 
+    {"source": "42", "target": "41", "value": 0.569}
+  ]
 }
