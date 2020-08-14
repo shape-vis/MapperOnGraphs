@@ -31,7 +31,7 @@
 {"id": "E4", "group": 1},
 {"id": "Evelyn Jefferson", "group": 1},
 {"id": "Pearl Oglethorpe", "group": 1},
-{"id": "E11", "group": 1},
+{"id": "E11", "group": 1}
 ],
 "links": [
 {"source": "E3", "target": "Laura Mandeville", "value": 1},
@@ -122,6 +122,6 @@
 {"source": "E1", "target": "Laura Mandeville", "value": 1},
 {"source": "E1", "target": "Evelyn Jefferson", "value": 1},
 {"source": "Olivia Carleton", "target": "E11", "value": 1},
-{"source": "E4", "target": "Evelyn Jefferson", "value": 1},
+{"source": "E4", "target": "Evelyn Jefferson", "value": 1}
 ]
 }

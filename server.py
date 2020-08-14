@@ -13,10 +13,23 @@ from networkx.readwrite import json_graph
 app = Flask(__name__)
 
 data_gen = [ {"in": "data/source/not_in_paper/football_out.JSON", "out": "data/small/football_out.json"},
-             {"in": "data/source/not_in_paper/airport6632_gcc.JSON", "out": "data/medium/airport6632_gcc.json"} ]
+             {"in": "data/source/not_in_paper/airport6632_gcc.JSON", "out": "data/medium/airport6632_gcc.json"},
+             {"in": "data/source/not_in_paper/barabasi_albert_graph(10,5).json", "out": "data/small/barabasi_albert_graph(10,5).json"},
+             #{"in": "data/source/not_in_paper/barabasi_albert_graph(20,10).json", "out": "data/small/barabasi_albert_graph(20,10).json"},
+             #{"in": "data/source/not_in_paper/barabasi_albert_graph(20,3).json", "out": "data/small/barabasi_albert_graph(20,3).json"},
+             #{"in": "data/source/not_in_paper/barabasi_albert_graph(50,40).json", "out": "data/small/barabasi_albert_graph(50,40).json"},
+             #{"in": "data/source/not_in_paper/bcsstk20.json", "out": "data/small/bcsstk20.json"},
+             #{"in": "data/source/not_in_paper/bcsstk22.json", "out": "data/small/bcsstk22.json"},
+             {"in": "data/source/not_in_paper/beach.json", "out": "data/small/beach.json"},
+             #{"in": "data/source/not_in_paper/caveman_graph[3,5].json", "out": "data/small/caveman_graph[3,5].json"},
+             #{"in": "data/source/not_in_paper/caveman_graph[7,4].json", "out": "data/small/caveman_graph[7,4].json"},
+             {"in": "data/source/not_in_paper/chvatal_graph.json", "out": "data/small/chvatal_graph.json"},
+             {"in": "data/source/not_in_paper/corr1.json", "out": "data/small/corr1.json"},
+             {"in": "data/source/not_in_paper/davis_southern_women_graph.json", "out": "data/small/davis_southern_women_graph.json"}]
 
 for file in data_gen:
     if not os.path.exists(file["out"]):
+        print("Processing: "+file["in"])
         data.process_datafile( file["in"], file["out"] )
 
 data_sets = {}

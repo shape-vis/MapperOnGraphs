@@ -484,7 +484,7 @@
 {"id": "482", "group": 1},
 {"id": "483", "group": 1},
 {"id": "484", "group": 1},
-{"id": "485", "group": 1},
+{"id": "485", "group": 1}
 ],
 "links": [
 {"source": "1", "target": "1", "value": 1.0},
@@ -2296,6 +2296,6 @@
 {"source": "483", "target": "483", "value": 483.0},
 {"source": "483", "target": "485", "value": 483.0},
 {"source": "484", "target": "484", "value": 484.0},
-{"source": "485", "target": "485", "value": 485.0},
+{"source": "485", "target": "485", "value": 485.0}
 ]
 }
