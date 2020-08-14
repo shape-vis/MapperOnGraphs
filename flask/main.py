@@ -4,13 +4,20 @@ import os
 
 from flask import Flask, request, send_from_directory
 from flask import send_file
-from networkx.readwrite import json_graph
 
 import mog.mapper as mapper
-import mog.filter_functions as ff
+import data
+from networkx.readwrite import json_graph
+
 
 app = Flask(__name__)
 
+data_gen = [ {"in": "../data/source/not_in_paper/football_out.JSON", "out": "../data/small/football_out.json"},
+             {"in": "../data/source/not_in_paper/airport6632_gcc.JSON", "out": "../data/medium/airport6632_gcc.json"} ]
+
+for file in data_gen:
+    if not os.path.exists(file["out"]):
+        data.process_datafile( file["in"], file["out"] )
 
 data_sets = {}
 for d0 in os.listdir("../data/"):
@@ -19,7 +26,7 @@ for d0 in os.listdir("../data/"):
         for d1 in os.listdir("../data/" + d0 ):
             if fnmatch.fnmatch(d1.lower(), "*.json") or fnmatch.fnmatch(d1.lower(), "*.graph"):
                 data_sets[d0][d1] = ["average_geodesic_distance", "density", "eccentricity", "eigen_function", "pagerank"]
-print(data_sets)
+# print(data_sets)
 
 
 def error(err):
@@ -46,8 +53,8 @@ def get_datasets( ):
 
 @app.route('/graph', methods=['GET', 'POST'])
 def get_graph():
-    ds0 = request.args.get('ds0')
-    ds1 = request.args.get('ds1')
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
 
     if ds0 not in data_sets or ds1 not in data_sets[ds0]:
         return "{}"
@@ -57,17 +64,21 @@ def get_graph():
 
 @app.route('/mog', methods=['GET', 'POST'])
 def get_mog():
-    ds0 = request.args.get('ds0')
-    ds1 = request.args.get('ds1')
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
 
     if ds0 not in data_sets or ds1 not in data_sets[ds0]:
         return "{}"
 
-    intervals = int( request.args.get('intervals') )
-    overlap = float( request.args.get('overlap') )
-    attribute = request.args.get('attribute')
+    intervals = int( request.args.get('coverN') )
+    overlap = float( request.args.get('coverOverlap') )
+    attribute = request.args.get('filter_func')
 
-    with open(data_dir + data_file) as json_file:
+    if ds0 not in data_sets or ds1 not in data_sets[ds0]:
+        return "{}"
+
+
+    with open('../data/' + ds0 + "/" + ds1) as json_file:
         data = json.load(json_file)
 
         nodes = {}
@@ -77,58 +88,20 @@ def get_mog():
         G = json_graph.node_link_graph(data)
 
         values = {}
-        for n in filter(lambda n: attribute in nodes[n], G.nodes):
+        for n in G.nodes:
             values[n] = float( nodes[n][attribute] )
-        missing_vals = list(filter(lambda n: attribute not in nodes[n], G.nodes ))
+        # missing_vals = list(filter(lambda n: attribute not in nodes[n], G.nodes ))
+        #
+        # for loop_iter in range(0, 3):
+        #     mapper.fill_missing_diffuse_avg(G, values, missing_vals)
 
-        for loop_iter in range(0, 3):
-            mapper.fill_missing_diffuse_avg(G, values, missing_vals)
-
-        components = mapper.get_mapper_components(G, values, intervals, overlap)
-
+        cover = mapper.form_cover(values, intervals, overlap)
+        components = mapper.get_components(G, values, cover)
         nodes = mapper.get_nodes( values, components )
         links = mapper.get_links( nodes )
 
-        return json.dumps( {'nodes':nodes, 'links':links} )
+        return json.dumps( {'nodes': nodes, 'links': links} )
 
 
 file_list = []
 
-
-def read_json_graph(filename):
-    with open(filename) as f:
-        js_graph = json.load(f)
-    return json_graph.node_link_graph(js_graph)
-
-
-def search_directory( dir ):
-    for data_file in os.listdir(dir + "/"):
-        if fnmatch.fnmatch(data_file.lower(), "*.json") or fnmatch.fnmatch(data_file.lower(), "*.graph"):
-            # print( "df: " + dir + "/" + data_file)
-            file_list.append(dir + "/" + data_file)
-        elif os.path.isdir( dir + "/" + data_file):
-            search_directory( dir + "/" + data_file )
-        else:
-            print( "other: " + dir + "/" + data_file )
-
-search_directory( "../data" )
-
-graph = read_json_graph("../data/not_in_paper/miserables.json")
-print( graph.nodes)
-print()
-print( graph.edges)
-print()
-print("AGD")
-print( ff.average_geodesic_distance(graph) )
-print()
-print("Density")
-print( ff.density(graph) )
-print()
-print("eccentricity")
-print( ff.eccentricity(graph) )
-print()
-print("eigen_function")
-print( ff.eigen_function(graph) )
-print()
-print("pagerank")
-print( ff.pagerank(graph) )
