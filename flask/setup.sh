@@ -2,6 +2,7 @@
 
 # delete old directories
 rm -rf __pycache__
+rm -rf mog/__pycache__
 rm -rf venv
 
 # Create Virtual Environment
