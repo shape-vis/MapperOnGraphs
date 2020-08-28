@@ -331,7 +331,7 @@
     {"id": "227", "group": 1},
     {"id": "104", "group": 1},
     {"id": "141", "group": 1},
-    {"id": "302", "group": 1},
+    {"id": "302", "group": 1}
   ],
   "links": [
     {"source": "118", "target": "201", "value": 0.1804},
@@ -2459,6 +2459,6 @@
     {"source": "10", "target": "11", "value": 0.0011},
     {"source": "9", "target": "11", "value": 0.0022},
     {"source": "315", "target": "316", "value": 0.0013},
-    {"source": "315", "target": "317", "value": 0.0022},
+    {"source": "315", "target": "317", "value": 0.0022}
   ]
 }

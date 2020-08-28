@@ -1,21 +1,12 @@
 
-
-
-
-
 var datasets = {};
 
-
 function construct_options_array( arr, selected=null ){
-    let html = "";
-    arr.sort();
+    tmp = {};
     arr.forEach( function(d){
-        if( d == selected )
-            html += '<option value="'+ d +'" selected>'+ d +'</option>';
-        else
-            html += '<option value="'+ d +'">'+ d +'</option>';
+        tmp[d] = d;
     });
-    return html;
+    return construct_options_dict(tmp,selected);
 }
 
 function construct_options_dict( obj, selected=null ){
@@ -23,22 +14,19 @@ function construct_options_dict( obj, selected=null ){
     let arr = Object.keys(obj);
     arr.sort();
     arr.forEach( function(d){
-        if( d == selected )
-            html += '<option value="'+ obj[d] +'" selected>'+ d +'</option>';
-        else
-            html += '<option value="'+ obj[d] +'">'+ d +'</option>';
+        html += '<option value="'+ d +'"' + (( d == selected )?"selected":"") + '>'+ obj[d] +'</option>';
     });
     return html;
 }
 
-function load_datasets( ){
+function load_datasets( callback=null ){
     d3.json( "datasets", function( dinput ) {
         datasets = dinput;
         document.getElementById("dataset").innerHTML = construct_options_array( Object.keys(datasets) );
         update_datafiles();
+        if( callback ){ callback(); }
     });
 }
-
 
 function update_datafiles(){
     var ds = get_selected_dataset();
@@ -46,16 +34,16 @@ function update_datafiles(){
     if( document.getElementById("datafile") != null ){
         document.getElementById("datafile").innerHTML = construct_options_array( Object.keys(datasets[ds]) );
     }
-//    change_datafile();
+    update_filter_functions();
 }
 
-function update_filter_functions(ff_list){
+function update_filter_functions(){
     var ds = get_selected_dataset();
     var df = get_selected_datafile();
+    console.log(datasets[ds][df]);
     if( document.getElementById("filter_func") != null ){
-        document.getElementById("filter_func").innerHTML = construct_options_dict(ff_list);
+        document.getElementById("filter_func").innerHTML = construct_options_dict(datasets[ds][df]);
     }
-//    reload_data();
 }
 
 

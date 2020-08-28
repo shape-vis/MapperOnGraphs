@@ -74,18 +74,37 @@
 							<select class="form-control form-control-sm" id="filter_func" name="filter_func" onchange="change_filter_func();"></select>
 						</div>
 					  </div>
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="true" id="rank_filter" name="rank_filter" onchange="change_filter_func();">
+						  <label class="form-check-label" for="rank_filter">
+							Rank Filter Values?
+						  </label>
+						</div>
 				</div>
 
 				<div class="form-group">
-					<label for="coverN">Cover Elements</label>
+					<label for="coverN">Cover Elements: <span id="coverN_value">2</span></label>
 					<input type="range" class="custom-range" min="2" max="10" step="1" value="2" id="coverN" name="coverN"
-						   onchange="change_cover();">
+						   onchange="change_cover(); document.getElementById('coverN_value').innerHTML = document.getElementById('coverN').value;">
 				</div>
 
 				<div class="form-group">
-					<label for="coverOverlap">Cover Overlap</label>
+					<label for="coverOverlap">Cover Overlap: <span id="coverOverlap_value">0.1</span></label>
 					<input type="range" class="custom-range" min="0" max="1" step="0.01" value="0.1" id="coverOverlap" name="coverOverlap"
-						   onchange="change_cover()">
+						   onchange="change_cover(); document.getElementById('coverOverlap_value').innerHTML = document.getElementById('coverOverlap').value;">
+				</div>
+
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="true" id="gcc_only" name="gcc_only" onchange="change_cover();">
+						  <label class="form-check-label" for="gcc_only">
+							Get GCC Only?
+						  </label>
+						</div>
+
+				<div class="form-group">
+					<label for="mapper_node_size_filter">Mapper Node Size Filter: <span id="mapper_node_size_filter_value">0</span></label>
+					<input type="range" class="custom-range" min="0" max="20" step="1" value="0" id="mapper_node_size_filter" name="mapper_node_size_filter"
+						   onchange="change_cover(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
 				</div>
 			</form>
 
@@ -113,18 +132,6 @@
 		var catColorScheme = d3.scaleOrdinal().range(d3.schemeSet3); // .domain(graph.nodes, function(n){ return n['type']; } )
 		// var catColorScheme = d3.scaleOrdinal( d3.schemeCategory20 );
 
-		function saveText(text, filename){
-		  var a = document.createElement('a');
-		  a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(text));
-		  a.setAttribute('download', filename);
-		  a.click()
-		  console.log("tried to save");
-		}
-
-		function saveJson( obj, filename ){
-			saveText( JSON.stringify(obj), filename );
-		}
-
 		let graph_data = null;
 		let graph_vis = null;
 		let histo_vis = null;
@@ -151,14 +158,44 @@
 
 		function change_dataset(){
 			update_datafiles();
-			load_data();
+			change_datafile();
 		}
 
 		function change_datafile(){
-			load_data();
+			load_graph( function(){
+				change_filter_func();
+			});
 		}
 
-		function change_filter_func(){
+		function change_filter_func() {
+			d3.json( "filter_function?" + $("#parameterForm").serialize(), function( error, data ) {
+				graph_vis.update_node_color(data);
+				change_cover();
+			});
+		}
+
+		function change_cover(){
+			update_mog();
+		}
+
+
+
+
+
+		function saveText(text, filename){
+		  var a = document.createElement('a');
+		  a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(text));
+		  a.setAttribute('download', filename);
+		  a.click()
+		  console.log("tried to save");
+		}
+
+		function saveJson( obj, filename ){
+			saveText( JSON.stringify(obj), filename );
+		}
+
+
+		/*
 			let field = get_selected_filter_func();
 			graph_vis.update_node_color( d => d[field] );
 
@@ -168,14 +205,26 @@
 			histo_vis.update_drawing();
 
 			update_mog();
+		}*/
+
+
+		function load_graph(callback){
+			d3.json( "graph?" + $("#parameterForm").serialize(), function( error, data ) {
+				if( error ){
+					console.log(error);
+				}
+				else{
+					graph_data = data;
+					// Update VIS
+			        $("#graph_vis").empty();
+					graph_vis = FDL_Graph_Vis("#graph_vis",data);
+					if(callback) callback();
+				}
+			});
 		}
 
-		function change_cover(){
-			update_mog();
-		}
 
-
-		function load_data(){
+		function load_misc(){
 			d3.json( "graph?" + $("#parameterForm").serialize(), function( error, data ) {
 				if( error ){
 					console.log(error);
@@ -202,7 +251,7 @@
 			});
 		}
 
-		load_datasets();
+		load_datasets(change_datafile);
 
 </script>
 

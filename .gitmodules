@@ -1,6 +1,0 @@
-[submodule "usfdvl-topology"]
-	path = usfdvl-topology
-	url = https://github.com/USFDataVisualization/usfdvl-topology.git
-[submodule "usfdvl-common"]
-	path = usfdvl-common
-	url = https://github.com/USFDataVisualization/usfdvl-common.git
