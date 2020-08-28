@@ -3,6 +3,7 @@
 var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
 
+    let color_data = null;
 
     // General Variables
     let svg = d3.select(svg_name);
@@ -84,7 +85,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
     function zoom_actions(){
         svg_g.attr("transform", d3.event.transform);
-        prior_tform = d3.event.transform;
+        //prior_tform = d3.event.transform;
     }
 
 
@@ -97,10 +98,11 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             link.attr("stroke-width", width_func );
         },
 
-        update_node_color : function( color_func ){
-            ext = d3.extent( graph_data.nodes, color_func )
-            seqColorScheme.domain( d3.extent( graph_data.nodes, color_func ) );
-            node.attr("fill", d => seqColorScheme( color_func(d) ) );
+        update_node_color : function( _color_data ){
+            color_data = _color_data;
+            ext = d3.extent( Object.keys(color_data), d=>color_data[d] );
+            seqColorScheme.domain( ext );
+            node.attr("fill", d => seqColorScheme( color_data[d.id] ) );
         }
     }
 

@@ -1,4 +1,3 @@
-import fnmatch
 import json
 import os
 
@@ -6,44 +5,50 @@ from flask import Flask, request, send_from_directory
 from flask import send_file
 
 import mog.mapper as mapper
-import data
-from networkx.readwrite import json_graph
-
+import data as data_mod
 
 app = Flask(__name__)
-
-data_gen = [ {"in": "data/source/not_in_paper/football_out.JSON", "out": "data/small/football_out.json"},
-             {"in": "data/source/not_in_paper/airport6632_gcc.JSON", "out": "data/medium/airport6632_gcc.json"},
-             {"in": "data/source/not_in_paper/barabasi_albert_graph(10,5).json", "out": "data/small/barabasi_albert_graph(10,5).json"},
-             #{"in": "data/source/not_in_paper/barabasi_albert_graph(20,10).json", "out": "data/small/barabasi_albert_graph(20,10).json"},
-             #{"in": "data/source/not_in_paper/barabasi_albert_graph(20,3).json", "out": "data/small/barabasi_albert_graph(20,3).json"},
-             #{"in": "data/source/not_in_paper/barabasi_albert_graph(50,40).json", "out": "data/small/barabasi_albert_graph(50,40).json"},
-             #{"in": "data/source/not_in_paper/bcsstk20.json", "out": "data/small/bcsstk20.json"},
-             #{"in": "data/source/not_in_paper/bcsstk22.json", "out": "data/small/bcsstk22.json"},
-             {"in": "data/source/not_in_paper/beach.json", "out": "data/small/beach.json"},
-             #{"in": "data/source/not_in_paper/caveman_graph[3,5].json", "out": "data/small/caveman_graph[3,5].json"},
-             #{"in": "data/source/not_in_paper/caveman_graph[7,4].json", "out": "data/small/caveman_graph[7,4].json"},
-             {"in": "data/source/not_in_paper/chvatal_graph.json", "out": "data/small/chvatal_graph.json"},
-             {"in": "data/source/not_in_paper/corr1.json", "out": "data/small/corr1.json"},
-             {"in": "data/source/not_in_paper/davis_southern_women_graph.json", "out": "data/small/davis_southern_women_graph.json"}]
-
-for file in data_gen:
-    if not os.path.exists(file["out"]):
-        print("Processing: "+file["in"])
-        data.process_datafile( file["in"], file["out"] )
-
-data_sets = {}
-for d0 in os.listdir("data/"):
-    if os.path.isdir( "data/" + d0 ):
-        data_sets[d0] = {}
-        for d1 in os.listdir("data/" + d0 ):
-            if fnmatch.fnmatch(d1.lower(), "*.json") or fnmatch.fnmatch(d1.lower(), "*.graph"):
-                data_sets[d0][d1] = ["average_geodesic_distance", "density", "eccentricity", "eigen_function", "pagerank"]
-# print(data_sets)
 
 
 def error(err):
     print(err)
+
+
+def request_valid(dataset_req, datafile_req, filter_func_req):
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
+    ff = request.args.get('filter_func')
+
+    if dataset_req and ds0 not in data_mod.data_sets:
+        return False
+
+    if datafile_req and ds1 not in data_mod.data_sets[ds0]:
+        return False
+
+    if filter_func_req and ff not in data_mod.data_sets[ds0][ds1]:
+        return False
+
+    return True
+
+
+def load_graph(ds0, ds1):
+    return data_mod.read_json_graph('data/' + ds0 + "/" + ds1)
+
+
+def load_filter_function(ds0, ds1, ff, ranked=False):
+    if ff not in data_mod.data_sets[ds0][ds1]:
+        return None
+
+    with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+        ff_data = json.load(json_file)
+
+    if ranked:
+        tmp = list(ff_data.keys())
+        tmp.sort(key=(lambda e: ff_data[e]))
+        for i in range(len(tmp)):
+            ff_data[tmp[i]] = i
+
+    return ff_data
 
 
 @app.route('/')
@@ -60,61 +65,64 @@ def send_static(path):
 
 
 @app.route('/datasets', methods=['GET', 'POST'])
-def get_datasets( ):
-    return json.dumps(data_sets)
+def get_datasets():
+    return json.dumps(data_mod.data_sets)
 
 
 @app.route('/graph', methods=['GET', 'POST'])
 def get_graph():
+    # Check that the request is valid
+    if not request_valid(True, True, False):
+        return "{}"
+
     ds0 = request.args.get('dataset')
     ds1 = request.args.get('datafile')
-
-    if ds0 not in data_sets or ds1 not in data_sets[ds0]:
-        return "{}"
 
     return send_file('data/' + ds0 + "/" + ds1)
 
 
-@app.route('/mog', methods=['GET', 'POST'])
-def get_mog():
+@app.route('/filter_function', methods=['GET', 'POST'])
+def get_filter_function():
+    # Check that the request is valid
+    if not request_valid(True, True, True):
+        return "{}"
+
     ds0 = request.args.get('dataset')
     ds1 = request.args.get('datafile')
+    ff = request.args.get('filter_func')
 
-    if ds0 not in data_sets or ds1 not in data_sets[ds0]:
+    return json.dumps(load_filter_function(ds0, ds1, ff, request.args.get('rank_filter') == 'true'))
+
+
+@app.route('/mog', methods=['GET', 'POST'])
+def get_mog():
+    # Check that the request is valid
+    if not request_valid(True, True, True):
         return "{}"
 
-    intervals = int( request.args.get('coverN') )
-    overlap = float( request.args.get('coverOverlap') )
-    attribute = request.args.get('filter_func')
+    # Load the graph and filter function
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
+    ff = request.args.get('filter_func')
 
-    if ds0 not in data_sets or ds1 not in data_sets[ds0]:
-        return "{}"
+    graph_data, graph = load_graph(ds0, ds1)
+    values = load_filter_function(ds0, ds1, ff, request.args.get('rank_filter') == 'true')
 
+    # Construct the cover
+    intervals = int(request.args.get('coverN'))
+    overlap = float(request.args.get('coverOverlap'))
 
-    with open('data/' + ds0 + "/" + ds1) as json_file:
-        data = json.load(json_file)
+    cover = mapper.form_cover(values, intervals, overlap)
 
-        nodes = {}
-        for n in data['nodes']:
-            nodes[n['id']] = n
+    # Construct MOG
+    mog = mapper.MapperOnGraphs(graph, values, cover)
 
-        G = json_graph.node_link_graph(data)
+    node_size_filter = int(request.args.get('mapper_node_size_filter'))
+    if node_size_filter > 0:
+        mog.filter_node_size(node_size_filter)
 
-        values = {}
-        for n in G.nodes:
-            values[n] = float( nodes[n][attribute] )
-        # missing_vals = list(filter(lambda n: attribute not in nodes[n], G.nodes ))
-        #
-        # for loop_iter in range(0, 3):
-        #     mapper.fill_missing_diffuse_avg(G, values, missing_vals)
+    gcc_only = request.args.get('gcc_only') == 'true'
+    if gcc_only:
+        mog.extract_greatest_connect_component()
 
-        cover = mapper.form_cover(values, intervals, overlap)
-        components = mapper.get_components(G, values, cover)
-        nodes = mapper.get_nodes( values, components )
-        links = mapper.get_links( nodes )
-
-        return json.dumps( {'nodes': nodes, 'links': links} )
-
-
-file_list = []
-
+    return mog.to_json()

@@ -4,51 +4,59 @@ import functools
 import math
 
 
-def density(G, _eps=0.5):
+def density(g, _eps=0.5):
     ret = {}
-    for x in nx.shortest_path_length(G):
-        scaled = map( lambda a: math.exp( -a * a / _eps ), x[1].values() )
+    for x in nx.shortest_path_length(g):
+        scaled = map(lambda a: math.exp(-a * a / _eps), x[1].values())
         ret[x[0]] = functools.reduce(lambda a, b: a + b, scaled)
     return ret
 
 
-def eigen_function(G,_normalized=False):
+def eigen_function(g, _weight, _normalized=False):
+    order = list(g.nodes())
     if _normalized:
-        L = nx.normalized_laplacian_matrix(G)
+        lap = nx.normalized_laplacian_matrix(g, nodelist=order, weight=_weight)
     else:
-        L = nx.laplacian_matrix(G)
+        lap = nx.laplacian_matrix(g, nodelist=order, weight=_weight)
 
-    w, v = np.linalg.eigh(L.A)
+    #print(lap.A)
+    w, v = np.linalg.eigh(lap.A)
 
-    eigVal = list(enumerate(w))
-    eigVal.sort(key=(lambda e: e[1]))
+    eigval = list(enumerate(w))
 
     ret = []
-    for i in range(len(eigVal)):
-        ev = eigVal[i]
-        ret.append( [ev[1], v[ev[0] ] ] )
+    for i in range(len(w)):
+        eval = w[i]
+        evec = v[:,i]
+        out_evec = {}
+        for j in range(len(order)):
+            out_evec[order[j]] = evec[j]
+        ret.append([eval, out_evec])
+
+    ret.sort(key=(lambda e: e[0]))
+
     return ret
 
 
-def pagerank(G, _alpha=0.85):
-    return nx.pagerank(G, alpha=_alpha)
+def pagerank(g, _alpha=0.85):
+    return nx.pagerank(g, alpha=_alpha)
 
 
-def average_geodesic_distance(G):
+def average_geodesic_distance(g):
     ret = {}
-    for x in nx.shortest_path_length(G):
-        ret[x[0]] = functools.reduce(lambda a, b: a + b, x[1].values()) / (G.number_of_nodes()-1)
+    for x in nx.shortest_path_length(g):
+        ret[x[0]] = functools.reduce(lambda a, b: a + b, x[1].values()) / (g.number_of_nodes() - 1)
     return ret
 
 
-def eccentricity(G):
-    return nx.eccentricity(G)
+def eccentricity(g):
+    return nx.eccentricity(g)
 
 
-def fiedler_vector(G,_normalized=False):
-    fv = nx.fiedler_vector(G,normalized=_normalized)
-    node_list = list(G.nodes)
+def fiedler_vector(g, _weight, _normalized=False):
+    fv = nx.fiedler_vector(g, weight=_weight, normalized=_normalized)
+    node_list = list(g.nodes)
     ret = {}
     for i in range(len(node_list)):
-        ret[ node_list[i]] =fv[i]
+        ret[node_list[i]] = fv[i]
     return ret
