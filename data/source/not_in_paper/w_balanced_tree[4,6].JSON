@@ -5460,7 +5460,7 @@
 {"id": "5457", "group": 1},
 {"id": "5458", "group": 1},
 {"id": "5459", "group": 1},
-{"id": "5460", "group": 1},
+{"id": "5460", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -10922,6 +10922,6 @@
 {"source": "1364", "target": "5460", "value": 0},
 {"source": "1364", "target": "5457", "value": 0},
 {"source": "1364", "target": "5458", "value": 0},
-{"source": "1364", "target": "5459", "value": 0},
+{"source": "1364", "target": "5459", "value": 0}
 ]
 }

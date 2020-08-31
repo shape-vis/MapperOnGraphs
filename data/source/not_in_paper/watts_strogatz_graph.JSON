@@ -99,7 +99,7 @@
 {"id": "96", "group": 1},
 {"id": "97", "group": 1},
 {"id": "98", "group": 1},
-{"id": "99", "group": 1},
+{"id": "99", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -2601,6 +2601,6 @@
 {"source": "96", "target": "99", "value": 1},
 {"source": "97", "target": "98", "value": 1},
 {"source": "97", "target": "99", "value": 1},
-{"source": "98", "target": "99", "value": 1},
+{"source": "98", "target": "99", "value": 1}
 ]
 }

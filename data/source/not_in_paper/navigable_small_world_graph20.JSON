@@ -399,7 +399,7 @@
 {"id": "(1, 8)", "group": 1},
 {"id": "(4, 3)", "group": 1},
 {"id": "(2, 15)", "group": 1},
-{"id": "(5, 2)", "group": 1},
+{"id": "(5, 2)", "group": 1}
 ],
 "links": [
 {"source": "(7, 3)", "target": "(6, 3)", "value": 1},
@@ -2229,6 +2229,6 @@
 {"source": "(5, 2)", "target": "(6, 2)", "value": 1},
 {"source": "(5, 2)", "target": "(4, 2)", "value": 1},
 {"source": "(5, 2)", "target": "(5, 3)", "value": 1},
-{"source": "(5, 2)", "target": "(5, 1)", "value": 1},
+{"source": "(5, 2)", "target": "(5, 1)", "value": 1}
 ]
 }

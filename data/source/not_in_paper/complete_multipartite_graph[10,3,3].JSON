@@ -15,7 +15,7 @@
 {"id": "12", "group": 1},
 {"id": "13", "group": 1},
 {"id": "14", "group": 1},
-{"id": "15", "group": 1},
+{"id": "15", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "10", "value": 1},
@@ -86,6 +86,6 @@
 {"source": "11", "target": "15", "value": 1},
 {"source": "12", "target": "13", "value": 1},
 {"source": "12", "target": "14", "value": 1},
-{"source": "12", "target": "15", "value": 1},
+{"source": "12", "target": "15", "value": 1}
 ]
 }

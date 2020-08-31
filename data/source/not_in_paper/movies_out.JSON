@@ -103,7 +103,7 @@
     {"id": "Stark, R.", "group": 1},
     {"id": "Brooks, R.", "group": 1},
     {"id": "Kramer, S.", "group": 1},
-    {"id": "Joffe, C.", "group": 1},
+    {"id": "Joffe, C.", "group": 1}
   ],
   "links": [
     {"source": "Rosenberg, A.", "target": "Goldsmith, J.", "value": 3},
@@ -297,11 +297,11 @@
     {"source": "Solomon, J.", "target": "Phillips, S.", "value": 4},
     {"source": "Meyer, R.", "target": "Phillips, S.", "value": 1},
     {"source": "Landers, H.", "target": "Barry, J.", "value": 1},
-    {"source": "Landers, H.", "target": "Jones, Q.", "value": 1},
+    {"source": "Landers, H.", "target": "Jones, Q.", "value": 1}
   ],
   "groups": [
              {"id":1, "label":"Producers"},
-			 {"id":5, "label":"Composers"},
-  ],
+			 {"id":5, "label":"Composers"}
+  ]
 
 }

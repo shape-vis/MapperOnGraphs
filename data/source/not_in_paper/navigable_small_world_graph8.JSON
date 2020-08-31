@@ -63,7 +63,7 @@
 {"id": "(1, 7)", "group": 1},
 {"id": "(2, 3)", "group": 1},
 {"id": "(5, 2)", "group": 1},
-{"id": "(2, 4)", "group": 1},
+{"id": "(2, 4)", "group": 1}
 ],
 "links": [
 {"source": "(7, 3)", "target": "(6, 3)", "value": 1},
@@ -338,6 +338,6 @@
 {"source": "(2, 4)", "target": "(2, 5)", "value": 1},
 {"source": "(2, 4)", "target": "(2, 3)", "value": 1},
 {"source": "(2, 4)", "target": "(1, 4)", "value": 1},
-{"source": "(2, 4)", "target": "(2, 2)", "value": 1},
+{"source": "(2, 4)", "target": "(2, 2)", "value": 1}
 ]
 }

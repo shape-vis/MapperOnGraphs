@@ -29,7 +29,7 @@
 {"id": "26", "group": 1},
 {"id": "27", "group": 1},
 {"id": "28", "group": 1},
-{"id": "29", "group": 1},
+{"id": "29", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -60,6 +60,6 @@
 {"source": "22", "target": "23", "value": 1},
 {"source": "24", "target": "25", "value": 1},
 {"source": "26", "target": "27", "value": 1},
-{"source": "28", "target": "29", "value": 1},
+{"source": "28", "target": "29", "value": 1}
 ]
 }

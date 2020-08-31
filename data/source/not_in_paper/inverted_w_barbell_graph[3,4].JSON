@@ -9,7 +9,7 @@
 {"id": "6", "group": 1},
 {"id": "7", "group": 1},
 {"id": "8", "group": 1},
-{"id": "9", "group": 1},
+{"id": "9", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1.0},
@@ -22,6 +22,6 @@
 {"source": "6", "target": "7", "value": 0.16666666666666666},
 {"source": "7", "target": "8", "value": 0.14285714285714285},
 {"source": "7", "target": "9", "value": 0.14285714285714285},
-{"source": "8", "target": "9", "value": 0.125},
+{"source": "8", "target": "9", "value": 0.125}
 ]
 }

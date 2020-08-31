@@ -170,7 +170,7 @@
 {"id": "167", "group": 1},
 {"id": "168", "group": 1},
 {"id": "169", "group": 1},
-{"id": "170", "group": 1},
+{"id": "170", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -342,6 +342,6 @@
 {"source": "163", "target": "164", "value": 1},
 {"source": "165", "target": "166", "value": 1},
 {"source": "167", "target": "168", "value": 1},
-{"source": "169", "target": "170", "value": 1},
+{"source": "169", "target": "170", "value": 1}
 ]
 }

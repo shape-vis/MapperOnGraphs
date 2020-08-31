@@ -122,7 +122,7 @@
 {"id": "119", "group": 1},
 {"id": "120", "group": 1},
 {"id": "121", "group": 1},
-{"id": "122", "group": 1},
+{"id": "122", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -367,6 +367,6 @@
 {"source": "40", "target": "100", "value": 1},
 {"source": "40", "target": "117", "value": 1},
 {"source": "41", "target": "121", "value": 1},
-{"source": "41", "target": "99", "value": 1},
+{"source": "41", "target": "99", "value": 1}
 ]
 }

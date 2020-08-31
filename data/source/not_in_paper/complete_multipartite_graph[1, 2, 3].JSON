@@ -8,7 +8,7 @@
 {"id": "5", "group": 1},
 {"id": "6", "group": 1},
 {"id": "7", "group": 1},
-{"id": "8", "group": 1},
+{"id": "8", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "3", "value": 1},
@@ -37,6 +37,6 @@
 {"source": "4", "target": "8", "value": 1},
 {"source": "5", "target": "6", "value": 1},
 {"source": "5", "target": "7", "value": 1},
-{"source": "5", "target": "8", "value": 1},
+{"source": "5", "target": "8", "value": 1}
 ]
 }

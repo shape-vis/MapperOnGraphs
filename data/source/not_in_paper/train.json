@@ -63,7 +63,7 @@
     {"id": "Abddenabi Koujma", "group": 7},
     {"id": "Khalid Ouled Akcha", "group": 1},
     {"id": "Rafa Zuher", "group": 1},
-    {"id": "Jose Emilio Suarez", "group": 1},
+    {"id": "Jose Emilio Suarez", "group": 1}
   ],
   "links": [
     {"source": "Jamal Zougam", "target": "Mohamed Bekkali", "value": 1},
@@ -309,7 +309,7 @@
     {"source": "Ivan Granados", "target": "El Gitanillo", "value": 1},
     {"source": "Raul Gonzales Perez", "target": "El Gitanillo", "value": 1},
     {"source": "Moutaz Almallah", "target": "Mohamed Almallah", "value": 1},
-    {"source": "Yousef Hichman", "target": "Mustafa Ahmidan", "value": 1},
+    {"source": "Yousef Hichman", "target": "Mustafa Ahmidan", "value": 1}
   ],
    "groups": [
              {"id":1, "label":"Associators"},
@@ -319,6 +319,6 @@
 			 {"id":5, "label":"Linked to 9/11"},
 			 {"id":6, "label":"Linked to Casablanca"},
 			 {"id":7, "label":"Linked to AVE, FOG"},
-			 {"id":8, "label":"Linked to AVE"},
-  ],
+			 {"id":8, "label":"Linked to AVE"}
+  ]
 }

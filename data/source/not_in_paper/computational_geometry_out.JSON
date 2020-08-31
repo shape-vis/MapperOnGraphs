@@ -6157,7 +6157,7 @@
     {"id": "6089", "group": 1},
     {"id": "1584", "group": 1},
     {"id": "732", "group": 1},
-    {"id": "5479", "group": 1},
+    {"id": "5479", "group": 1}
   ],
   "links": [
     {"source": "272", "target": "6588", "value": 1},
@@ -18057,6 +18057,6 @@
     {"source": "6", "target": "1897", "value": 1},
     {"source": "983", "target": "3638", "value": 1},
     {"source": "2249", "target": "3638", "value": 1},
-    {"source": "983", "target": "2249", "value": 1},
+    {"source": "983", "target": "2249", "value": 1}
   ]
 }

@@ -9840,7 +9840,7 @@
 {"id": "9837", "group": 1},
 {"id": "9838", "group": 1},
 {"id": "9839", "group": 1},
-{"id": "9840", "group": 1},
+{"id": "9840", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -19682,6 +19682,6 @@
 {"source": "3278", "target": "9837", "value": 0},
 {"source": "3279", "target": "9840", "value": 0},
 {"source": "3279", "target": "9838", "value": 0},
-{"source": "3279", "target": "9839", "value": 0},
+{"source": "3279", "target": "9839", "value": 0}
 ]
 }
