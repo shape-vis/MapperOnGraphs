@@ -12,7 +12,7 @@ import mog.filter_functions as ff
 
 data_sets = {}
 
-max_time_per_file = 30
+max_time_per_file = 360
 
 filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ecc': 'Eccentricity',
@@ -49,12 +49,26 @@ for d0 in os.listdir("data/source"):
         for d1 in os.listdir("data/source/" + d0):
             if fnmatch.fnmatch(d1.lower(), "*.json"):
                 data_gen.append("data/source/" + d0 + "/" + d1)
+            if fnmatch.fnmatch(d1.lower(), "*.graph"):
+                data_gen.append("data/source/" + d0 + "/" + d1)
 
 
 def read_json_graph(filename):
     with open(filename) as f:
         js_graph = json.load(f)
     return [js_graph, nx.readwrite.node_link_graph(js_graph, directed=False, multigraph=False)]
+
+
+def read_graph_file(filename):
+    f = open(filename)
+    graph = nx.Graph()
+    for _x in f:
+        x = _x.split()
+        if x[0] == 'n':
+            graph.add_node(x[1])
+        if x[0] == 'e':
+            graph.add_edge(x[1], x[2], value=1)
+    return [None, graph]
 
 
 def write_json_data(filename, data):
@@ -116,7 +130,13 @@ def generate_eig(out_path, graph, which_eig, weight, normalized):
 
 def process_datafile(in_filename):
     print("Processing: " + in_filename)
-    data, graph = read_json_graph(in_filename)
+
+    if fnmatch.fnmatch(in_filename.lower(), "*.json"):
+        data, graph = read_json_graph(in_filename)
+    elif fnmatch.fnmatch(in_filename.lower(), "*.graph"):
+        data, graph = read_graph_file(in_filename)
+    else:
+        return
 
     gcc = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(gcc)
@@ -126,9 +146,12 @@ def process_datafile(in_filename):
         out_filename += "small/"
     elif graph.number_of_nodes() < 1000:
         out_filename += "medium/"
-    else:
+    elif graph.number_of_nodes() < 5000:
         out_filename += "large/"
-    out_filename += ntpath.basename(in_filename).lower()
+    else:
+        out_filename += "very_large/"
+
+    out_filename += os.path.splitext(ntpath.basename(in_filename).lower())[0] + ".json"
 
     print("                     => " + out_filename)
 
@@ -162,6 +185,7 @@ def process_datafile(in_filename):
 if not os.path.exists("data/small"): os.mkdir("data/small")
 if not os.path.exists("data/medium"): os.mkdir("data/medium")
 if not os.path.exists("data/large"): os.mkdir("data/large")
+if not os.path.exists("data/very_large"): os.mkdir("data/very_large")
 
 for file in data_gen:
     try:
