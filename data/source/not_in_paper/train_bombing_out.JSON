@@ -63,7 +63,7 @@
     {"id": "43", "group": 1},
     {"id": "22", "group": 1},
     {"id": "23", "group": 1},
-    {"id": "21", "group": 1},
+    {"id": "21", "group": 1}
   ],
   "links": [
     {"source": "1", "target": "2", "value": 1},
@@ -551,6 +551,6 @@
     {"source": "69", "target": "61", "value": 1},
     {"source": "69", "target": "68", "value": 1},
     {"source": "70", "target": "34", "value": 1},
-    {"source": "70", "target": "63", "value": 1},
+    {"source": "70", "target": "63", "value": 1}
   ]
 }

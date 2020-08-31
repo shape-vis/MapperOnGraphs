@@ -33,7 +33,7 @@
 	{"id": "30", "group": 1},
 	{"id": "31", "group": 1},
 	{"id": "32", "group": 1},
-	{"id": "33", "group": 1},
+	{"id": "33", "group": 1}
   ],
   "links": [
     {"source": "0", "target": "1", "value": 4},
@@ -1157,13 +1157,13 @@
     {"source": "33", "target": "29", "value": 2},
     {"source": "33", "target": "30", "value": 3},
     {"source": "33", "target": "31", "value": 4},
-    {"source": "33", "target": "32", "value": 5},
+    {"source": "33", "target": "32", "value": 5}
   ],
    "groups": [
              {"id":1, "label":"Europe"},
 			 {"id":5, "label":"North/Central America and the Carribean"},
 			 {"id":3, "label":"South America"},
 			 {"id":4, "label":"Asia"},
-			 {"id":6, "label":"Africa"},
-  ],
+			 {"id":6, "label":"Africa"}
+  ]
 }

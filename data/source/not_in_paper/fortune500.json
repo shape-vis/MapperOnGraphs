@@ -55,7 +55,7 @@
 {"id": "52", "group": 1},
 {"id": "53", "group": 1},
 {"id": "54", "group": 1},
-{"id": "55", "group": 1},
+{"id": "55", "group": 1}
 ], "links": [
     {"source": "0", "target": "1", "value": 1},
     {"source": "0", "target": "2", "value": 5},
@@ -3081,6 +3081,6 @@
     {"source": "54", "target": "51", "value": 0},
     {"source": "54", "target": "52", "value": 0},
     {"source": "54", "target": "53", "value": 3},
-    {"source": "54", "target": "55", "value": 3},
-  ], 
+    {"source": "54", "target": "55", "value": 3}
+  ]
 }

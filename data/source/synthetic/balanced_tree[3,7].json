@@ -3279,7 +3279,7 @@
 {"id": "3276", "group": 1},
 {"id": "3277", "group": 1},
 {"id": "3278", "group": 1},
-{"id": "3279", "group": 1},
+{"id": "3279", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -6560,6 +6560,6 @@
 {"source": "1091", "target": "3275", "value": 1},
 {"source": "1092", "target": "3277", "value": 1},
 {"source": "1092", "target": "3278", "value": 1},
-{"source": "1092", "target": "3279", "value": 1},
+{"source": "1092", "target": "3279", "value": 1}
 ]
 }

@@ -34,7 +34,7 @@
 	{"id": "NGA", "group": 6},
 	{"id": "TUN", "group": 6},
 	{"id": "MAR", "group": 6},
-	{"id": "CMR", "group": 6},
+	{"id": "CMR", "group": 6}
   ],
   "links": [
     {"source": "ARG", "target": "ESP", "value": 4},
@@ -154,13 +154,13 @@
     {"source": "ZAF", "target": "GBR", "value": 4},
     {"source": "ZAF", "target": "ITA", "value": 1},
     {"source": "ZAF", "target": "NLD", "value": 2},
-    {"source": "ZAF", "target": "TUR", "value": 3},
+    {"source": "ZAF", "target": "TUR", "value": 3}
   ],
    "groups": [
              {"id":1, "label":"Europe"},
 			 {"id":5, "label":"North/Central America and the Carribean"},
 			 {"id":3, "label":"South America"},
 			 {"id":4, "label":"Asia"},
-			 {"id":6, "label":"Africa"},
-  ],
+			 {"id":6, "label":"Africa"}
+  ]
 }

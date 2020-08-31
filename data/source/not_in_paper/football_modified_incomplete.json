@@ -34,7 +34,7 @@
     {"id": "CMR", "group": 1},
     {"id": "GRE", "group": 1},
     {"id": "DNK", "group": 1},
-    {"id": "HRV", "group": 1},
+    {"id": "HRV", "group": 1}
   ],
   "links": [
     {"source": "ARG", "target": "12", "value": 4},
@@ -154,6 +154,6 @@
     {"source": "35", "target": "14", "value": 4},
     {"source": "35", "target": "18", "value": 1},
     {"source": "35", "target": "25", "value": 2},
-    {"source": "35", "target": "32", "value": 3},
+    {"source": "35", "target": "32", "value": 3}
   ]
 }

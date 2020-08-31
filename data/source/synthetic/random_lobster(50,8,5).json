@@ -140,7 +140,7 @@
 {"id": "137", "group": 1},
 {"id": "138", "group": 1},
 {"id": "139", "group": 1},
-{"id": "140", "group": 1},
+{"id": "140", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1},
@@ -282,6 +282,6 @@
 {"source": "133", "target": "134", "value": 1},
 {"source": "135", "target": "136", "value": 1},
 {"source": "137", "target": "138", "value": 1},
-{"source": "139", "target": "140", "value": 1},
+{"source": "139", "target": "140", "value": 1}
 ]
 }

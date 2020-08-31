@@ -462,7 +462,7 @@
     {"id": "460", "group": 1},
     {"id": "461", "group": 1},
     {"id": "462", "group": 1},
-    {"id": "463", "group": 1},
+    {"id": "463", "group": 1}
   ],
   "links": [
     {"source": "1", "target": "1", "value": 1.0},
@@ -1642,6 +1642,6 @@
     {"source": "432", "target": "392", "value": 1.0},
     {"source": "291", "target": "393", "value": 1.0},
     {"source": "298", "target": "393", "value": 1.0},
-    {"source": "460", "target": "393", "value": 1.0},
+    {"source": "460", "target": "393", "value": 1.0}
   ]
 }

@@ -7,7 +7,7 @@
 {"id": "4", "group": 1},
 {"id": "5", "group": 1},
 {"id": "6", "group": 1},
-{"id": "7", "group": 1},
+{"id": "7", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "3", "value": 1},
@@ -24,6 +24,6 @@
 {"source": "2", "target": "4", "value": 1},
 {"source": "2", "target": "5", "value": 1},
 {"source": "2", "target": "6", "value": 1},
-{"source": "2", "target": "7", "value": 1},
+{"source": "2", "target": "7", "value": 1}
 ]
 }

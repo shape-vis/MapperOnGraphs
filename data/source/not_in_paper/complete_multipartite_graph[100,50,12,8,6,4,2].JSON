@@ -181,7 +181,7 @@
 {"id": "178", "group": 1},
 {"id": "179", "group": 1},
 {"id": "180", "group": 1},
-{"id": "181", "group": 1},
+{"id": "181", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "128", "value": 1},
@@ -10363,6 +10363,6 @@
 {"source": "178", "target": "180", "value": 1},
 {"source": "178", "target": "181", "value": 1},
 {"source": "179", "target": "180", "value": 1},
-{"source": "179", "target": "181", "value": 1},
+{"source": "179", "target": "181", "value": 1}
 ]
 }

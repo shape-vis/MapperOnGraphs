@@ -13,7 +13,7 @@
 {"id": "10", "group": 1},
 {"id": "11", "group": 1},
 {"id": "12", "group": 1},
-{"id": "13", "group": 1},
+{"id": "13", "group": 1}
 ],
 "links": [
 {"source": "0", "target": "1", "value": 1.0},
@@ -30,6 +30,6 @@
 {"source": "10", "target": "11", "value": 0.1},
 {"source": "11", "target": "12", "value": 0.09090909090909091},
 {"source": "11", "target": "13", "value": 0.09090909090909091},
-{"source": "12", "target": "13", "value": 0.08333333333333333},
+{"source": "12", "target": "13", "value": 0.08333333333333333}
 ]
 }
