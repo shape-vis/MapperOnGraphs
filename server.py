@@ -31,13 +31,16 @@ def request_valid(dataset_req, datafile_req, filter_func_req):
     return True
 
 
-def load_graph(ds0, ds1):
+def load_graph():
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
     return data_mod.read_json_graph('data/' + ds0 + "/" + ds1)
 
 
-def load_filter_function(ds0, ds1, ff, ranked=False):
-    if ff not in data_mod.data_sets[ds0][ds1]:
-        return None
+def load_filter_function(ranked=False):
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
+    ff = request.args.get('filter_func')
 
     with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
         ff_data = json.load(json_file)
@@ -75,10 +78,7 @@ def get_graph():
     if not request_valid(True, True, False):
         return "{}"
 
-    ds0 = request.args.get('dataset')
-    ds1 = request.args.get('datafile')
-
-    return send_file('data/' + ds0 + "/" + ds1)
+    return send_file('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
 
 
 @app.route('/filter_function', methods=['GET', 'POST'])
@@ -87,11 +87,7 @@ def get_filter_function():
     if not request_valid(True, True, True):
         return "{}"
 
-    ds0 = request.args.get('dataset')
-    ds1 = request.args.get('datafile')
-    ff = request.args.get('filter_func')
-
-    return json.dumps(load_filter_function(ds0, ds1, ff, request.args.get('rank_filter') == 'true'))
+    return json.dumps(load_filter_function(request.args.get('rank_filter') == 'true'))
 
 
 @app.route('/mog', methods=['GET', 'POST'])
@@ -101,12 +97,8 @@ def get_mog():
         return "{}"
 
     # Load the graph and filter function
-    ds0 = request.args.get('dataset')
-    ds1 = request.args.get('datafile')
-    ff = request.args.get('filter_func')
-
-    graph_data, graph = load_graph(ds0, ds1)
-    values = load_filter_function(ds0, ds1, ff, request.args.get('rank_filter') == 'true')
+    graph_data, graph = load_graph()
+    values = load_filter_function(request.args.get('rank_filter') == 'true')
 
     # Construct the cover
     intervals = int(request.args.get('coverN'))
@@ -115,7 +107,7 @@ def get_mog():
     cover = mapper.form_cover(values, intervals, overlap)
 
     # Construct MOG
-    mog = mapper.MapperOnGraphs(graph, values, cover)
+    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'))
 
     node_size_filter = int(request.args.get('mapper_node_size_filter'))
     if node_size_filter > 0:

@@ -106,6 +106,22 @@
 					<input type="range" class="custom-range" min="0" max="20" step="1" value="0" id="mapper_node_size_filter" name="mapper_node_size_filter"
 						   onchange="change_cover(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
 				</div>
+
+					  <div class="row">
+						<div class="col-4" style="padding-right: 3px;">
+							<label for="component_method" style="margin-top: 3px;" >Component Method</label>
+						</div>
+						<div class="col-8" style="padding-right: 3px;">
+							<select class="form-control form-control-sm" id="component_method" name="component_method" onchange="change_cover();">
+								<option value="connected_components" selected>Connected Components</option>
+								<option value="modularity">Modularity</option>
+								<option value="async_label_prop">Async Label Propagation</option>
+								<option value="label_prop">Label Propagation</option>
+								<option value="centrality">Centrality</option>
+							</select>
+						</div>
+					  </div>
+
 			</form>
 
 

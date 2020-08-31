@@ -36,12 +36,51 @@ def form_cover(values, intervals, overlap):
     return ret
 
 
-def get_components(graph, values, cover):
+def get_connected_components(graph, values, cover):
     ret = []
     for ce in cover:
         filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
         subg = graph.subgraph(filtered)
         ret += nx.connected_components(subg)
+    return ret
+
+
+def get_modularity_components(graph, values, cover):
+    ret = []
+    for ce in cover:
+        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
+        subg = graph.subgraph(filtered)
+        if subg.number_of_edges() == 0:
+            ret += nx.connected_components(subg)
+        else:
+            ret += list(nx.algorithms.community.greedy_modularity_communities(subg))
+    return ret
+
+
+def get_async_label_prop_components(graph, values, cover):
+    ret = []
+    for ce in cover:
+        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
+        subg = graph.subgraph(filtered)
+        ret += list(nx.algorithms.community.asyn_lpa_communities(subg))
+    return ret
+
+
+def get_label_prop_components(graph, values, cover):
+    ret = []
+    for ce in cover:
+        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
+        subg = graph.subgraph(filtered)
+        ret += list(nx.algorithms.community.label_propagation_communities(subg))
+    return ret
+
+
+def get_centrality_components(graph, values, cover):
+    ret = []
+    for ce in cover:
+        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
+        subg = graph.subgraph(filtered)
+        ret += list(nx.algorithms.community.girvan_newman(subg))
     return ret
 
 
@@ -69,8 +108,19 @@ def get_links(nodes):
 
 
 class MapperOnGraphs:
-    def __init__(self, input_graph: nx.classes.graph.Graph, values, cover):
-        self.components = get_components(input_graph, values, cover)
+    def __init__(self, input_graph: nx.classes.graph.Graph, values, cover, component_method='connected_components'):
+
+        if component_method == 'modularity':
+            self.components = get_modularity_components(input_graph, values, cover)
+        elif component_method == 'async_label_prop':
+            self.components = get_async_label_prop_components(input_graph, values, cover)
+        elif component_method == 'label_prop':
+            self.components = get_label_prop_components(input_graph, values, cover)
+        elif component_method == 'centrality':
+            self.components = get_centrality_components(input_graph, values, cover)
+        else:
+            self.components = get_async_label_prop_components(input_graph, values, cover)
+
         self.nodes = get_nodes(values, self.components)
         self.links = get_links(self.nodes)
         self.mapper_graph = nx.readwrite.node_link_graph({'nodes': self.nodes, 'links': self.links})
