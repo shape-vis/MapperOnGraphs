@@ -1,6 +1,6 @@
 
 
-var histogram_vis = function( svg_name, graph_data ) {
+var histogram_vis = function( svg_name ) {
 
     // General Variables
     let svg = d3.select(svg_name);
@@ -9,9 +9,7 @@ var histogram_vis = function( svg_name, graph_data ) {
 
     // Variables specific to this function
     let bars = null;
-    let bar_count = 10;
     let position = { left: 20, top: 20, right: 200, bottom: 300 };
-    let field = null;
 
 
     return {
@@ -23,28 +21,21 @@ var histogram_vis = function( svg_name, graph_data ) {
             position.bottom = top+height;
         },
 
-        set_bar_count : function( count ){
-            bar_count = count;
-        },
-
-        set_field : function( _field ){
-            field = _field;
-        },
-
         remove : function( ){
             if( bars ) bars.remove();
             bars = null;
         },
 
-        update_drawing : function( ){
+        update_drawing : function( bar_count, data ){
 
             if( bars ) bars.remove();
 
-            let ext = d3.extent( graph_data.nodes, d => d[field] )
+            let ext = d3.extent( data );
+
 			let bins = d3.histogram()
 			                .domain(ext)
             			    .thresholds( [...Array(bar_count).keys()].map( d=> ext[0]*(1-d/bar_count) + ext[1]*d/bar_count ) )
-  			            		( graph_data.nodes.map( d => d[field] ) );
+                                ( data );
 
             let x = d3.scaleLinear()
                         .range([ position.left, position.right ])
@@ -54,7 +45,7 @@ var histogram_vis = function( svg_name, graph_data ) {
                         .range([ position.top, position.bottom ])
                         .domain(ext);
 
-            seqColorScheme.domain( d3.extent( graph_data.nodes, d => d[field] ) );
+            seqColorScheme.domain( ext );
 
             bars = svg.append( "g" )
                         .selectAll( "rect" )

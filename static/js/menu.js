@@ -30,7 +30,7 @@ function load_datasets( callback=null ){
 
 function update_datafiles(){
     var ds = get_selected_dataset();
-    console.log(ds)
+    //console.log(ds)
     if( document.getElementById("datafile") != null ){
         document.getElementById("datafile").innerHTML = construct_options_array( Object.keys(datasets[ds]) );
     }
@@ -40,7 +40,7 @@ function update_datafiles(){
 function update_filter_functions(){
     var ds = get_selected_dataset();
     var df = get_selected_datafile();
-    console.log(datasets[ds][df]);
+    //console.log(datasets[ds][df]);
     if( document.getElementById("filter_func") != null ){
         document.getElementById("filter_func").innerHTML = construct_options_dict(datasets[ds][df]);
     }

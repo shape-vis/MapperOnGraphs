@@ -12,7 +12,7 @@ import mog.filter_functions as ff
 
 data_sets = {}
 
-max_time_per_file = 360
+max_time_per_file = 1
 
 filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ecc': 'Eccentricity',
@@ -187,6 +187,7 @@ if not os.path.exists("data/medium"): os.mkdir("data/medium")
 if not os.path.exists("data/large"): os.mkdir("data/large")
 if not os.path.exists("data/very_large"): os.mkdir("data/very_large")
 
+'''
 for file in data_gen:
     try:
         process_datafile(file)
@@ -198,6 +199,7 @@ for file in data_gen:
         print(">>> FAILED: graph not connected error " + file)
     except:
         print(file + " failed with " + str(sys.exc_info()[0]))
+'''
 
 for d0 in os.listdir("data/"):
     if os.path.isdir("data/" + d0):
