@@ -103,6 +103,14 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             ext = d3.extent( Object.keys(color_data), d=>color_data[d] );
             seqColorScheme.domain( ext );
             node.attr("fill", d => seqColorScheme( color_data[d.id] ) );
+        },
+
+        restart_simulation : function(){
+            simulation.alphaTarget(0).restart();
+        },
+
+        remove : function(){
+            svg_g.remove();
         }
     }
 
