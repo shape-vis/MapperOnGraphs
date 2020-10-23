@@ -62,6 +62,14 @@ def send_main():
         return str(e)
 
 
+@app.route('/very_large.html')
+def send_very_large():
+    try:
+        return send_file('static/very_large.html')
+    except Exception as e:
+        return str(e)
+
+
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
@@ -107,7 +115,13 @@ def get_mog():
     cover = mapper.form_cover(values, intervals, overlap)
 
     # Construct MOG
-    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'))
+    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'), request.args.get('link_method'))
+
+    print( "Input Node Count: " + str(graph.number_of_nodes()))
+    print( "Input Edge Count: " + str(graph.number_of_nodes()))
+    print( "MOG Node Count: " + str(mog.number_of_nodes()))
+    print( "MOG Edge Count: " + str(mog.number_of_nodes()))
+    print( "MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
     node_size_filter = int(request.args.get('mapper_node_size_filter'))
     if node_size_filter > 0:
@@ -116,5 +130,8 @@ def get_mog():
     gcc_only = request.args.get('gcc_only') == 'true'
     if gcc_only:
         mog.extract_greatest_connect_component()
+
+    if graph.number_of_nodes() > 5000:
+        mog.strip_components_from_nodes()
 
     return mog.to_json()
