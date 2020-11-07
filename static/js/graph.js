@@ -12,35 +12,39 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
     // Variables specific to this function
     let svg_g = svg.append("g");
+    let svg_txt = svg.append("g");
 
     let use_link = graph_data.links.filter(function(d){return d.source!="null"&&d.target!="null";});
 
     let link = svg_g.append( "g" )
-                .attr( "class", "links" )
-                .selectAll( "line" )
-                .data( use_link )
-                    .enter().append( "line" )
-                        .attr( "stroke-width", 1 )
-                        .attr( "stroke", "lightgray" );
+        .attr( "class", "links" )
+        .selectAll( "line" )
+        .data( use_link )
+        .enter().append( "line" )
+        .attr( "stroke-width", 1 )
+        .attr( "stroke", "lightgray" );
 
     let node = svg_g.append("g")
-                .attr("class", "nodes")
-                .selectAll("circle")
-                .data(graph_data.nodes).enter()
-                    .append("circle")
-                        .attr("r", 5 )
-                        .attr("fill", "black" )
-                        .call(d3.drag()
-                            .on("start", dragstarted)
-                            .on("drag", dragged)
-                            .on("end", dragended) );
+        .attr("class", "nodes")
+        .selectAll("circle")
+        .data(graph_data.nodes).enter()
+        .append("circle")
+        .attr("r", 5 )
+        .attr("fill", "black" )
+        .attr('stroke','black')
+        .attr('stroke-width','1px')
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended) );
 
     let simulation = d3.forceSimulation()
-                        .force( "link",   d3.forceLink().id( function(d) { return d.id; } ) )
-                        .force( "charge", d3.forceManyBody() )
-                        .force( "center", d3.forceCenter(svg_width / 2, svg_height / 2) )
-                        .nodes(graph_data.nodes)
-                        .on("tick", ticked );
+        .force( "link",   d3.forceLink().id( function(d) { return d.id; } ) )
+        .force( "charge", d3.forceManyBody() )
+        .force( "center", d3.forceCenter(svg_width / 2, svg_height / 2) )
+        .nodes(graph_data.nodes)
+        .on("tick", ticked )
+        .on("end", function(){console.log("end")});
 
     simulation.force("link").links(use_link);
 
@@ -48,7 +52,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
     zoom_handler(svg);
 
 
-   function ticked() {
+    function ticked() {
         link
             .attr("x1", d => d.source.x )
             .attr("y1", d => d.source.y )
@@ -85,7 +89,6 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
     function zoom_actions(){
         svg_g.attr("transform", d3.event.transform);
-        //prior_tform = d3.event.transform;
     }
 
 
@@ -98,11 +101,11 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             link.attr("stroke-width", width_func );
         },
 
-        update_node_color : function( _color_data ){
+        update_node_color : function( color_scheme, _color_data ){
             color_data = _color_data;
             ext = d3.extent( Object.keys(color_data), d=>color_data[d] );
-            seqColorScheme.domain( ext );
-            node.attr("fill", d => seqColorScheme( color_data[d.id] ) );
+            color_scheme.domain( ext );
+            node.attr("fill", d => color_scheme( color_data[d.id] ) );
         },
 
         restart_simulation : function(){
@@ -110,7 +113,67 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
         },
 
         remove : function(){
+            simulation.stop();
             svg_g.remove();
+            svg_txt.remove();
+        },
+
+        add_count_labels : function(){
+            svg_txt.append("text")
+                .attr("x", svg_width-5 )
+                .attr("y", svg_height-15 )
+                .text(  graph_data.nodes.length + " nodes")
+                    .attr("font-family", "sans-serif")
+                    .attr("text-anchor", "end")
+                    .attr("font-size", "10px")
+                    .attr("fill", "red");
+            svg_txt.append("text")
+                .attr("x", svg_width-5 )
+                .attr("y", svg_height -5 )
+                .text(  graph_data.links.length + " edges")
+                    .attr("font-family", "sans-serif")
+                    .attr("text-anchor", "end")
+                    .attr("font-size", "10px")
+                    .attr("fill", "red");
+        },
+
+        zoomFit : function(paddingPercent, transitionDuration) {
+            var bounds = svg_g.node().getBBox();
+            var parent = svg_g.node().parentElement;
+            //var fullWidth = parent.clientWidth,
+            //    fullHeight = parent.clientHeight;
+            var width = bounds.width,
+                height = bounds.height;
+            var midX = bounds.x + width / 2,
+                midY = bounds.y + height / 2;
+
+            if (width == 0 || height == 0) return; // nothing to fit
+
+
+
+            var scale = (paddingPercent || 0.75) / Math.max(width / svg_width, height / svg_height);
+            var translate = [svg_width / 2 - scale * midX, svg_height / 2 - scale * midY];
+
+            var transform = d3.zoomIdentity
+                .translate(translate[0], translate[1])
+                .scale(scale);
+
+            node
+                .transition()
+                .duration(transitionDuration || 0) // milliseconds
+                .call(zoom_handler.transform, transform);
+
+        },
+
+        send_to_url : function(url){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            tmp_data = {'nodes':graph_data.nodes,'links':[]};
+            graph_data.links.forEach( function(L){
+               tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
+            });
+            xhr.send(JSON.stringify(tmp_data));
         }
     }
 

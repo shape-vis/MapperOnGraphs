@@ -4,9 +4,9 @@ import functools
 import math
 
 
-def density(g, _eps=0.5):
+def density(g, _weight, _eps=0.5):
     ret = {}
-    for x in nx.shortest_path_length(g):
+    for x in nx.shortest_path_length(g, weight=_weight):
         scaled = map(lambda a: math.exp(-a * a / _eps), x[1].values())
         ret[x[0]] = functools.reduce(lambda a, b: a + b, scaled)
     return ret
@@ -19,10 +19,7 @@ def eigen_function(g, _weight, _normalized=False):
     else:
         lap = nx.laplacian_matrix(g, nodelist=order, weight=_weight)
 
-    #print(lap.A)
     w, v = np.linalg.eigh(lap.A)
-
-    eigval = list(enumerate(w))
 
     ret = []
     for i in range(len(w)):
@@ -38,13 +35,13 @@ def eigen_function(g, _weight, _normalized=False):
     return ret
 
 
-def pagerank(g, _alpha=0.85):
-    return nx.pagerank(g, alpha=_alpha)
+def pagerank(g, _weight, _alpha=0.85):
+    return nx.pagerank(g, weight=_weight, alpha=_alpha)
 
 
-def average_geodesic_distance(g):
+def average_geodesic_distance(g, _weight):
     ret = {}
-    for x in nx.shortest_path_length(g):
+    for x in nx.shortest_path_length(g, weight=_weight):
         ret[x[0]] = functools.reduce(lambda a, b: a + b, x[1].values()) / (g.number_of_nodes() - 1)
     return ret
 
@@ -60,3 +57,4 @@ def fiedler_vector(g, _weight, _normalized=False):
     for i in range(len(node_list)):
         ret[node_list[i]] = fv[i]
     return ret
+

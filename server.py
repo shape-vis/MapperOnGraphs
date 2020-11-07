@@ -57,15 +57,15 @@ def load_filter_function(ranked=False):
 @app.route('/')
 def send_main():
     try:
-        return send_file('static/main.html')
+        return send_file('static/index.html')
     except Exception as e:
         return str(e)
 
 
-@app.route('/very_large.html')
-def send_very_large():
+@app.route('/<path:path>')
+def send_very_large(path):
     try:
-        return send_file('static/very_large.html')
+        return send_from_directory('static', path)
     except Exception as e:
         return str(e)
 
@@ -98,11 +98,40 @@ def get_filter_function():
     return json.dumps(load_filter_function(request.args.get('rank_filter') == 'true'))
 
 
+def get_cache_filename():
+    rank_filter = 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
+    gcc_only = 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
+
+    return 'cache/mog_' + request.args.get('dataset') + '_' + request.args.get('datafile') + '_' \
+           + request.args.get('filter_func') + '_' + rank_filter + '_' \
+           + request.args.get('coverN') + '_' + request.args.get('coverOverlap') + '_' \
+           + request.args.get('component_method') + '_' + request.args.get('link_method') + '_' \
+           + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
+
+
+@app.route('/mog_cache', methods=['GET', 'POST'])
+def cache_mog():
+
+    #print(file)
+
+    with open(get_cache_filename(), 'w') as outfile:
+        json.dump(request.json, outfile)
+
+    #print(request.args);
+    #print(request.json);
+    return "{}"
+
+
 @app.route('/mog', methods=['GET', 'POST'])
 def get_mog():
     # Check that the request is valid
     if not request_valid(True, True, True):
         return "{}"
+
+    cf = get_cache_filename()
+    if os.path.exists(cf):
+        print("FOUND IN CACHE: " + cf)
+        return send_file(cf)
 
     # Load the graph and filter function
     graph_data, graph = load_graph()
@@ -115,13 +144,14 @@ def get_mog():
     cover = mapper.form_cover(values, intervals, overlap)
 
     # Construct MOG
-    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'), request.args.get('link_method'))
+    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'),
+                                request.args.get('link_method'))
 
-    print( "Input Node Count: " + str(graph.number_of_nodes()))
-    print( "Input Edge Count: " + str(graph.number_of_nodes()))
-    print( "MOG Node Count: " + str(mog.number_of_nodes()))
-    print( "MOG Edge Count: " + str(mog.number_of_nodes()))
-    print( "MOG Compute Time: " + str(mog.compute_time()) + " seconds")
+    print("Input Node Count: " + str(graph.number_of_nodes()))
+    print("Input Edge Count: " + str(graph.number_of_nodes()))
+    print("MOG Node Count: " + str(mog.number_of_nodes()))
+    print("MOG Edge Count: " + str(mog.number_of_nodes()))
+    print("MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
     node_size_filter = int(request.args.get('mapper_node_size_filter'))
     if node_size_filter > 0:
@@ -134,4 +164,17 @@ def get_mog():
     if graph.number_of_nodes() > 5000:
         mog.strip_components_from_nodes()
 
-    return mog.to_json()
+    json = mog.to_json()
+
+    with open(get_cache_filename(), 'w') as outfile:
+        outfile.write( json)
+
+    return json
+
+
+if __name__ == '__main__':
+    if not os.path.exists("cache"):
+        os.mkdir("cache")
+    # data_mod.generate_data(180)
+    data_mod.scan_datasets()
+    app.run(host='0.0.0.0', port=5000)
