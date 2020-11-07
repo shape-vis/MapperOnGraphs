@@ -52,6 +52,17 @@ function get_selected_option( elementID ){
     if( e == null ) return null;
     return e.options[e.selectedIndex].value;
 }
+function get_selected_value( elementID ){
+    var e = document.getElementById(elementID);
+    if( e == null ) return null;
+    return e.value;
+}
+function get_checked_value( elementID ){
+    var e = document.getElementById(elementID);
+    if( e == null ) return null;
+    if( e.checked ) return e.value;
+    return "false";
+}
 function get_selected_dataset(){ return get_selected_option("dataset"); }
 function get_selected_datafile(){ return get_selected_option("datafile"); }
 function get_selected_filter_func(){ return get_selected_option("filter_func"); }

@@ -12,7 +12,6 @@ import mog.filter_functions as ff
 
 data_sets = {}
 
-max_time_per_file = 1
 
 filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ecc': 'Eccentricity',
@@ -31,26 +30,8 @@ filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ev_norm_4': 'Eigen Function Normalized (5th)',
                          'ev_norm_5': 'Eigen Function Normalized (6th)'}
 
-'''
-data_gen = ["data/source/not_in_paper/football_out.JSON", "data/source/not_in_paper/airport6632_gcc.JSON",
-            "data/source/not_in_paper/barabasi_albert_graph(10,5).json",
-            "data/source/not_in_paper/barabasi_albert_graph(20,10).json",
-            "data/source/not_in_paper/barabasi_albert_graph(20,3).json",
-            "data/source/not_in_paper/barabasi_albert_graph(50,40).json",
-            "data/source/not_in_paper/bcsstk20.json", "data/source/not_in_paper/bcsstk22.json",
-            "data/source/not_in_paper/beach.json", "data/source/not_in_paper/caveman_graph[3,5].json",
-            "data/source/not_in_paper/caveman_graph[7,4].json", "data/source/not_in_paper/chvatal_graph.json",
-            "data/source/not_in_paper/corr1.json", "data/source/not_in_paper/davis_southern_women_graph.json",
-            "data/source/realworld/circle_of_science.json", "data/source/realworld/USair97.json"]
-'''
-data_gen = []
-for d0 in os.listdir("data/source"):
-    if os.path.isdir("data/source/" + d0):
-        for d1 in os.listdir("data/source/" + d0):
-            if fnmatch.fnmatch(d1.lower(), "*.json"):
-                data_gen.append("data/source/" + d0 + "/" + d1)
-            if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                data_gen.append("data/source/" + d0 + "/" + d1)
+
+
 
 
 def read_json_graph(filename):
@@ -71,15 +52,34 @@ def read_graph_file(filename):
     return [None, graph]
 
 
+def read_tsv_file(filename):
+    f = open(filename)
+    graph = nx.Graph()
+    for _x in f:
+        if _x[0] == '#': continue
+        x = _x.split()
+        if not graph.has_node(x[0]):
+            graph.add_node(x[0])
+        if not graph.has_node(x[1]):
+            graph.add_node(x[1])
+        if graph.has_edge(x[0],x[1]):
+            print("edge exists")
+        if len(x)==2:
+            graph.add_edge(x[0], x[1], value=1)
+        else:
+            graph.add_edge(x[0], x[1], value=float(x[2]))
+    return [None, graph]
+
+
 def write_json_data(filename, data):
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
 
 
 # Generate AGD
-def generate_agd(out_path, graph):
+def generate_agd(out_path, graph, weight):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.average_geodesic_distance(graph))
+        write_json_data(out_path, ff.average_geodesic_distance(graph, _weight=weight))
 
 
 # Generate eccentricity
@@ -89,9 +89,9 @@ def generate_ecc(out_path, graph):
 
 
 # Generate pagerank
-def generate_pr(out_path, graph, alpha):
+def generate_pr(out_path, graph, weight, alpha):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.pagerank(graph, alpha))
+        write_json_data(out_path, ff.pagerank(graph, weight, alpha))
 
 
 # Generate fiedler vector
@@ -104,13 +104,13 @@ def generate_fv(out_path, graph, weight, normalized):
 
 
 # Generate density
-def generate_den(out_path, graph, eps):
+def generate_den(out_path, graph, weight, eps):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.density(graph, eps))
+        write_json_data(out_path, ff.density(graph, weight, eps))
 
 
 # Generate eigen functions
-def generate_eig(out_path, graph, which_eig, weight, normalized):
+def generate_eig(out_path, graph, weight, which_eig, normalized):
     try:
         compute = False
         for ev in which_eig:
@@ -127,14 +127,15 @@ def generate_eig(out_path, graph, which_eig, weight, normalized):
         print(">>> FAILED (eigen): type error")
 
 
-
-def process_datafile(in_filename):
+def process_datafile(in_filename, max_time_per_file=1):
     print("Processing: " + in_filename)
 
     if fnmatch.fnmatch(in_filename.lower(), "*.json"):
         data, graph = read_json_graph(in_filename)
     elif fnmatch.fnmatch(in_filename.lower(), "*.graph"):
         data, graph = read_graph_file(in_filename)
+    elif fnmatch.fnmatch(in_filename.lower(), "*.tsv"):
+        data, graph = read_tsv_file(in_filename)
     else:
         return
 
@@ -159,14 +160,14 @@ def process_datafile(in_filename):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    procs = [multiprocessing.Process(target=generate_agd, args=(out_dir + "/agd.json", graph)),
+    procs = [multiprocessing.Process(target=generate_agd, args=(out_dir + "/agd.json", graph, 'value')),
              multiprocessing.Process(target=generate_ecc, args=(out_dir + "/ecc.json", graph)),
-             multiprocessing.Process(target=generate_pr, args=(out_dir + "/pr_0_85.json", graph, 0.85)),
+             multiprocessing.Process(target=generate_pr, args=(out_dir + "/pr_0_85.json", graph, 'value', 0.85)),
              multiprocessing.Process(target=generate_fv, args=(out_dir + "/fv.json", graph, 'value', False)),
              multiprocessing.Process(target=generate_fv, args=(out_dir + "/fv_norm.json", graph, 'value', True)),
-             multiprocessing.Process(target=generate_den, args=(out_dir + "/den_0_5.json", graph, 0.5)),
-             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_{}.json", graph, range(1, 6), 'value', False)),
-             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_norm_{}.json", graph, range(1, 6), 'value', True))]
+             multiprocessing.Process(target=generate_den, args=(out_dir + "/den_0_5.json", graph, 'value', 0.5)),
+             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_{}.json", graph, 'value', range(1, 6), False)),
+             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_norm_{}.json", graph, 'value', range(1, 6), True))]
 
     # process the functions in parallel for max_time_per_file
     end_time = time.time()+max_time_per_file
@@ -187,27 +188,40 @@ if not os.path.exists("data/medium"): os.mkdir("data/medium")
 if not os.path.exists("data/large"): os.mkdir("data/large")
 if not os.path.exists("data/very_large"): os.mkdir("data/very_large")
 
-'''
-for file in data_gen:
-    try:
-        process_datafile(file)
-    except json.decoder.JSONDecodeError:
-        print(">>> FAILED: json parse " + file)
-    except TypeError:
-        print(">>> FAILED: type error " + file)
-    except nx.exception.NetworkXError:
-        print(">>> FAILED: graph not connected error " + file)
-    except:
-        print(file + " failed with " + str(sys.exc_info()[0]))
-'''
 
-for d0 in os.listdir("data/"):
-    if os.path.isdir("data/" + d0):
-        data_sets[d0] = {}
-        for d1 in os.listdir("data/" + d0):
-            if fnmatch.fnmatch(d1.lower(), "*.json"):
-                ff_dir = os.path.splitext("data/" + d0 + '/' + d1)[0]
-                data_sets[d0][d1] = {}
-                for ff in filter_function_names.keys():
-                    if os.path.exists(ff_dir + "/" + ff + ".json"):
-                        data_sets[d0][d1][ff] = filter_function_names[ff]
+def generate_data(max_time_per_file=1):
+    data_gen = []
+    for d0 in os.listdir("data/source"):
+        if os.path.isdir("data/source/" + d0):
+            for d1 in os.listdir("data/source/" + d0):
+                if fnmatch.fnmatch(d1.lower(), "*.json"):
+                    data_gen.append("data/source/" + d0 + "/" + d1)
+                if fnmatch.fnmatch(d1.lower(), "*.graph"):
+                    data_gen.append("data/source/" + d0 + "/" + d1)
+                if fnmatch.fnmatch(d1.lower(), "*.tsv"):
+                    data_gen.append("data/source/" + d0 + "/" + d1)
+
+    for file in data_gen:
+        try:
+            process_datafile(file, max_time_per_file)
+        except json.decoder.JSONDecodeError:
+            print(">>> FAILED: json parse " + file)
+        except TypeError:
+            print(">>> FAILED: type error " + file)
+        except nx.exception.NetworkXError:
+            print(">>> FAILED: graph not connected error " + file)
+        except:
+            print(file + " failed with " + str(sys.exc_info()[0]))
+
+
+def scan_datasets():
+    for d0 in os.listdir("data/"):
+        if os.path.isdir("data/" + d0):
+            data_sets[d0] = {}
+            for d1 in os.listdir("data/" + d0):
+                if fnmatch.fnmatch(d1.lower(), "*.json"):
+                    ff_dir = os.path.splitext("data/" + d0 + '/' + d1)[0]
+                    data_sets[d0][d1] = {}
+                    for ff in filter_function_names.keys():
+                        if os.path.exists(ff_dir + "/" + ff + ".json"):
+                            data_sets[d0][d1][ff] = filter_function_names[ff]

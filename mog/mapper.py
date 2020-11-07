@@ -95,6 +95,7 @@ def get_nodes(values, components):
     for x in components:
         comp_vals = list(map((lambda _x: values[_x]), x))
         nodes.append({'id': 'mapper_node_' + str(len(nodes)),
+                      #'layer'
                       'min_value': min(comp_vals),
                       'max_value': max(comp_vals),
                       'avg_value': stats.mean(comp_vals),
