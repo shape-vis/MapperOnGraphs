@@ -1,9 +1,9 @@
 
 
-var FDL_Graph_Vis = function( svg_name, graph_data ) {
+var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
-
-    //let color_data = null;
+    // Copy of the graph
+    let g_data = _graph_data;
 
     // General Variables
     let svg = d3.select(svg_name);
@@ -14,14 +14,12 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
     let svg_g = svg.append("g");
     let svg_txt = svg.append("g");
 
-    let use_link = graph_data.links.filter(function(d){return d.source!="null"&&d.target!="null";});
-
 
 
     let link = svg_g.append( "g" )
         .attr( "class", "links" )
         .selectAll( "line" )
-        .data( use_link )
+        .data( g_data.links )
         .enter().append( "line" )
         .attr( "stroke-width", 1 )
         .attr( "stroke", "lightgray" );
@@ -29,7 +27,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
     let node = svg_g.append("g")
         .attr("class", "nodes")
         .selectAll("circle")
-        .data(graph_data.nodes).enter()
+        .data(g_data.nodes).enter()
         .append("circle")
         .attr("r", 5 )
         .attr("fill", "black" )
@@ -44,11 +42,11 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
         .force( "link",   d3.forceLink().id( function(d) { return d.id; } ) )
         .force( "charge", d3.forceManyBody() )
         .force( "center", d3.forceCenter(svg_width / 2, svg_height / 2) )
-        .nodes(graph_data.nodes)
+        .nodes(g_data.nodes)
         .on("tick", ticked )
         //.on("end", function(){console.log("end")});
 
-    simulation.force("link").links(use_link);
+    simulation.force("link").links(g_data.links);
 
     let zoom_handler = d3.zoom().on("zoom", zoom_actions);
     zoom_handler(svg);
@@ -135,7 +133,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
         update_node_color : function( color_scheme, _func, _data=null ){
             //color_data = _color_data;
             if( _data == null ){
-                _data = graph_data.nodes
+                _data = g_data.nodes
                 ext = d3.extent( _data, _func )
                 node.attr("fill", d => color_scheme( _func(d) ) );
             }
@@ -164,7 +162,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             svg_txt.append("text")
                 .attr("x", svg_width-5 )
                 .attr("y", svg_height-15 )
-                .text(  graph_data.nodes.length + " nodes")
+                .text(  g_data.nodes.length + " nodes")
                     .attr("font-family", "sans-serif")
                     .attr("text-anchor", "end")
                     .attr("font-size", "10px")
@@ -172,7 +170,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             svg_txt.append("text")
                 .attr("x", svg_width-5 )
                 .attr("y", svg_height -5 )
-                .text(  graph_data.links.length + " edges")
+                .text(  g_data.links.length + " edges")
                     .attr("font-family", "sans-serif")
                     .attr("text-anchor", "end")
                     .attr("font-size", "10px")
@@ -187,8 +185,8 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            tmp_data = {'nodes':graph_data.nodes,'links':[]};
-            graph_data.links.forEach( function(L){
+            tmp_data = {'nodes':g_data.nodes,'links':[]};
+            g_data.links.forEach( function(L){
                tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
             });
             xhr.send(JSON.stringify(tmp_data));
