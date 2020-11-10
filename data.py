@@ -6,12 +6,12 @@ import os
 import sys
 import time
 
+
 import networkx as nx
 
 import mog.filter_functions as ff
 
 data_sets = {}
-
 
 filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ecc': 'Eccentricity',
@@ -29,9 +29,6 @@ filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ev_norm_3': 'Eigen Function Normalized (4th)',
                          'ev_norm_4': 'Eigen Function Normalized (5th)',
                          'ev_norm_5': 'Eigen Function Normalized (6th)'}
-
-
-
 
 
 def read_json_graph(filename):
@@ -62,9 +59,9 @@ def read_tsv_file(filename):
             graph.add_node(x[0])
         if not graph.has_node(x[1]):
             graph.add_node(x[1])
-        if graph.has_edge(x[0],x[1]):
+        if graph.has_edge(x[0], x[1]):
             print("edge exists")
-        if len(x)==2:
+        if len(x) == 2:
             graph.add_edge(x[0], x[1], value=1)
         else:
             graph.add_edge(x[0], x[1], value=float(x[2]))
@@ -170,10 +167,10 @@ def process_datafile(in_filename, max_time_per_file=1):
              multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_norm_{}.json", graph, 'value', range(1, 6), True))]
 
     # process the functions in parallel for max_time_per_file
-    end_time = time.time()+max_time_per_file
+    end_time = time.time() + max_time_per_file
     for p in procs: p.start()
     for p in procs:
-        p.join(max(1,int(end_time-time.time())))
+        p.join(max(1, int(end_time - time.time())))
         if p.is_alive():
             p.terminate()
             p.join()
@@ -225,3 +222,10 @@ def scan_datasets():
                     for ff in filter_function_names.keys():
                         if os.path.exists(ff_dir + "/" + ff + ".json"):
                             data_sets[d0][d1][ff] = filter_function_names[ff]
+
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        generate_data(int(sys.argv[1]))
+    else:
+        generate_data(1)

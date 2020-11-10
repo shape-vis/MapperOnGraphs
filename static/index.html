@@ -55,6 +55,7 @@
     <script src="js/dataDownload.js"></script>
     <script src="js/cover.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/input.js"></script>
 
 </head>
 <body>
@@ -96,13 +97,21 @@
                                 onchange="change_filter_func();"></select>
                     </div>
                 </div>
+                <!--
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="rank_filter" name="rank_filter"
                            onchange="change_filter_func();">
                     <label class="form-check-label" for="rank_filter">
                         Rank Filter Values?
                     </label>
-                </div>
+                </div>-->
+
+                                <div class="d-inline-block align-middle" style="text-align: center;">
+                                <script>
+                                    let rank_cg = generate_checkbox('rank_filter','Use Rank Filter','change_filter_func()', 200)
+                                    document.write(rank_cg.getHTML())
+                                </script>
+                                </div>
             </div>
 
 
@@ -135,6 +144,7 @@
                             </div>
 
 
+                            <!--
                             <div class="row">
                                 <div class="col-4" style="padding-right: 3px;">
                                     <label for="component_method" style="margin-top: 3px;">Component Method</label>
@@ -149,8 +159,22 @@
                                         <option value="centrality">Centrality</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
+                                Component Method
+                                <div class="d-inline-block align-middle" style="text-align: center;">
+                                <script>
+                                    let component_rg = generate_radiogroup('component_method',
+                                                            [{value:'connected_components',label:'Connected Components',checked:true},
+                                                             {value:'modularity',label:'Modularity'},
+                                                             {value:'async_label_prop',label:'Async Label Propagation'},
+                                                             {value:'label_prop',label:'Label Propagation'},
+                                                             {value:'centrality',label:'Centrality'}],
+                                                            'change_cover()', 200)
+                                    document.write(component_rg.getHTML())
+                                </script>
+                                </div>
 
+                            <!--
                             <div class="row">
                                 <div class="col-4" style="padding-right: 3px;">
                                     <label for="link_method" style="margin-top: 3px;">Connectivity Method</label>
@@ -162,7 +186,17 @@
                                         <option value="connectivity">Connectivity</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
+                                Connectivity Method
+                                <div class="d-inline-block align-middle" style="text-align: center;">
+                                <script>
+                                    let link_rg = generate_radiogroup('link_method',[
+                                                {value:'overlap',label:'Overlap',checked:true},
+                                                {value:'connectivity',label:'Connectivity',checked:false}]
+                                        ,'change_cover()', 200)
+                                    document.write(link_rg.getHTML())
+                                </script>
+                                </div>
 
                         </div>
                     </div>
@@ -283,12 +317,18 @@
                 console.log(error);
             } else {
                 mog_data = data;
-                //console.log(data);
+                //console.log(data)
+                col_data = {}
+                data.nodes.forEach( function(n){
+                    col_data[n.id] = n.avg_value;
+                });
+
                 $("#mog_vis").empty();
                 set_mapper_positions_from_graph()
                 mog_vis = FDL_Graph_Vis("#mog_vis", mog_data);
                 mog_vis.update_node_radius(d => Math.sqrt(d.components.length));
-                mog_vis.update_node_color(d => d.max_value);
+                //mog_vis.update_node_color(colorSchemes[get_selected_filter_func()], col_data);
+                mog_vis.update_node_color(colorSchemes[get_selected_filter_func()], n=>n.avg_value );
                 mog_vis.update_link_width(d => Math.sqrt(d.value));
             }
         });
@@ -307,7 +347,7 @@
     function change_filter_func() {
         d3.json("filter_function?" + $("#parameterForm").serialize(), function (error, data) {
             //if( data.nodes.length < 5000 ) {
-                graph_vis.update_node_color(data);
+                graph_vis.update_node_color(colorSchemes[get_selected_filter_func()], n=>n, data);
             //}
 
             histo_vis.set_position( 50, 20, 80, 200 );
