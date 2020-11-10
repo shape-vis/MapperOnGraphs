@@ -96,18 +96,12 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
     function zoom_to_fit(paddingPercent, transitionDuration) {
         let bounds = svg_g.node().getBBox();
-        let parent = svg_g.node().parentElement;
-        //var fullWidth = parent.clientWidth,
-        //    fullHeight = parent.clientHeight;
-        let width = bounds.width,
-            height = bounds.height;
-        let midX = bounds.x + width / 2,
-            midY = bounds.y + height / 2;
+        let midX = bounds.x + bounds.width / 2,
+            midY = bounds.y + bounds.height / 2;
 
-        if (width == 0 || height == 0) return; // nothing to fit
+        if (bounds.width == 0 || bounds.height == 0) return; // nothing to fit
 
-
-        let scale = (paddingPercent || 0.75) / Math.max(width / svg_width, height / svg_height);
+        let scale = (paddingPercent || 0.75) / Math.max(bounds.width / svg_width, bounds.height / svg_height);
         let translate = [svg_width / 2 - scale * midX, svg_height / 2 - scale * midY];
 
         let transform = d3.zoomIdentity
@@ -120,8 +114,8 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             .call(zoom_handler.transform, transform);
     }
 
-    svg_g.append("svg:image")
-            .attr('x', 155)
+    svg_txt.append("svg:image")
+            .attr('x', svg_width-25)
             .attr('y', 5)
             .attr('width', 20)
             .attr('height', 20)
