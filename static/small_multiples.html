@@ -193,17 +193,6 @@
 
 
 
-    var colorSchemes = {
-        'agd': d3.scaleSequential().interpolator(d3.interpolateGnBu),
-        'den_0_5': d3.scaleSequential().interpolator(d3.interpolateOranges),
-        'ecc': d3.scaleSequential().interpolator(d3.interpolateBuGn),
-        'ev_1': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'ev_norm_1': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'fv': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'fv_norm': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'pr_0_85': d3.scaleSequential().interpolator(d3.interpolateYlOrRd),
-        'default': d3.scaleSequential().interpolator(d3.interpolateGreys)
-    }
 
 
     let mogs = [];
@@ -234,20 +223,22 @@
             if (error) {
                 console.log(error);
             } else {
+                /*
                 col_data = {}
                 data.nodes.forEach( function(n){
                     col_data[n.id] = n.avg_value;
-                });
+                });*/
 
                 mog_vis = FDL_Graph_Vis(svg_name, data);
                 mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
-                mog_vis.update_node_color(colorSchemes[ff],col_data);
+                mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
                 mog_vis.update_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
                 mog_vis.add_count_labels();
+                mog_vis.set_end_callback( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) } );
                 mogs.push(mog_vis)
 
                 setTimeout( function(){ mog_vis.zoomFit(0.95,1000) }, 2000);
-                setTimeout( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) }, 5000);
+                //setTimeout( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) }, 5000);
             }
         });
 
@@ -278,7 +269,7 @@
         ff.forEach( cur_ff=>{
 
             for (let j = 0; j < 6; j ++) {
-                coverN = 2 + 3*j;
+                coverN = 2 + 4*j;
                 let options = {
                     'dataset': ds,
                     'datafile': df,

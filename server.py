@@ -1,6 +1,8 @@
 import json
 import os
 
+import sklearn.preprocessing
+
 from flask import Flask, request, send_from_directory
 from flask import send_file
 
@@ -49,7 +51,13 @@ def load_filter_function(ranked=False):
         tmp = list(ff_data.keys())
         tmp.sort(key=(lambda e: ff_data[e]))
         for i in range(len(tmp)):
-            ff_data[tmp[i]] = i
+            ff_data[tmp[i]] = i / (len(tmp) - 1)
+    else:
+        val_max = ff_data[max(ff_data.keys(), key=(lambda k: ff_data[k]))]
+        val_min = ff_data[min(ff_data.keys(), key=(lambda k: ff_data[k]))]
+        if val_min == val_max: val_max += 1
+        for (key, val) in ff_data.items():
+            ff_data[key] = (float(val) - val_min) / (val_max - val_min)
 
     return ff_data
 
@@ -102,8 +110,13 @@ def get_cache_filename():
     rank_filter = 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
     gcc_only = 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
 
-    return 'cache/mog_' + request.args.get('dataset') + '_' + request.args.get('datafile') + '_' \
-           + request.args.get('filter_func') + '_' + rank_filter + '_' \
+    dir = 'cache/' + request.args.get('dataset')
+    if not os.path.exists(dir): os.mkdir(dir)
+
+    dir += '/' + request.args.get('datafile')
+    if not os.path.exists(dir): os.mkdir(dir)
+
+    return dir + '/mog_' + request.args.get('filter_func') + '_' + rank_filter + '_' \
            + request.args.get('coverN') + '_' + request.args.get('coverOverlap') + '_' \
            + request.args.get('component_method') + '_' + request.args.get('link_method') + '_' \
            + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
@@ -111,14 +124,13 @@ def get_cache_filename():
 
 @app.route('/mog_cache', methods=['GET', 'POST'])
 def cache_mog():
-
-    #print(file)
+    # print(file)
 
     with open(get_cache_filename(), 'w') as outfile:
         json.dump(request.json, outfile)
 
-    #print(request.args);
-    #print(request.json);
+    # print(request.args);
+    # print(request.json);
     return "{}"
 
 
@@ -167,7 +179,7 @@ def get_mog():
     json = mog.to_json()
 
     with open(get_cache_filename(), 'w') as outfile:
-        outfile.write( json)
+        outfile.write(json)
 
     return json
 
@@ -175,6 +187,6 @@ def get_mog():
 if __name__ == '__main__':
     if not os.path.exists("cache"):
         os.mkdir("cache")
-    # data_mod.generate_data(180)
+    # data_mod.generate_data(1)
     data_mod.scan_datasets()
     app.run(host='0.0.0.0', port=5000)

@@ -3,7 +3,7 @@
 var FDL_Graph_Vis = function( svg_name, graph_data ) {
 
 
-    let color_data = null;
+    //let color_data = null;
 
     // General Variables
     let svg = d3.select(svg_name);
@@ -15,6 +15,8 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
     let svg_txt = svg.append("g");
 
     let use_link = graph_data.links.filter(function(d){return d.source!="null"&&d.target!="null";});
+
+
 
     let link = svg_g.append( "g" )
         .attr( "class", "links" )
@@ -44,7 +46,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
         .force( "center", d3.forceCenter(svg_width / 2, svg_height / 2) )
         .nodes(graph_data.nodes)
         .on("tick", ticked )
-        .on("end", function(){console.log("end")});
+        //.on("end", function(){console.log("end")});
 
     simulation.force("link").links(use_link);
 
@@ -92,6 +94,41 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
     }
 
 
+    function zoom_to_fit(paddingPercent, transitionDuration) {
+        let bounds = svg_g.node().getBBox();
+        let parent = svg_g.node().parentElement;
+        //var fullWidth = parent.clientWidth,
+        //    fullHeight = parent.clientHeight;
+        let width = bounds.width,
+            height = bounds.height;
+        let midX = bounds.x + width / 2,
+            midY = bounds.y + height / 2;
+
+        if (width == 0 || height == 0) return; // nothing to fit
+
+
+        let scale = (paddingPercent || 0.75) / Math.max(width / svg_width, height / svg_height);
+        let translate = [svg_width / 2 - scale * midX, svg_height / 2 - scale * midY];
+
+        let transform = d3.zoomIdentity
+            .translate(translate[0], translate[1])
+            .scale(scale);
+
+        node
+            .transition()
+            .duration(transitionDuration || 0) // milliseconds
+            .call(zoom_handler.transform, transform);
+    }
+
+    svg_g.append("svg:image")
+            .attr('x', 155)
+            .attr('y', 5)
+            .attr('width', 20)
+            .attr('height', 20)
+            .attr("xlink:href", "static/img/fit-to-width.png")
+            .on("click",zoom_to_fit )
+
+
     return {
         update_node_radius : function( radius_func ){
             node.attr("r", radius_func );
@@ -101,11 +138,22 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
             link.attr("stroke-width", width_func );
         },
 
-        update_node_color : function( color_scheme, _color_data ){
-            color_data = _color_data;
-            ext = d3.extent( Object.keys(color_data), d=>color_data[d] );
-            color_scheme.domain( ext );
-            node.attr("fill", d => color_scheme( color_data[d.id] ) );
+        update_node_color : function( color_scheme, _func, _data=null ){
+            //color_data = _color_data;
+            if( _data == null ){
+                _data = graph_data.nodes
+                ext = d3.extent( _data, _func )
+                node.attr("fill", d => color_scheme( _func(d) ) );
+            }
+            else{
+                ext = d3.extent( Object.keys(_data), _func );
+                color_scheme.domain( ext );
+                node.attr("fill", d => color_scheme( _func(_data[d.id]) ) );
+            }
+        },
+
+        set_end_callback : function( cb ){
+            simulation.on('end',cb)
         },
 
         restart_simulation : function(){
@@ -138,31 +186,7 @@ var FDL_Graph_Vis = function( svg_name, graph_data ) {
         },
 
         zoomFit : function(paddingPercent, transitionDuration) {
-            var bounds = svg_g.node().getBBox();
-            var parent = svg_g.node().parentElement;
-            //var fullWidth = parent.clientWidth,
-            //    fullHeight = parent.clientHeight;
-            var width = bounds.width,
-                height = bounds.height;
-            var midX = bounds.x + width / 2,
-                midY = bounds.y + height / 2;
-
-            if (width == 0 || height == 0) return; // nothing to fit
-
-
-
-            var scale = (paddingPercent || 0.75) / Math.max(width / svg_width, height / svg_height);
-            var translate = [svg_width / 2 - scale * midX, svg_height / 2 - scale * midY];
-
-            var transform = d3.zoomIdentity
-                .translate(translate[0], translate[1])
-                .scale(scale);
-
-            node
-                .transition()
-                .duration(transitionDuration || 0) // milliseconds
-                .call(zoom_handler.transform, transform);
-
+            zoom_to_fit( paddingPercent, transitionDuration);
         },
 
         send_to_url : function(url){
