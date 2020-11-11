@@ -1,14 +1,14 @@
 
     var colorSchemes = {
-        'agd': d3.scaleSequential().interpolator(d3.interpolateGnBu),
-        'den_0_5': d3.scaleSequential().interpolator(d3.interpolateOranges),
-        'ecc': d3.scaleSequential().interpolator(d3.interpolateBuGn),
-        'ev_1': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'ev_norm_1': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'fv': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'fv_norm': d3.scaleSequential().interpolator(d3.interpolateBuPu),
-        'pr_0_85': d3.scaleSequential().interpolator(d3.interpolateYlOrRd),
-        'default': d3.scaleSequential().interpolator(d3.interpolateGreys)
+        'agd': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGnBu),
+        'den_0_5': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateOranges),
+        'ecc': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuGn),
+        'ev_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+        'ev_norm_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+        'fv': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+        'fv_norm': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+        'pr_0_85': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateYlOrRd),
+        'default': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGreys)
     }
 
 

@@ -14,43 +14,66 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
     let svg_g = svg.append("g");
     let svg_txt = svg.append("g");
 
+    let link = null
+    let node = null
+    let simulation = null
+    let zoom_handler = null
+
+    let point_radius_func = 5
+    let stroke_width_func = 1
+
+    let end_cb = null
+
+    function load_visualization() {
+        link = svg_g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(g_data.links)
+            .enter().append("line")
+            .attr("stroke-width", stroke_width_func)
+            .attr("stroke", "lightgray");
+
+        node = svg_g.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(g_data.nodes).enter()
+            .append("circle")
+            .attr("r", point_radius_func )
+            .attr("fill", "black")
+            .attr('stroke', 'black')
+            .attr('stroke-width', '1px')
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(function (d) {
+                return d.id;
+            }))
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(svg_width / 2, svg_height / 2))
+            .nodes(g_data.nodes)
+            .on("tick", ticked)
+
+        if( end_cb ) simulation.on("end",end_cb)
+
+        simulation.force("link").links(g_data.links);
+
+        zoom_handler = d3.zoom().on("zoom", zoom_actions);
+        zoom_handler(svg);
+
+        svg.style("cursor", "auto" )
 
 
-    let link = svg_g.append( "g" )
-        .attr( "class", "links" )
-        .selectAll( "line" )
-        .data( g_data.links )
-        .enter().append( "line" )
-        .attr( "stroke-width", 1 )
-        .attr( "stroke", "lightgray" );
-
-    let node = svg_g.append("g")
-        .attr("class", "nodes")
-        .selectAll("circle")
-        .data(g_data.nodes).enter()
-        .append("circle")
-        .attr("r", 5 )
-        .attr("fill", "black" )
-        .attr('stroke','black')
-        .attr('stroke-width','1px')
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended) );
-
-    let simulation = d3.forceSimulation()
-        .force( "link",   d3.forceLink().id( function(d) { return d.id; } ) )
-        .force( "charge", d3.forceManyBody() )
-        .force( "center", d3.forceCenter(svg_width / 2, svg_height / 2) )
-        .nodes(g_data.nodes)
-        .on("tick", ticked )
-        //.on("end", function(){console.log("end")});
-
-    simulation.force("link").links(g_data.links);
-
-    let zoom_handler = d3.zoom().on("zoom", zoom_actions);
-    zoom_handler(svg);
-
+        svg_txt.append("svg:image")
+                .attr('x', svg_width-25)
+                .attr('y', 5)
+                .attr('width', 20)
+                .attr('height', 20)
+                .attr("xlink:href", "static/img/fit-to-width.png")
+                .on("click", ()=>zoom_to_fit(0.975,2500) )
+    }
 
     function ticked() {
         link
@@ -65,15 +88,10 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
             } );
     }
 
-    function clicked(d) {
-        //document.getElementById("object_details").innerHTML = JSON.stringify(d, undefined, 2);
-    }
-
     function dragstarted(d) {
         if (!d3.event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
-        //document.getElementById("object_details").innerHTML = JSON.stringify(d, undefined, 2);
     }
 
     function dragged(d) {
@@ -90,7 +108,6 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
     function zoom_actions(){
         svg_g.attr("transform", d3.event.transform);
     }
-
 
     function zoom_to_fit(paddingPercent, transitionDuration) {
         let bounds = svg_g.node().getBBox();
@@ -112,50 +129,86 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
             .call(zoom_handler.transform, transform);
     }
 
-    svg_txt.append("svg:image")
-            .attr('x', svg_width-25)
-            .attr('y', 5)
-            .attr('width', 20)
-            .attr('height', 20)
-            .attr("xlink:href", "static/img/fit-to-width.png")
-            .on("click",zoom_to_fit )
+
 
 
     return {
-        update_node_radius : function( radius_func ){
-            node.attr("r", radius_func );
+        set_node_radius : function( radius_func ){
+            point_radius_func = radius_func;
+            if( node ) node.attr("r", point_radius_func );
         },
 
-        update_link_width : function( width_func ){
-            link.attr("stroke-width", width_func );
+        set_link_width : function( width_func ){
+            stroke_width_func = width_func
+            if( link ) link.attr("stroke-width", stroke_width_func );
         },
 
-        update_node_color : function( color_scheme, _func, _data=null ){
-            //color_data = _color_data;
-            if( _data == null ){
-                _data = g_data.nodes
-                ext = d3.extent( _data, _func )
-                node.attr("fill", d => color_scheme( _func(d) ) );
-            }
-            else{
-                ext = d3.extent( Object.keys(_data), _func );
-                color_scheme.domain( ext );
-                node.attr("fill", d => color_scheme( _func(_data[d.id]) ) );
+        //set_node_color : function( color_scheme, _func, _data=null ){
+        set_node_color : function( _func, _data=null ){
+            if(node) {
+                //color_data = _color_data;
+                if (_data == null) {
+                    _data = g_data.nodes
+                    ext = d3.extent(_data, _func)
+                    node.attr("fill", d => color_scheme(_func(d)));
+                } else {
+                    //ext = d3.extent(Object.keys(_data), _func);
+                    //color_scheme.domain(ext);
+                    //node.attr("fill", d => color_scheme(_func(_data[d.id])));
+                    node.attr("fill", d => _func(_data[d.id]));
+                }
             }
         },
 
         set_end_callback : function( cb ){
-            simulation.on('end',cb)
+            end_cb = cb
+            if( simulation ) simulation.on('end',cb)
+        },
+
+
+        load : function(){
+            //console.log(g_data.nodes.length);
+                if( g_data.nodes.length < 1000 && g_data.links.length < 2500 ) {
+                    /*svg.style("cursor", "progress" )
+                    setTimeout( ()=>load_visualization(), 10);*/
+                    load_visualization()
+                }
+                else{
+                    let tmp_text = svg_txt.append("text")
+                            .attr("x", svg_width/2 )
+                            .attr("y", svg_height/2 )
+                            .attr("font-family", "sans-serif")
+                            .attr("text-anchor", "middle")
+                            .attr("cursor","alias")
+                            .attr("font-size", "16px")
+                            .attr("fill", "red")
+                            .on("click",function(){
+                                tmp_text.remove()
+                                svg.style("cursor", "progress" )
+                                setTimeout( ()=>load_visualization(), 10);
+                            });
+
+                    tmp_text.append("tspan").text("Large Graph")
+                        .attr("dy","-1.2em")
+                        .attr("x",svg_width/2)
+                    tmp_text.append("tspan").text("(n: " + g_data.nodes.length + ", e: " + g_data.links.length + ")")
+                        .attr("dy","1.2em")
+                        .attr("x",svg_width/2)
+                    tmp_text.append("tspan").text("Click To Load Anyways")
+                        .attr("dy","1.2em")
+                        .attr("x",svg_width/2)
+                }
+
         },
 
         restart_simulation : function(){
-            simulation.alphaTarget(0).restart();
+            if( simulation ) simulation.alphaTarget(0).restart();
         },
 
         remove : function(){
-            simulation.stop();
-            svg_g.remove();
-            svg_txt.remove();
+            if( simulation ) simulation.stop();
+            if( svg_g ) svg_g.remove();
+            if( svg_txt ) svg_txt.remove();
         },
 
         add_count_labels : function(){
@@ -177,9 +230,11 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
                     .attr("fill", "red");
         },
 
+        /*
         zoomFit : function(paddingPercent, transitionDuration) {
             zoom_to_fit( paddingPercent, transitionDuration);
         },
+         */
 
         send_to_url : function(url){
             var xhr = new XMLHttpRequest();
