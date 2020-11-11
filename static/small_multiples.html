@@ -220,11 +220,12 @@
             } else {
                 mog_data = data
                 mog_vis = FDL_Graph_Vis(svg_name, mog_data);
-                mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
-                mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
-                mog_vis.update_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
+                mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
+                mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_value));
+                mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
                 mog_vis.add_count_labels();
                 mog_vis.set_end_callback( ()=>send_to_cache() );
+                mog_vis.load()
             }
         });
 

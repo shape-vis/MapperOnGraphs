@@ -4,6 +4,6 @@
 
 export FLASK_APP=server.py
 
-python data.py 1
+python data.py 60
 
 deactivate
