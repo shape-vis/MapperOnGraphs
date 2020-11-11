@@ -26,7 +26,7 @@ var histogram_vis = function( svg_name ) {
             bars = null;
         },
 
-        update_drawing : function( bar_count, data ){
+        update_drawing : function( bar_count, data, colorScheme ){
 
             if( bars ) bars.remove();
 
@@ -45,8 +45,6 @@ var histogram_vis = function( svg_name ) {
                         .range([ position.top, position.bottom ])
                         .domain(ext);
 
-            seqColorScheme.domain( ext );
-
             bars = svg.append( "g" )
                         .selectAll( "rect" )
                           .data(bins)
@@ -56,7 +54,7 @@ var histogram_vis = function( svg_name ) {
                             .attr("y", d => y(d.x0) )
                             .attr("width", d => x(d.length)-x(0)+2 )
                             .attr("height", d => y(d.x1) - y(d.x0) - 1 )
-                            .style("fill", d => seqColorScheme(d.x0) )
+                            .style("fill", d => colorScheme(d.x0) )
 
         }
     }

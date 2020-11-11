@@ -6,7 +6,7 @@ function generate_checkbox(id, label, onclick='', width=-1){
     _html += '<label class="btn btn-outline-secondary" '
     if( width > 0 ) _html += 'style="width:' + width + 'px;" '
     _html += '>'
-    _html += '<input type="checkbox" id="'+id+'" name="'+id+'" autocomplete="off" onclick="toggle_button(this);'+onclick+'">'+label+'</label><br>'
+    _html += '<input type="checkbox" id="'+id+'" name="'+id+'" value="true" autocomplete="off" onclick="toggle_button(this);'+onclick+'">'+label+'</label><br>'
     _html += '</div>'
 
     return {
