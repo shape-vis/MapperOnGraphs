@@ -273,6 +273,7 @@
     let cover_vis = null;
 
     function set_mapper_positions_from_graph(){
+        /*
         let tmp = {}
         graph_data.nodes.forEach(function(n){
             tmp[n.id] = n
@@ -286,9 +287,12 @@
             m.x = m.x / m.components.length
             m.y = m.y / m.components.length
         })
+
+         */
     }
 
     function set_graph_positions_from_mapper(){
+        /*
         console.log(graph_data)
         let tmp = {}
         let gx = d3.extent( graph_data.nodes, d=>d.x );
@@ -309,27 +313,39 @@
         graph_vis.restart_simulation()
         console.log(tmp)
         console.log(graph_data)
+
+         */
     }
 
     function update_mog() {
+        if( mog_vis ) mog_vis.remove()
+
         d3.json("mog?" + $("#parameterForm").serialize(), function (error, data) {
             if (error) {
                 console.log(error);
             } else {
                 mog_data = data;
                 //console.log(data)
-                col_data = {}
+                /*col_data = {}
                 data.nodes.forEach( function(n){
                     col_data[n.id] = n.avg_value;
-                });
+                });*/
 
-                $("#mog_vis").empty();
+                //$("#mog_vis").empty();
+
+                let maxR = Math.sqrt(d3.max( mog_data.nodes, d=>d.component_count))
+                var myScale = d3.scaleLinear()
+                      .domain([1, maxR])
+                      .range([2, Math.min(20,maxR)]);
+
                 set_mapper_positions_from_graph()
                 mog_vis = FDL_Graph_Vis("#mog_vis", mog_data);
-                mog_vis.update_node_radius(d => Math.sqrt(d.components.length));
+                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
                 //mog_vis.update_node_color(colorSchemes[get_selected_filter_func()], col_data);
-                mog_vis.update_node_color(colorSchemes[get_selected_filter_func()], n=>n.avg_value );
-                mog_vis.update_link_width(d => Math.sqrt(d.value));
+                mog_vis.set_node_color(colorSchemes[get_selected_filter_func()], n=>n.avg_value );
+                mog_vis.set_link_width(d => Math.sqrt(d.value));
+                mog_vis.load()
+
             }
         });
 
@@ -337,18 +353,20 @@
 
     function change_dataset() {
         update_datafiles();
-        change_datafile();
+        load_graph( change_filter_func );
     }
 
     function change_datafile() {
+        update_filter_functions()
         load_graph( change_filter_func );
     }
 
     function change_filter_func() {
         d3.json("filter_function?" + $("#parameterForm").serialize(), function (error, data) {
-            //if( data.nodes.length < 5000 ) {
-                graph_vis.update_node_color(colorSchemes[get_selected_filter_func()], n=>n, data);
-            //}
+            let cs = colorSchemes[get_selected_filter_func()].domain([0,1])
+            console.log(data);
+            //graph_vis.set_node_color(colorSchemes[get_selected_filter_func()], n=>n, data);
+            graph_vis.set_node_color(n=>cs(n), data);
 
             histo_vis.set_position( 50, 20, 80, 200 );
             histo_vis.update_drawing( 10, Object.values(data) )
@@ -366,22 +384,26 @@
 
 
     function load_graph(callback) {
+
+        if( graph_vis ) graph_vis.remove()
+
+        let svg = d3.select("#graph_vis")
+        svg.empty()
+        svg.style("cursor", "progress" )
+
         d3.json("graph?" + $("#parameterForm").serialize(), function (error, data) {
             if (error) {
                 console.log(error);
             } else {
                 graph_data = data;
-
-                $("#graph_vis").empty();
-                console.log( data.nodes.length )
-                //if( data.nodes.length < 5000 ) {
-                    graph_vis = FDL_Graph_Vis("#graph_vis", data);
-                    histo_vis = histogram_vis("#graph_vis");
-                    cover_vis = cover_visualization("#graph_vis");
-                //}
+                graph_vis = FDL_Graph_Vis("#graph_vis", data);
+                graph_vis.load();
+                histo_vis = histogram_vis("#graph_vis");
+                cover_vis = cover_visualization("#graph_vis");
 
                 if (callback) callback();
             }
+            svg.style("cursor", "auto" )
         });
     }
 

@@ -197,38 +197,54 @@
 
     let mogs = [];
 
-    /*
-    d3.select("#mog_vis_agd_A").append("svg:image")
-            .attr('x', 175)
-            .attr('y', 5)
-            .attr('width', 20)
-            .attr('height', 20)
-            .attr("xlink:href", "static/img/zoom.png")
-            .on("click",function(){overlay_on();})
 
-    d3.select("#mog_vis_agd_A").append("svg:image")
-            .attr('x', 155)
-            .attr('y', 5)
-            .attr('width', 20)
-            .attr('height', 20)
-            .attr("xlink:href", "static/img/fit-to-width.png")
-            .on("click",function(){})
-    */
+    let MOG_Vis = function( svg_name, options, ff ){
+        let param_uri = $.param(options)
+        let mog_data = null
+        let mog_vis = null
+
+        function send_to_cache(){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "mog_cache?"+param_uri, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            tmp_data = {'nodes':mog_data.nodes,'links':[]};
+            mog_data.links.forEach( function(L){
+               tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
+            });
+            xhr.send(JSON.stringify(tmp_data));
+        }
+
+        d3.json("mog?" + param_uri, function (error, data) {
+            if (error) {
+                console.log(error);
+            } else {
+                mog_data = data
+                mog_vis = FDL_Graph_Vis(svg_name, mog_data);
+                mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
+                mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
+                mog_vis.update_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
+                mog_vis.add_count_labels();
+                mog_vis.set_end_callback( ()=>send_to_cache() );
+            }
+        });
+
+        return {
+            remove : function(){
+                if( mog_vis ) mog_vis.remove();
+            }
+        }
+
+    }
 
     function update_mog( svg_name, options, ff ) {
-
+        mogs.push( MOG_Vis(svg_name,options,ff) )
+        /*
         let param_uri = $.param(options)
         //console.log(param_uri)
         d3.json("mog?" + param_uri, function (error, data) {
             if (error) {
                 console.log(error);
             } else {
-                /*
-                col_data = {}
-                data.nodes.forEach( function(n){
-                    col_data[n.id] = n.avg_value;
-                });*/
-
                 mog_vis = FDL_Graph_Vis(svg_name, data);
                 mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
                 mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
@@ -237,10 +253,11 @@
                 mog_vis.set_end_callback( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) } );
                 mogs.push(mog_vis)
 
-                setTimeout( function(){ mog_vis.zoomFit(0.95,1000) }, 2000);
+                //setTimeout( function(){ mog_vis.zoomFit(0.95,1000) }, 2000);
                 //setTimeout( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) }, 5000);
             }
         });
+         */
 
     }
 
@@ -258,6 +275,11 @@
         let ds = get_selected_dataset();
         let df = get_selected_datafile();
 
+        let possible_ff = ['agd','den_0_5','ecc','fv', 'fv_norm','pr_0_85']
+        possible_ff.forEach( ff=>{
+            document.getElementById("mog_row_"+ff).style.display = "none"
+        })
+
         ff = []
         if( 'agd' in datasets[ds][df]) ff.push('agd')
         if( 'den_0_5' in datasets[ds][df]) ff.push('den_0_5')
@@ -267,6 +289,8 @@
         if( 'pr_0_85' in datasets[ds][df]) ff.push('pr_0_85')
 
         ff.forEach( cur_ff=>{
+
+            document.getElementById("mog_row_"+cur_ff).style.display = "block"
 
             for (let j = 0; j < 6; j ++) {
                 coverN = 2 + 4*j;
