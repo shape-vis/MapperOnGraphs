@@ -24,6 +24,9 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
     let end_cb = null
 
+    let color_data = null
+    let color_func = "black"
+
     function load_visualization() {
         link = svg_g.append("g")
             .attr("class", "links")
@@ -46,6 +49,11 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
+
+        if (color_data)
+            node.attr("fill", d => color_func(color_data[d.id]));
+        else
+            node.attr("fill", color_func );
 
         simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function (d) {
@@ -145,18 +153,13 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
         //set_node_color : function( color_scheme, _func, _data=null ){
         set_node_color : function( _func, _data=null ){
+            color_func = _func
+            color_data = _data
             if(node) {
-                //color_data = _color_data;
-                if (_data == null) {
-                    _data = g_data.nodes
-                    ext = d3.extent(_data, _func)
-                    node.attr("fill", d => color_scheme(_func(d)));
-                } else {
-                    //ext = d3.extent(Object.keys(_data), _func);
-                    //color_scheme.domain(ext);
-                    //node.attr("fill", d => color_scheme(_func(_data[d.id])));
-                    node.attr("fill", d => _func(_data[d.id]));
-                }
+                if (color_data)
+                    node.attr("fill", d => color_func(color_data[d.id]));
+                else
+                    node.attr("fill", color_func );
             }
         },
 
@@ -245,6 +248,10 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
                tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
             });
             xhr.send(JSON.stringify(tmp_data));
+        },
+
+        get_graph : function(){
+            return g_data
         }
     }
 

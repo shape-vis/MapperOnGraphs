@@ -97,145 +97,63 @@
                                 onchange="change_filter_func();"></select>
                     </div>
                 </div>
-                <!--
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                    <script>
+                        let rank_cg = generate_checkbox('rank_filter','Use Rank Filter','change_filter_func()', 200)
+                        document.write(rank_cg.getHTML())
+                    </script>
+                </div>
+                <div class="form-group">
+                    <label for="coverN">Cover Elements: <span id="coverN_value">2</span></label>
+                    <input type="range" class="custom-range" min="2" max="10" step="1" value="2" id="coverN"
+                           name="coverN"
+                           onchange="change_cover(); document.getElementById('coverN_value').innerHTML = document.getElementById('coverN').value;">
+                </div>
+                <div class="form-group">
+                    <label for="coverOverlap">Cover Overlap: <span id="coverOverlap_value">0.0</span></label>
+                    <input type="range" class="custom-range" min="0" max="1" step="0.01" value="0.0"
+                           id="coverOverlap" name="coverOverlap"
+                           onchange="change_cover(); document.getElementById('coverOverlap_value').innerHTML = document.getElementById('coverOverlap').value;">
+                </div>
+                Component Method
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                    <script>
+                        let component_rg = generate_radiogroup('component_method',
+                                                [{value:'connected_components',label:'Connected Components',checked:true},
+                                                 {value:'modularity',label:'Modularity'},
+                                                 {value:'async_label_prop',label:'Async Label Propagation'},
+                                                 {value:'label_prop',label:'Label Propagation'},
+                                                 {value:'centrality',label:'Centrality'}],
+                                                'change_cover()', 200)
+                        document.write(component_rg.getHTML())
+                    </script>
+                </div>
+                Connectivity Method
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                    <script>
+                        let link_rg = generate_radiogroup('link_method',[
+                                    {value:'overlap',label:'Overlap',checked:false},
+                                    {value:'connectivity',label:'Connectivity',checked:true}]
+                            ,'change_cover()', 200)
+                        document.write(link_rg.getHTML())
+                    </script>
+                </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="true" id="rank_filter" name="rank_filter"
-                           onchange="change_filter_func();">
-                    <label class="form-check-label" for="rank_filter">
-                        Rank Filter Values?
+                    <input class="form-check-input" type="checkbox" value="true" id="gcc_only"
+                           name="gcc_only" onchange="change_cover();">
+                    <label class="form-check-label" for="gcc_only">
+                        Get GCC Only?
                     </label>
-                </div>-->
-
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let rank_cg = generate_checkbox('rank_filter','Use Rank Filter','change_filter_func()', 200)
-                                    document.write(rank_cg.getHTML())
-                                </script>
-                                </div>
-            </div>
-
-
-            <div class="accordion" id="accordionExample">
-                <div class="card">
-                    <div class="card-header" id="headingOne">
-                        <h5 class="mb-0">
-                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="true" aria-controls="collapseOne">
-                                Cover Parameters
-                            </button>
-                        </h5>
-                    </div>
-
-                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                         data-parent="#accordionExample">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="coverN">Cover Elements: <span id="coverN_value">2</span></label>
-                                <input type="range" class="custom-range" min="2" max="10" step="1" value="2" id="coverN"
-                                       name="coverN"
-                                       onchange="change_cover(); document.getElementById('coverN_value').innerHTML = document.getElementById('coverN').value;">
-                            </div>
-                            <div class="form-group">
-                                <label for="coverOverlap">Cover Overlap: <span
-                                        id="coverOverlap_value">0.1</span></label>
-                                <input type="range" class="custom-range" min="0" max="1" step="0.01" value="0.1"
-                                       id="coverOverlap" name="coverOverlap"
-                                       onchange="change_cover(); document.getElementById('coverOverlap_value').innerHTML = document.getElementById('coverOverlap').value;">
-                            </div>
-
-
-                            <!--
-                            <div class="row">
-                                <div class="col-4" style="padding-right: 3px;">
-                                    <label for="component_method" style="margin-top: 3px;">Component Method</label>
-                                </div>
-                                <div class="col-8" style="padding-right: 3px;">
-                                    <select class="form-control form-control-sm" id="component_method"
-                                            name="component_method" onchange="change_cover();">
-                                        <option value="connected_components" selected>Connected Components</option>
-                                        <option value="modularity">Modularity</option>
-                                        <option value="async_label_prop">Async Label Propagation</option>
-                                        <option value="label_prop">Label Propagation</option>
-                                        <option value="centrality">Centrality</option>
-                                    </select>
-                                </div>
-                            </div> -->
-                                Component Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let component_rg = generate_radiogroup('component_method',
-                                                            [{value:'connected_components',label:'Connected Components',checked:true},
-                                                             {value:'modularity',label:'Modularity'},
-                                                             {value:'async_label_prop',label:'Async Label Propagation'},
-                                                             {value:'label_prop',label:'Label Propagation'},
-                                                             {value:'centrality',label:'Centrality'}],
-                                                            'change_cover()', 200)
-                                    document.write(component_rg.getHTML())
-                                </script>
-                                </div>
-
-                            <!--
-                            <div class="row">
-                                <div class="col-4" style="padding-right: 3px;">
-                                    <label for="link_method" style="margin-top: 3px;">Connectivity Method</label>
-                                </div>
-                                <div class="col-8" style="padding-right: 3px;">
-                                    <select class="form-control form-control-sm" id="link_method"
-                                            name="link_method" onchange="change_cover();">
-                                        <option value="overlap" selected>Overlap</option>
-                                        <option value="connectivity">Connectivity</option>
-                                    </select>
-                                </div>
-                            </div> -->
-                                Connectivity Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let link_rg = generate_radiogroup('link_method',[
-                                                {value:'overlap',label:'Overlap',checked:true},
-                                                {value:'connectivity',label:'Connectivity',checked:false}]
-                                        ,'change_cover()', 200)
-                                    document.write(link_rg.getHTML())
-                                </script>
-                                </div>
-
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header" id="headingTwo">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                        data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    Graph Filtering
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                             data-parent="#accordionExample">
-                            <div class="card-body">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="true" id="gcc_only"
-                                           name="gcc_only" onchange="change_cover();">
-                                    <label class="form-check-label" for="gcc_only">
-                                        Get GCC Only?
-                                    </label>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="mapper_node_size_filter">Mapper Node Size Filter: <span
-                                            id="mapper_node_size_filter_value">0</span></label>
-                                    <input type="range" class="custom-range" min="0" max="20" step="1" value="0"
-                                           id="mapper_node_size_filter" name="mapper_node_size_filter"
-                                           onchange="change_cover(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="mapper_node_size_filter">Mapper Node Size Filter: <span
+                            id="mapper_node_size_filter_value">0</span></label>
+                    <input type="range" class="custom-range" min="0" max="20" step="1" value="0"
+                           id="mapper_node_size_filter" name="mapper_node_size_filter"
+                           onchange="change_cover(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
                 </div>
             </div>
         </form>
-
-        <!-- img src="static/img/viridis.png" width="100%" height="20" -->
     </div>
 
     <div class="page-content" id="visualization" style="white-space: nowrap;">
@@ -243,13 +161,13 @@
             <svg height="600" width="600" style="border: thick;" id="graph_vis"></svg>
             <br>
             <input type="button" id="downloadGraph" name="downloadGraph"
-                   onclick="downloadJson(graph_data,'graph.json');" value="Download Graph">
+                   onclick="downloadJson(graph_vis.get_graph(),'graph.json');" value="Download Graph">
         </div>
         <div style="text-align: center; width: 1200px;">
             <svg height="600" width="600" style="border: thick;" id="mog_vis"></svg>
             <br>
             <input type="button" id="downloadMOG" name="downloadMOG"
-                   onclick="downloadJson(mog_data,'mog.json');" value="Download MOG">
+                   onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG">
         </div>
         <input type="button" id="mapperToGraphLayout" name="mapperToGraphLayout"
                    onclick="set_graph_positions_from_mapper();" value="<=== Update Graph Layout From Mapper">
@@ -259,21 +177,16 @@
 
 <script>
 
-    var seqColorScheme = d3.scaleSequential().interpolator(d3.interpolateViridis); // .domain([dmin,dmax])
-    var catColorScheme = d3.scaleOrdinal().range(d3.schemeSet3); // .domain(graph.nodes, function(n){ return n['type']; } )
-    // var catColorScheme = d3.scaleOrdinal( d3.schemeCategory20 );
 
-    let graph_data = null;
     let graph_vis = null;
-
     let mog_vis = null;
-    let mog_data = null;
-
     let histo_vis = null;
     let cover_vis = null;
 
     function set_mapper_positions_from_graph(){
         /*
+        let graph_data = graph_vis.get_graph()
+        let mog_data = mog_vis.get_graph()
         let tmp = {}
         graph_data.nodes.forEach(function(n){
             tmp[n.id] = n
@@ -293,6 +206,8 @@
 
     function set_graph_positions_from_mapper(){
         /*
+        let graph_data = graph_vis.get_graph()
+        let mog_data = mog_vis.get_graph()
         console.log(graph_data)
         let tmp = {}
         let gx = d3.extent( graph_data.nodes, d=>d.x );
@@ -324,31 +239,21 @@
             if (error) {
                 console.log(error);
             } else {
-                mog_data = data;
-                //console.log(data)
-                /*col_data = {}
-                data.nodes.forEach( function(n){
-                    col_data[n.id] = n.avg_value;
-                });*/
-
-                //$("#mog_vis").empty();
-
-                let maxR = Math.sqrt(d3.max( mog_data.nodes, d=>d.component_count))
+                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
                 var myScale = d3.scaleLinear()
                       .domain([1, maxR])
-                      .range([2, Math.min(20,maxR)]);
+                      .range([2, Math.min(15,maxR)]);
+
+                let cs = colorSchemes[get_selected_filter_func()]
 
                 set_mapper_positions_from_graph()
-                mog_vis = FDL_Graph_Vis("#mog_vis", mog_data);
+                mog_vis = FDL_Graph_Vis("#mog_vis", data);
                 mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                //mog_vis.update_node_color(colorSchemes[get_selected_filter_func()], col_data);
-                mog_vis.set_node_color(colorSchemes[get_selected_filter_func()], n=>n.avg_value );
+                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
                 mog_vis.load()
-
             }
         });
-
     }
 
     function change_dataset() {
@@ -363,13 +268,12 @@
 
     function change_filter_func() {
         d3.json("filter_function?" + $("#parameterForm").serialize(), function (error, data) {
+
             let cs = colorSchemes[get_selected_filter_func()].domain([0,1])
-            console.log(data);
-            //graph_vis.set_node_color(colorSchemes[get_selected_filter_func()], n=>n, data);
             graph_vis.set_node_color(n=>cs(n), data);
 
             histo_vis.set_position( 50, 20, 80, 200 );
-            histo_vis.update_drawing( 10, Object.values(data) )
+            histo_vis.update_drawing( 10, Object.values(data), colorSchemes[get_selected_filter_func()] )
 
             change_cover();
         });
@@ -379,7 +283,8 @@
         update_mog();
         cover_vis.set_position( 10, 20, 30, 200 );
         cover_vis.update_drawing( parseFloat(document.getElementById('coverN').value),
-                                    parseFloat(document.getElementById('coverOverlap').value) );
+                                  parseFloat(document.getElementById('coverOverlap').value),
+                                  colorSchemes[get_selected_filter_func()] );
     }
 
 
@@ -388,18 +293,19 @@
         if( graph_vis ) graph_vis.remove()
 
         let svg = d3.select("#graph_vis")
-        svg.empty()
+        //svg.empty()
         svg.style("cursor", "progress" )
 
         d3.json("graph?" + $("#parameterForm").serialize(), function (error, data) {
             if (error) {
                 console.log(error);
             } else {
-                graph_data = data;
+
                 graph_vis = FDL_Graph_Vis("#graph_vis", data);
                 graph_vis.load();
-                histo_vis = histogram_vis("#graph_vis");
-                cover_vis = cover_visualization("#graph_vis");
+
+                if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
+                if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
 
                 if (callback) callback();
             }

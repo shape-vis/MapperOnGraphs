@@ -51,7 +51,7 @@ var cover_visualization = function( svg_name ) {
             bars = null;
         },
 
-        update_drawing : function( coverN, coverOverlap ){
+        update_drawing : function( coverN, coverOverlap, colorScheme ){
 
             if( bars ) bars.remove();
 
@@ -78,8 +78,6 @@ var cover_visualization = function( svg_name ) {
                         .range([ position.top, position.bottom ])
                         .domain( [0,1] );
 
-            seqColorScheme.domain( [0,1] );
-
             svg.append("g")
                     .append("rect")
                         .attr("x", position.left-2 )
@@ -99,7 +97,7 @@ var cover_visualization = function( svg_name ) {
                             .attr("width", d => x(d[2]+1)-x(d[2])-1 )
                             .attr("height", d => y(d[1]) - y(d[0]) )
                             //.style("fill", d => seqColorScheme((d[0]+d[1])/2) )
-                            .style("fill", d => createGradient( seqColorScheme(d[0]), seqColorScheme(d[1]) ) )
+                            .style("fill", d => createGradient( colorScheme(d[0]), colorScheme(d[1]) ) )
 
 
         }
