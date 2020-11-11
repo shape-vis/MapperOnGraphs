@@ -5,6 +5,7 @@ import ntpath
 import os
 import sys
 import time
+import mog.graph_io as GraphIO
 
 
 import networkx as nx
@@ -31,79 +32,54 @@ filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ev_norm_5': 'Eigen Function Normalized (6th)'}
 
 
-def read_json_graph(filename):
-    with open(filename) as f:
-        js_graph = json.load(f)
-    return [js_graph, nx.readwrite.node_link_graph(js_graph, directed=False, multigraph=False)]
-
-
-def read_graph_file(filename):
-    f = open(filename)
-    graph = nx.Graph()
-    for _x in f:
-        x = _x.split()
-        if x[0] == 'n':
-            graph.add_node(x[1])
-        if x[0] == 'e':
-            graph.add_edge(x[1], x[2], value=1)
-    return [None, graph]
-
-
-def read_tsv_file(filename):
-    f = open(filename)
-    graph = nx.Graph()
-    for _x in f:
-        if _x[0] == '#': continue
-        x = _x.split()
-        if not graph.has_node(x[0]):
-            graph.add_node(x[0])
-        if not graph.has_node(x[1]):
-            graph.add_node(x[1])
-        if graph.has_edge(x[0], x[1]):
-            print("edge exists")
-        if len(x) == 2:
-            graph.add_edge(x[0], x[1], value=1)
-        else:
-            graph.add_edge(x[0], x[1], value=float(x[2]))
-    return [None, graph]
-
-
-def write_json_data(filename, data):
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
-
 
 # Generate AGD
 def generate_agd(out_path, graph, weight):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.average_geodesic_distance(graph, _weight=weight))
+        print("   >> Generating AGD")
+        start = time.time()
+        data = ff.average_geodesic_distance(graph, _weight=weight)
+        GraphIO.write_json_data(out_path, {'name': 'agd', 'process_time':(time.time()-start), 'data':data} )
 
 
 # Generate eccentricity
 def generate_ecc(out_path, graph):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.eccentricity(graph))
+        print("   >> Generating Eccentricity")
+        start = time.time()
+        data = ff.eccentricity(graph)
+        GraphIO.write_json_data(out_path, {'name': 'eccentricity', 'process_time':(time.time()-start),'data':data} )
 
 
 # Generate pagerank
 def generate_pr(out_path, graph, weight, alpha):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.pagerank(graph, weight, alpha))
+        print("   >> Generating Pagerank")
+        start = time.time()
+        data = ff.pagerank(graph, weight, alpha)
+        GraphIO.write_json_data(out_path, {'name': 'pagerank', 'alpha': alpha, 'process_time':(time.time()-start),'data':data} )
 
 
 # Generate fiedler vector
 def generate_fv(out_path, graph, weight, normalized):
     try:
         if not os.path.exists(out_path):
-            write_json_data(out_path, ff.fiedler_vector(graph, _weight=weight, _normalized=normalized))
+            print("   >> Generating Fiedler Vector")
+            start = time.time()
+            data = ff.fiedler_vector(graph, _weight=weight, _normalized=normalized)
+            GraphIO.write_json_data(out_path, {'name': 'fiedler', 'normalized': normalized, 'process_time': (time.time() - start), 'data': data})
     except nx.exception.NetworkXError:
-        print(">>> FAILED (fiedler vector): graph not connected error")
+        print(">>> FAILED (fiedler vector): processing error. maybe graph not connected?")
 
 
 # Generate density
 def generate_den(out_path, graph, weight, eps):
     if not os.path.exists(out_path):
-        write_json_data(out_path, ff.density(graph, weight, eps))
+        print("   >> Generating Density")
+        start = time.time()
+        data = ff.density(graph, weight, eps)
+        GraphIO.write_json_data(out_path, {'name': 'density', 'eps': eps, 'process_time': (time.time() - start),
+                                   'data': data})
 
 
 # Generate eigen functions
@@ -115,45 +91,68 @@ def generate_eig(out_path, graph, weight, which_eig, normalized):
             if graph.number_of_nodes() > ev and not os.path.exists(ev_path): compute = True
 
         if compute:
+            print("   >> Generating Eigen Functions")
+            start = time.time()
             eig = ff.eigen_function(graph, _weight=weight, _normalized=normalized)
+            end = time.time()
             for ev in which_eig:
                 if graph.number_of_nodes() > ev:
                     ev_path = out_path.format(str(ev))
-                    write_json_data(ev_path, eig[ev][1])
+                    GraphIO.write_json_data(ev_path, {'name': 'eigen', 'eigen': ev, 'normalized': normalized,
+                                               'process_time': (end - start),
+                                               'data': eig[ev][1]})
     except TypeError:
         print(">>> FAILED (eigen): type error")
 
 
-def process_datafile(in_filename, max_time_per_file=1):
-    print("Processing: " + in_filename)
+def process_graph(in_filename):
+    print("Found Graph: " + in_filename)
+    basename,ext = os.path.splitext(ntpath.basename(in_filename).lower())
 
-    if fnmatch.fnmatch(in_filename.lower(), "*.json"):
-        data, graph = read_json_graph(in_filename)
-    elif fnmatch.fnmatch(in_filename.lower(), "*.graph"):
-        data, graph = read_graph_file(in_filename)
-    elif fnmatch.fnmatch(in_filename.lower(), "*.tsv"):
-        data, graph = read_tsv_file(in_filename)
-    else:
+    if ext not in ['.json','.graph','.tsv']:
         return
+
+    if os.path.exists('data/small/'+basename+'.json'): return 'data/small/'+basename+'.json'
+    if os.path.exists('data/medium/'+basename+'.json'): return 'data/medium/' + basename + '.json'
+    if os.path.exists('data/large/'+basename+'.json'): return 'data/large/' + basename + '.json'
+    if os.path.exists('data/very_large/'+basename+'.json'): return 'data/very_large/' + basename + '.json'
+
+    if ext == ".json": data, graph = GraphIO.read_json_graph(in_filename)
+    elif ext == ".graph": data, graph = GraphIO.read_graph_file(in_filename)
+    elif ext == ".tsv": data, graph = GraphIO.read_tsv_graph_file(in_filename)
+    else: return None
 
     gcc = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(gcc)
 
-    out_filename = "data/"
-    if graph.number_of_nodes() < 100:
-        out_filename += "small/"
-    elif graph.number_of_nodes() < 1000:
-        out_filename += "medium/"
-    elif graph.number_of_nodes() < 5000:
-        out_filename += "large/"
+    if graph.number_of_nodes() < 100: out_filename = 'data/small/'+basename+'.json'
+    elif graph.number_of_nodes() < 1000: out_filename = 'data/medium/'+basename+'.json'
+    elif graph.number_of_nodes() < 5000: out_filename = 'data/large/'+basename+'.json'
     else:
-        out_filename += "very_large/"
+        out_filename = 'data/very_large/' + basename + '.json'
 
-    out_filename += os.path.splitext(ntpath.basename(in_filename).lower())[0] + ".json"
+    print("   >> Converting to " + in_filename)
 
-    print("                     => " + out_filename)
+    GraphIO.write_json_graph(out_filename, graph)
+    return out_filename
 
-    out_dir = os.path.splitext(out_filename)[0]
+
+def process_datafile(in_filename, max_time_per_file=1):
+    print("Processing Graph: " + in_filename)
+
+    ff_file_list = ["/agd.json", "/ecc.json", "/pr_0_85.json", "/fv.json", "/fv_norm.json", "/den_0_5.json"]
+    ff_file_list.extend(["/ev_{}.json".format(x) for x in range(1, 6)])
+    ff_file_list.extend(["/ev_norm_{}.json".format(x) for x in range(1, 6)])
+
+    need_processing = False
+    for f in ff_file_list:
+        need_processing = need_processing or not os.path.exists(f)
+
+    if not need_processing: return
+
+    data, graph = GraphIO.read_json_graph(in_filename)
+
+    out_dir = os.path.splitext(in_filename)[0]
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
@@ -175,10 +174,6 @@ def process_datafile(in_filename, max_time_per_file=1):
             p.terminate()
             p.join()
 
-    write_json_data(out_filename, nx.node_link_data(graph))
-
-    return data
-
 
 if not os.path.exists("data/small"): os.mkdir("data/small")
 if not os.path.exists("data/medium"): os.mkdir("data/medium")
@@ -192,13 +187,14 @@ def generate_data(max_time_per_file=1):
         if os.path.isdir("data/source/" + d0):
             for d1 in os.listdir("data/source/" + d0):
                 if fnmatch.fnmatch(d1.lower(), "*.json"):
-                    data_gen.append("data/source/" + d0 + "/" + d1)
+                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
                 if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                    data_gen.append("data/source/" + d0 + "/" + d1)
+                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
                 if fnmatch.fnmatch(d1.lower(), "*.tsv"):
-                    data_gen.append("data/source/" + d0 + "/" + d1)
+                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
 
     for file in data_gen:
+        if file is None: continue
         try:
             process_datafile(file, max_time_per_file)
         except json.decoder.JSONDecodeError:
@@ -212,7 +208,8 @@ def generate_data(max_time_per_file=1):
 
 
 def scan_datasets():
-    for d0 in os.listdir("data/"):
+    #for d0 in os.listdir("data/"):
+    for d0 in ['small','medium','large','very_large']:
         if os.path.isdir("data/" + d0):
             data_sets[d0] = {}
             for d1 in os.listdir("data/" + d0):
@@ -222,6 +219,8 @@ def scan_datasets():
                     for ff in filter_function_names.keys():
                         if os.path.exists(ff_dir + "/" + ff + ".json"):
                             data_sets[d0][d1][ff] = filter_function_names[ff]
+                    if len(data_sets[d0][d1]) == 0:
+                        del data_sets[d0][d1]
 
 
 if __name__ == '__main__':

@@ -43,6 +43,25 @@ function generate_radiogroup(name, options, onchange='', width=-1){
     };
 }
 
+function generate_slider(label, id, min_val = 0, max_val=100, step=1, default_val = 0, onchange=''){
+    _html = ''
+    _html += '<label for="' + id + '">' + label + '<span id="' + id + '_value">' + default_val + '</span></label>'
+    _html += '<input type="range" class="custom-range"'
+                + 'min="'+min_val+'" '
+                + 'max="'+max_val+'" '
+                + 'step="'+step+'" '
+                + 'value="'+default_val+'" '
+                + 'id="' + id + '" name="' + id + '" '
+                + 'oninput="document.getElementById(\'' + id + '_value\').innerHTML = document.getElementById(\'' + id + '\').value;" '
+                + 'onchange="'+onchange+'">';
+    return {
+        getHTML : function(){return _html},
+        getValue : function(){
+            return document.getElementById(id).value
+        }
+    }
+}
+
 function toggle_button(obj){
     if(obj.checked)
         obj.parentElement.className = "btn btn-primary"

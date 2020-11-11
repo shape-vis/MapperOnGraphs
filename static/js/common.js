@@ -28,9 +28,8 @@ function clear_chart( chart_name ){
 	$(chart_name).empty();
 }
 
-var pages = ["very_large.html", "small_multiples.html"];
-var page_titles = {"very_large.html": "Big Data Visualizer",
-					"small_multiples.html": "Small Multiple Parameter Explorer"};
+var pages = ["small_multiples.html"];
+var page_titles = {"small_multiples.html": "Small Multiple Parameter Explorer"};
 
 
 function insert_page_header(){
@@ -75,7 +74,7 @@ function insert_navbar( curpage ){
 }
 
 
-
+/*
 function add_scales( chart_name, xExt, yExt, lc_margin = {left: 25, right: 5, top: 5, bottom: 20} ){
 	var lc_svg = d3.select(chart_name);
 	var lc_svg_width  = +lc_svg.attr("width");
@@ -160,13 +159,6 @@ function add_linechart( chart_name, data, xExt, yExt, class_name, lc_margin = {l
     svg_grp = lc_svg.append("g")
                     .attr("transform", "translate(" + lc_margin.left + "," + lc_margin.top + ")");
 
-    /*
-    let stroke = 3;
-    if( (yExt[1]-yExt[0]) < 15 ) stroke = 4;
-    if( (yExt[1]-yExt[0]) < 10 ) stroke = 5;
-    if( (yExt[1]-yExt[0]) < 5 ) stroke = 6;
-    if( (yExt[1]-yExt[0]) < 3 ) stroke = 7;
-    */
 
 	path = svg_grp.append("path")
 					.datum( data )
@@ -228,7 +220,7 @@ function load_data( updateFunc ){
 }
 
 
-
+*/
 
 
 /*****************************************

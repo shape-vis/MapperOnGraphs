@@ -8,6 +8,7 @@ from flask import send_file
 
 import mog.mapper as mapper
 import data as data_mod
+import mog.graph_io as GraphIO
 
 app = Flask(__name__)
 
@@ -36,7 +37,7 @@ def request_valid(dataset_req, datafile_req, filter_func_req):
 def load_graph():
     ds0 = request.args.get('dataset')
     ds1 = request.args.get('datafile')
-    return data_mod.read_json_graph('data/' + ds0 + "/" + ds1)
+    return GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
 
 
 def load_filter_function(ranked=False):
@@ -45,7 +46,7 @@ def load_filter_function(ranked=False):
     ff = request.args.get('filter_func')
 
     with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
-        ff_data = json.load(json_file)
+        ff_data = json.load(json_file)['data']
 
     if ranked:
         tmp = list(ff_data.keys())
@@ -124,13 +125,9 @@ def get_cache_filename():
 
 @app.route('/mog_cache', methods=['GET', 'POST'])
 def cache_mog():
-    # print(file)
-
     with open(get_cache_filename(), 'w') as outfile:
         json.dump(request.json, outfile)
 
-    # print(request.args);
-    # print(request.json);
     return "{}"
 
 
@@ -153,11 +150,12 @@ def get_mog():
     intervals = int(request.args.get('coverN'))
     overlap = float(request.args.get('coverOverlap'))
 
-    cover = mapper.form_cover(values, intervals, overlap)
+    cover = mapper.Cover(values, intervals, overlap)
 
     # Construct MOG
-    mog = mapper.MapperOnGraphs(graph, values, cover, request.args.get('component_method'),
-                                request.args.get('link_method'))
+    mog = mapper.MapperOnGraphs()
+    mog.build_mog(graph, values, cover, request.args.get('component_method'),
+                                request.args.get('link_method'), verbose=graph.number_of_nodes()>1000)
 
     print("Input Node Count: " + str(graph.number_of_nodes()))
     print("Input Edge Count: " + str(graph.number_of_nodes()))
