@@ -1,0 +1,48 @@
+import networkx as nx
+import json
+
+
+def read_json_graph(filename):
+    with open(filename) as f:
+        js_graph = json.load(f)
+    return [js_graph, nx.readwrite.node_link_graph(js_graph, directed=False, multigraph=False)]
+
+
+def read_graph_file(filename):
+    f = open(filename)
+    graph = nx.Graph()
+    for _x in f:
+        x = _x.split()
+        if x[0] == 'n':
+            graph.add_node(x[1])
+        if x[0] == 'e':
+            graph.add_edge(x[1], x[2], value=1)
+    return [None, graph]
+
+
+def read_tsv_graph_file(filename):
+    f = open(filename)
+    graph = nx.Graph()
+    for _x in f:
+        if _x[0] == '#': continue
+        x = _x.split()
+        if not graph.has_node(x[0]):
+            graph.add_node(x[0])
+        if not graph.has_node(x[1]):
+            graph.add_node(x[1])
+        if graph.has_edge(x[0], x[1]):
+            print("edge exists")
+        if len(x) == 2:
+            graph.add_edge(x[0], x[1], value=1)
+        else:
+            graph.add_edge(x[0], x[1], value=float(x[2]))
+    return [None, graph]
+
+
+def write_json_data(filename, data):
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
+
+
+def write_json_graph(filename, graph):
+    write_json_data(filename, nx.node_link_data(graph))
