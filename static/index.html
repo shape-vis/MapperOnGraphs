@@ -253,7 +253,7 @@
                 data['options'] = options
                 data['send_to_cache'] = function () {
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "mog_cache?" + param_uri, true);
+                    xhr.open("POST", "mog_layout?" + param_uri, true);
                     xhr.setRequestHeader('Content-Type', 'application/json');
                     tmp_data = {'nodes': data.nodes, 'links': []};
                     data.links.forEach(function (L) {

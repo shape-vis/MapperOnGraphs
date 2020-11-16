@@ -3,6 +3,7 @@ import time
 
 import networkx as nx
 import statistics as stats
+import mog.graph_io as GraphIO
 
 
 class Cover:
@@ -10,8 +11,8 @@ class Cover:
         self.intervals = intervals
         self.overlap = overlap
 
-        minv = values[ min(values, key=(lambda k: values[k])) ]
-        maxv = values[ max(values, key=(lambda k: values[k])) ]
+        minv = values[min(values, key=(lambda k: values[k]))]
+        maxv = values[max(values, key=(lambda k: values[k]))]
 
         per_interval = (maxv - minv) / intervals
         overlap_amnt = per_interval * overlap
@@ -20,7 +21,7 @@ class Cover:
         for x in range(0, intervals):
             start = minv + per_interval * x - overlap_amnt
             end = minv + per_interval * (x + 1) + overlap_amnt
-            self.cover.append([start, end])
+            self.cover.append({'level': x, 'range': [start, end]})
 
     def get_cover_elements(self):
         return self.cover
@@ -32,66 +33,43 @@ class Cover:
         return self.overlap
 
 
-def _get_connected_components(graph: nx.classes.graph.Graph, values, cover: Cover):
+def _get_components(graph: nx.classes.graph.Graph, values, cover: Cover, component_method):
     ret = []
     for ce in cover.get_cover_elements():
-        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
+        filtered = list(filter(lambda v: ce['range'][0] <= values[v] <= ce['range'][1], values))
         subg = graph.subgraph(filtered)
-        ret += nx.connected_components(subg)
-    return ret
 
-
-def _get_modularity_components(graph: nx.classes.graph.Graph, values, cover: Cover):
-    ret = []
-    for ce in cover.get_cover_elements():
-        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
-        subg = graph.subgraph(filtered)
         if subg.number_of_edges() == 0:
-            ret += nx.connected_components(subg)
+            components = nx.connected_components(subg)
+        elif component_method == 'modularity':
+            components = nx.algorithms.community.greedy_modularity_communities(subg)
+        elif component_method == 'async_label_prop':
+            components = nx.algorithms.community.asyn_lpa_communities(subg)
+        elif component_method == 'label_prop':
+            components = nx.algorithms.community.label_propagation_communities(subg)
+        elif component_method == 'centrality':
+            components = nx.algorithms.community.girvan_newman(subg)
         else:
-            ret += list(nx.algorithms.community.greedy_modularity_communities(subg))
-    return ret
+            components = nx.connected_components(subg)
 
+        for comp in components:
+            ret.append({'cover':ce, 'components':comp})
 
-def _get_async_label_prop_components(graph: nx.classes.graph.Graph, values, cover: Cover):
-    ret = []
-    for ce in cover.get_cover_elements():
-        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
-        subg = graph.subgraph(filtered)
-        ret += list(nx.algorithms.community.asyn_lpa_communities(subg))
-    return ret
-
-
-def _get_label_prop_components(graph: nx.classes.graph.Graph, values, cover: Cover):
-    ret = []
-    for ce in cover.get_cover_elements():
-        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
-        subg = graph.subgraph(filtered)
-        ret += list(nx.algorithms.community.label_propagation_communities(subg))
-    return ret
-
-
-def _get_centrality_components(graph: nx.classes.graph.Graph, values, cover: Cover):
-    ret = []
-    for ce in cover.get_cover_elements():
-        filtered = list(filter(lambda v: ce[0] <= values[v] <= ce[1], values))
-        subg = graph.subgraph(filtered)
-        ret += list(nx.algorithms.community.girvan_newman(subg))
     return ret
 
 
 def _get_nodes(values, components):
     nodes = []
-    for x in components:
-        comp_vals = list(map((lambda _x: values[_x]), x))
+    for component in components:
+        comp_vals = list(map((lambda _l: values[_l]), component['components']))
         nodes.append({'id': 'mapper_node_' + str(len(nodes)),
-                      #'layer'
+                      'cover': component['cover'],
                       'min_value': min(comp_vals),
                       'max_value': max(comp_vals),
                       'avg_value': stats.mean(comp_vals),
-                      'component_count': len(x),
-                      'components': list(x)
-                    })
+                      'component_count': len(component['components']),
+                      'components': list(component['components'])
+                      })
     return nodes
 
 
@@ -122,7 +100,7 @@ def _get_links_by_graph_cut(input_graph: nx.classes.graph.Graph, mapper_nodes):
         for l in node_map[e[0]]:
             for r in node_map[e[1]]:
                 if l == r: continue
-                id = (l['id'],r['id']) if l['id']<r['id'] else (r['id'],l['id'])
+                id = (l['id'], r['id']) if l['id'] < r['id'] else (r['id'], l['id'])
                 if id in edge_map:
                     edge_map[id] += 1
                 else:
@@ -138,12 +116,15 @@ def _get_links_by_graph_cut(input_graph: nx.classes.graph.Graph, mapper_nodes):
 class MapperOnGraphs:
     def __init__(self):
         self.info = {}
+        self.mapper_graph = None
 
     def load_mog(self, input_file):
-        print("NOT YET IMPLEMENTED")
+        data, graph = GraphIO.read_json_graph(input_file)
+        self.info = data['info']
+        self.mapper_graph = graph
 
-    def build_mog(self, input_graph: nx.classes.graph.Graph, values, cover: Cover, component_method='connected_components', link_method='overlap', verbose=False):
-        #self.start_time = time.time()
+    def build_mog(self, input_graph: nx.classes.graph.Graph, values, cover: Cover,
+                  component_method='connected_components', link_method='overlap', verbose=False):
 
         self.info = {
             'component_method': component_method,
@@ -157,16 +138,7 @@ class MapperOnGraphs:
         if verbose:
             print("MapperOnGraphs: Step 1 of 4")
 
-        if component_method == 'modularity':
-            components = _get_modularity_components(input_graph, values, cover)
-        elif component_method == 'async_label_prop':
-            components = _get_async_label_prop_components(input_graph, values, cover)
-        elif component_method == 'label_prop':
-            components = _get_label_prop_components(input_graph, values, cover)
-        elif component_method == 'centrality':
-            components = _get_centrality_components(input_graph, values, cover)
-        else:
-            components = _get_connected_components(input_graph, values, cover)
+        components = _get_components(input_graph, values, cover, component_method)
 
         if verbose:
             print("MapperOnGraphs: Step 2 of 4")
@@ -186,11 +158,10 @@ class MapperOnGraphs:
 
         self.mapper_graph = nx.readwrite.node_link_graph({'nodes': nodes, 'links': links})
 
-        #self.end_time = time.time()
-        self.info['compute_time'] = time.time()-start_time
+        self.info['compute_time'] = time.time() - start_time
 
     def compute_time(self):
-        #return self.end_time-self.start_time
+        # return self.end_time-self.start_time
         return self.info['compute_time']
 
     def number_of_nodes(self):
@@ -204,13 +175,13 @@ class MapperOnGraphs:
         self.mapper_graph = self.mapper_graph.subgraph(gcc)
 
     def strip_components_from_nodes(self):
-        for (n,data) in self.mapper_graph.nodes.items():
+        for (n, data) in self.mapper_graph.nodes.items():
             del data['components']
 
     def filter_node_size(self, minimum_node_size):
         component_sizes = {}
 
-        for (n,data) in self.mapper_graph.nodes.items():
+        for (n, data) in self.mapper_graph.nodes.items():
             component_sizes[n] = data['component_count']
 
         ns = list(filter((lambda node: component_sizes[node] > minimum_node_size), self.mapper_graph.nodes()))

@@ -12,3 +12,4 @@ venv
 __pycache__
 mog/__pycache__
 data/very_large/com-youtube.ungraph.json
+cache
