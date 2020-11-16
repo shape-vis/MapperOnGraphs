@@ -63,6 +63,38 @@ def load_filter_function(ranked=False):
     return ff_data
 
 
+def get_cache_fn(cache_type, dataset, datafile, params):
+    path = 'cache/' + dataset
+    if not os.path.exists(path): os.mkdir(path)
+
+    path += '/' + datafile
+    if not os.path.exists(path): os.mkdir(path)
+
+    path += '/' + cache_type
+
+    pKeys = list(params.keys())
+    pKeys.sort()
+    for k in params.keys():
+        path += "_" + str(params[k])
+    return path + ".json"
+
+
+def get_cache_filename():
+    rank_filter = 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
+    gcc_only = 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
+
+    dir = 'cache/' + request.args.get('dataset')
+    if not os.path.exists(dir): os.mkdir(dir)
+
+    dir += '/' + request.args.get('datafile')
+    if not os.path.exists(dir): os.mkdir(dir)
+
+    return dir + '/mog_' + request.args.get('filter_func') + '_' + rank_filter + '_' \
+           + request.args.get('coverN') + '_' + request.args.get('coverOverlap') + '_' \
+           + request.args.get('component_method') + '_' + request.args.get('link_method') + '_' \
+           + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
+
+
 @app.route('/')
 def send_main():
     try:
@@ -95,7 +127,21 @@ def get_graph():
     if not request_valid(True, True, False):
         return "{}"
 
+    filename = get_cache_fn("graph_layout", request.args.get('dataset'), request.args.get('datafile'), {})
+    if os.path.exists(filename):
+        print("  >> " + request.args.get('datafile') + " found in graph layout cache")
+        send_file(filename)
+
     return send_file('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
+
+
+@app.route('/graph_layout', methods=['GET', 'POST'])
+def cache_graph():
+    filename = get_cache_fn("graph_layout", request.args.get('dataset'), request.args.get('datafile'), {})
+    with open(filename, 'w') as outfile:
+        json.dump(request.json, outfile)
+
+    return "{}"
 
 
 @app.route('/filter_function', methods=['GET', 'POST'])
@@ -107,61 +153,68 @@ def get_filter_function():
     return json.dumps(load_filter_function(request.args.get('rank_filter') == 'true'))
 
 
-def get_cache_filename():
-    rank_filter = 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
-    gcc_only = 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
-
-    dir = 'cache/' + request.args.get('dataset')
-    if not os.path.exists(dir): os.mkdir(dir)
-
-    dir += '/' + request.args.get('datafile')
-    if not os.path.exists(dir): os.mkdir(dir)
-
-    return dir + '/mog_' + request.args.get('filter_func') + '_' + rank_filter + '_' \
-           + request.args.get('coverN') + '_' + request.args.get('coverOverlap') + '_' \
-           + request.args.get('component_method') + '_' + request.args.get('link_method') + '_' \
-           + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
-
-
-@app.route('/mog_cache', methods=['GET', 'POST'])
-def cache_mog():
-    with open(get_cache_filename(), 'w') as outfile:
-        json.dump(request.json, outfile)
-
-    return "{}"
-
-
 @app.route('/mog', methods=['GET', 'POST'])
 def get_mog():
     # Check that the request is valid
     if not request_valid(True, True, True):
         return "{}"
 
-    cf = get_cache_filename()
-    if os.path.exists(cf):
-        print("FOUND IN CACHE: " + cf)
-        return send_file(cf)
+    mog_layout_cf = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),{
+        'filter_func': request.args.get('filter_func'),
+        'coverN': request.args.get('coverN'),
+        'coverOverlap': request.args.get('coverOverlap'),
+        'component_method': request.args.get('component_method'),
+        'link_method': request.args.get('link_method'),
+        'mapper_node_size_filter': request.args.get('mapper_node_size_filter'),
+        'rank_filter': 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter'),
+        'gcc_only': 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
+    })
 
-    # Load the graph and filter function
-    graph_data, graph = load_graph()
-    values = load_filter_function(request.args.get('rank_filter') == 'true')
+    if os.path.exists(mog_layout_cf):
+        print("  >> " + request.args.get('datafile') + " found in mog layout cache")
+        return send_file(mog_layout_cf)
 
-    # Construct the cover
-    intervals = int(request.args.get('coverN'))
-    overlap = float(request.args.get('coverOverlap'))
-
-    cover = mapper.Cover(values, intervals, overlap)
-
-    # Construct MOG
     mog = mapper.MapperOnGraphs()
-    mog.build_mog(graph, values, cover, request.args.get('component_method'),
-                                request.args.get('link_method'), verbose=graph.number_of_nodes()>1000)
 
-    print("Input Node Count: " + str(graph.number_of_nodes()))
-    print("Input Edge Count: " + str(graph.number_of_nodes()))
-    print("MOG Node Count: " + str(mog.number_of_nodes()))
-    print("MOG Edge Count: " + str(mog.number_of_nodes()))
-    print("MOG Compute Time: " + str(mog.compute_time()) + " seconds")
+    mog_cf = get_cache_fn("mog", request.args.get('dataset'), request.args.get('datafile'),{
+        'filter_func': request.args.get('filter_func'),
+        'coverN': request.args.get('coverN'),
+        'coverOverlap': request.args.get('coverOverlap'),
+        'component_method': request.args.get('component_method'),
+        'link_method': request.args.get('link_method'),
+        'rank_filter': 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
+    })
+
+    if os.path.exists(mog_cf):
+        print("  >> " + request.args.get('datafile') + " found in mog graph cache")
+        mog.load_mog(mog_cf)
+    else:
+        # Load the graph and filter function
+        graph_data, graph = load_graph()
+        print(" >> Input Node Count: " + str(graph.number_of_nodes()))
+        print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
+
+        values = load_filter_function(request.args.get('rank_filter') == 'true')
+
+        # Construct the cover
+        intervals = int(request.args.get('coverN'))
+        overlap = float(request.args.get('coverOverlap'))
+        cover = mapper.Cover(values, intervals, overlap)
+
+        # Construct MOG
+        mog.build_mog(graph, values, cover, request.args.get('component_method'),
+                                    request.args.get('link_method'), verbose=graph.number_of_nodes()>1000)
+
+        if graph.number_of_nodes() > 5000:
+            mog.strip_components_from_nodes()
+
+        with open(mog_cf, 'w') as outfile:
+            outfile.write(mog.to_json())
+
+
+    print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
+    print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
+    print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
     node_size_filter = int(request.args.get('mapper_node_size_filter'))
     if node_size_filter > 0:
@@ -171,15 +224,25 @@ def get_mog():
     if gcc_only:
         mog.extract_greatest_connect_component()
 
-    if graph.number_of_nodes() > 5000:
-        mog.strip_components_from_nodes()
+    return mog.to_json()
 
-    json = mog.to_json()
 
-    with open(get_cache_filename(), 'w') as outfile:
-        outfile.write(json)
+@app.route('/mog_layout', methods=['GET', 'POST'])
+def cache_mog():
+    filename = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),{
+        'filter_func': request.args.get('filter_func'),
+        'coverN': request.args.get('coverN'),
+        'coverOverlap': request.args.get('coverOverlap'),
+        'component_method': request.args.get('component_method'),
+        'link_method': request.args.get('link_method'),
+        'mapper_node_size_filter': request.args.get('mapper_node_size_filter'),
+        'rank_filter': 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter'),
+        'gcc_only': 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
+    })
+    with open(filename, 'w') as outfile:
+        json.dump(request.json, outfile)
 
-    return json
+    return "{}"
 
 
 if __name__ == '__main__':
