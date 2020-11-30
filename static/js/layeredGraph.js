@@ -723,14 +723,14 @@ d3.json(graph_data, function(graph_data) {
 	////////////////////////////////////////////////////////////////
 	/**************** Structure as a layered graph ****************/
 	var widthPerNode = (width / treeWidth) ; //Condense graph
-	var heightPerNode = (height) / (treeDepth + 1);
+	var heightPerNode = (height - 100) / (treeDepth + 1);
 
 	////////////////////////////////////////////////////////////////
 	/**************** Structure as a layered graph ****************/
 	for(i = 0; i < layeredNodesGraph.length; i++) { //For each layer
 		for(j = 0; j < layeredNodesGraph[i].length; j++) { //For each node
 			layeredNodesGraph[i][j].x = j * widthPerNode; //Sets x-coordinate for level
-			layeredNodesGraph[i][j].y = -1 * i * heightPerNode; //Sets y-coordinate for level
+			layeredNodesGraph[i][j].y = (-1 * i * heightPerNode); //Sets y-coordinate for level
 		}
 	}
 
@@ -817,7 +817,7 @@ d3.json(graph_data, function(graph_data) {
 			}
 
 			//If it goes 100 loops without improving
-			if(improvingCounter > 50 && breaker == false) {
+			if(improvingCounter > 100 && breaker == false) {
 				breaker = true;
 				console.log("mininmum weight has not improved for 100 loops, breaker switched to true")
 			}
