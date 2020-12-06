@@ -175,7 +175,8 @@
     </div>
 
     <div class="page-content" id="visualization" style="white-space: nowrap;">
-        <div style="float: left; text-align: center;">
+
+        <!-- <div style="float: left; text-align: center;">
             <svg height="600" width="600" style="border: thick;" id="graph_vis"></svg>
             <br>
             <input type="button" id="downloadGraph" name="downloadGraph"
@@ -188,7 +189,7 @@
                    onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG">
         </div>
         <input type="button" id="mapperToGraphLayout" name="mapperToGraphLayout"
-                   onclick="set_graph_positions_from_mapper();" value="<=== Update Graph Layout From Mapper">
+                   onclick="set_graph_positions_from_mapper();" value="<=== Update Graph Layout From Mapper"> -->
         
         <!-- Layered Graphing -->
         <div style="text-align: center; width: 1600px; overflow: hidden;">
@@ -298,8 +299,6 @@
         }
 
         load_mog( options, function(data){
-            console.log(data)
-
                 let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
                 var myScale = d3.scaleLinear()
                       .domain([1, maxR])
