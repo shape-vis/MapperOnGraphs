@@ -461,46 +461,45 @@ d3.json(graph_data, function() {
 		centerHeavyLinks(); 
 
 
+		var breaker = false; //To break/stop the code in certain conditions
+		var numIterations = 0; //Number of swapping-driver iterations
+		var improvingCounter = 0; //Counts the number of swapping-driver iterations passed without improving
 
-		var breaker = false; //To break the code in certain conditions
-		var numIterations = 0; //Number of driver iterations
-		var improvingCounter = 0; //Counts the number of iterations passed without improving
 
-		overallWeight = getLinkWeights(); //Holds weight of graph
-
-		var initialWeight = overallWeight;
+		let overallWeight = getLinkWeights(); //Holds weight of graph
+		var initialWeight = overallWeight; //Gets initial weight
 		var pastWeights = new Array(); //Holds past crossing amounts
 		var minWeight = overallWeight; //Holds initial minimum wight product
 
-		let bestGraphClone = JSON.parse(JSON.stringify(layeredNodesGraph));
 
 		/********************************************************************************************/
 		/********************************************************************************************/
 		/********************************************************************************************/
 		/********************************************************************************************/
+
+		let bestGraphClone = JSON.parse(JSON.stringify(layeredNodesGraph));
+
 		/* Swapping Driver Code */
 		swappingDriver(swappingEnabled);
 		function swappingDriver(swappingEnabledBool) {
 			let start = new Date(); //Used for timing
 
 			while(getLinkWeights() != 0 && swappingEnabledBool == true) {
-				let end = new Date(); //Used for timing
 				console.log('iter')
-				
 
 				//Functions for swapping of crossings and nodes
 				MinimizeCrossingsForwards(forwardsCrossingBool);
+				//Heurtistic for swapping backwards every so often
 				if(numIterations % 3 == 0) {
 					MinimizeCrossingsBackwards(backwardsCrossingBool);
 				}
 				MinimizeCrossingsSideways(sidewaysCrossingBool);
 
-				///
 				pastWeights.push(overallWeight); //Holds previous amount of crossings
 				overallWeight = getLinkWeights(); //Update number of crossings after swap
+
 				//Change new minimum if necessary
 				if(overallWeight < minWeight) {
-					console.log("newMin ", overallWeight)
 					minWeight = overallWeight;
 					improvingCounter = 0; //Reset counter
 					bestGraphClone = JSON.parse(JSON.stringify(layeredNodesGraph));
@@ -509,22 +508,23 @@ d3.json(graph_data, function() {
 				//If it goes 100 loops without improving, break
 				if(improvingCounter > 100 && breaker == false) {
 					breaker = true;
-					console.log("mininmum weight has not improved for 100 loops, breaker switched to true")
+					console.log("mininmum weight has not improved for 100 loops, breaker switched to true");
 				}
 
 				//End crossing swapping when we find minimum again
 				//Increments comparison number so it will eventually end
 				if(overallWeight <= (minWeight + (numIterations * 10) ) && breaker == true) {
-					console.log("loop broken @ iteration #" + numIterations + " w/ weight = " + overallWeight)
+					console.log("loop broken @ iteration #" + numIterations + " w/ weight = " + overallWeight);
 					break;
 				}
 
 				improvingCounter++; //Holds number of loops thus far (without a new minimum)
 				numIterations++;
 
+				let end = new Date(); //Used for timing
 				//Prevent code from running forever (10000 (ms) = 10 seconds)
 				if(numIterations > 200 || end - start > 7000) {
-					console.log("ending due to timing")
+					console.log("ending due to timing");
 					break;
 				}
 			}
@@ -534,20 +534,20 @@ d3.json(graph_data, function() {
 		/*************************************Above*****************************************/
 		
 		
-		/////////////////////////////////////////////////////////////////////////////////////
 		//Swaps to best graph found
 		layeredNodesGraph = JSON.parse(JSON.stringify(bestGraphClone));
+
 		//Updates 'nodes' and 'links' to match
 		updateNodesAndLinks();
 		getLinkWeights();
 
-		///////////////////////////////////////////////////////////
 		//Final operations
-		resortLayeredNodesGraph(); //Updates nodes and link indices and such
+		resortLayeredNodesGraph(); //Updates nodes and link indices, etc (for visual mouseovers and such)
 
-		//Final countings
-		pastWeights.push(getLinkWeights()); //Pushes final overall weight to array
+		//Records final weight counting
+		pastWeights.push(getLinkWeights());
 		
+		//If the final weight turns out to be wrose than the initial graph, revert back
 		if(initialWeight <= pastWeights.pop() && swappingEnabled) {
 			console.log("Final weight is larger than initial weight, swapping back to orignal and centering heavy links...");
 			
@@ -564,21 +564,17 @@ d3.json(graph_data, function() {
 
 			pastWeights.push(getLinkWeights()); //Pushes overall weight to array
 
-		}
+		} //swappingDriver ended
 
-		console.log(pastWeights)
-		// // console.log("minWeightProduct: " + minWeight)
 
-		console.log("--------_______FINAL________---------")
-		// //Calculate final weight products
+		//Calculate final weight products and output final data
 		var finalW = getLinkWeights();
-		console.log("weightProduct after centering graph: " + finalW)
-		console.log("Iterations it took: " + numIterations)
-		finalWeight = finalW;
-	}
-	
-	
-	//Driver code ended
+		console.log("--------_______FINAL________---------");
+		console.log("initial weight: " + initialWeight);
+		console.log("overall weight after swapping graph: " + finalW);
+		console.log("Iterations it took: " + numIterations);
+		console.log(pastWeights);
+	} //main Driver code ended
 	/***********************************************************************************/
 	/***********************************************************************************/
 	/***********************************************************************************/
@@ -965,6 +961,11 @@ d3.json(graph_data, function() {
 		throw new Error("Process stopped");
 	}
 
+
+
+
+
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/*************************************** Rendering/graphing code below ********************************************/
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1013,7 +1014,6 @@ d3.json(graph_data, function() {
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////
 	/************************************ Graph Centering ************************************/
 	/************************************ and formatting ************************************/
@@ -1247,7 +1247,7 @@ d3.json(graph_data, function() {
 		.selectAll("text")
 			.data(nodes)
 		.enter().append("text")
-			.attr("font-size", "12px")
+			.attr("font-size", "2px")
 			.style("fill", 'black')
 			.attr("dx", function(d) { 
 
