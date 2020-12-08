@@ -57,7 +57,7 @@
 <body>
 
 <script>
-	insert_navbar("small_multiples.html");
+	insert_navbar("user_study.html");
     insert_page_header();
 </script>
 
@@ -65,79 +65,20 @@
 
 
 <div class="page">
-    <div class="sidebar">
-        <form id="parameterForm">
-            <div class="container" style="padding: 0;">
-                <div class="row">
-                    <div class="col-4" style="padding-right: 3px;">
-                        <label for="dataset" style="margin-top: 3px;">Data Set</label>
-                    </div>
-                    <div class="col-8" style="padding-right: 3px;">
-                        <select class="form-control form-control-sm" id="dataset" name="dataset"
-                                onchange="change_dataset();"></select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4" style="padding-right: 3px;">
-                        <label for="datafile" style="margin-top: 3px;">Data File</label>
-                    </div>
-                    <div class="col-8" style="padding-right: 3px;">
-                        <select class="form-control form-control-sm" id="datafile" name="datafile"
-                                onchange="change_datafile();"></select>
-                    </div>
-                </div>
 
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let rank_cg = generate_checkbox('rank_filter','Histogram Equalization','load_mog()', 200)
-                                    document.write(rank_cg.getHTML())
-                                </script>
-                                </div>
+    dataset
+    datafile
+    'rank_filter'
 
-                                Component Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let component_rg = generate_radiogroup('component_method',
-                                                            [{value:'connected_components',label:'Connected Components',checked:true},
+                                    'component_method',{value:'connected_components',label:'Connected Components',checked:true},
                                                              {value:'modularity',label:'Modularity'},
-                                                             {value:'async_label_prop',label:'Async Label Propagation'},
-                                                             {value:'label_prop',label:'Label Propagation'},
-                                                             {value:'centrality',label:'Centrality'}],
-                                                            'load_mog()', 200)
-                                    document.write(component_rg.getHTML())
-                                </script>
-                                </div>
 
-                                Connectivity Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
                                     let link_rg = generate_radiogroup('link_method',[{value:'connectivity',label:'Connectivity',checked:true}],'load_mog()', 200)
-                                    document.write(link_rg.getHTML())
-                                </script>
-                                </div>
 
-                                Mapper Graph Filtering
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
                                     let lcc_cg = generate_checkbox('gcc_only','Largest Connected Component Only','load_mog()', 200)
-                                    document.write(lcc_cg.getHTML())
-                                </script>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="mapper_node_size_filter">Mapper Node Size Filter: <span
-                                            id="mapper_node_size_filter_value">0</span></label>
-                                    <input type="range" class="custom-range" min="0" max="20" step="1" value="0"
-                                           id="mapper_node_size_filter" name="mapper_node_size_filter"
-                                           onchange="load_mog(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
-                                </div>
-            </div>
 
 
-        </form>
-
-        <!-- img src="static/img/viridis.png" width="100%" height="20" -->
-    </div>
+    "mapper_node_size_filter"
 
     <div class="page-content" id="visualization" style="white-space: nowrap;">
         <div style="text-align: left; width: 1200px;">
@@ -238,27 +179,6 @@
 
     function update_mog( svg_name, options, ff ) {
         mogs.push( MOG_Vis(svg_name,options,ff) )
-        /*
-        let param_uri = $.param(options)
-        //console.log(param_uri)
-        d3.json("mog?" + param_uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                mog_vis = FDL_Graph_Vis(svg_name, data);
-                mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
-                mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
-                mog_vis.update_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
-                mog_vis.add_count_labels();
-                mog_vis.set_end_callback( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) } );
-                mogs.push(mog_vis)
-
-                //setTimeout( function(){ mog_vis.zoomFit(0.95,1000) }, 2000);
-                //setTimeout( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) }, 5000);
-            }
-        });
-         */
-
     }
 
     function change_dataset() {
@@ -266,14 +186,17 @@
         change_datafile();
     }
 
+    let dataset = ['medium'];
+    let datafile = ['bcsstk.json']
+
     function load_mog(){
         letters = ['A','B','C','D','E','F'];
 
         mogs.forEach( M=>M.remove() );
         mogs = []
 
-        let ds = get_selected_dataset();
-        let df = get_selected_datafile();
+        let ds = dataset[0];
+        let df = datafile[0];
 
         let possible_ff = ['agd','den_0_5','ecc','fv', 'fv_norm','pr_0_85']
         possible_ff.forEach( ff=>{
@@ -299,12 +222,12 @@
                     'datafile': df,
                     'filter_func': cur_ff,
                     'coverN': coverN,
-                    'rank_filter':  rank_cg.isChecked(),
+                    'rank_filter':  false,
                     'coverOverlap': 0,
-                    'component_method': component_rg.getSelected(),
-                    'link_method': link_rg.getSelected(),
-                    'gcc_only':  lcc_cg.isChecked(),
-                    'mapper_node_size_filter': get_selected_value('mapper_node_size_filter')
+                    'component_method': 'connected_components',
+                    'link_method': 'connectivity',
+                    'gcc_only':  false,
+                    'mapper_node_size_filter': 0
                 }
                 update_mog("#mog_vis_"+cur_ff+"_"+letters[j], options, cur_ff )
 
@@ -313,24 +236,13 @@
 
     }
 
-    function change_datafile() {
+    d3.json( "datasets", function( dinput ) {
+        datasets = dinput;
+        console.log(datasets)
         load_mog();
-    }
+    });
 
-    load_datasets(change_datafile);
 
-</script>
-
-<div id="overlay" onclick="overlay_off()"></div>
-
-<script>
-function overlay_on() {
-  document.getElementById("overlay").style.display = "block";
-}
-
-function overlay_off() {
-  document.getElementById("overlay").style.display = "none";
-}
 </script>
 
 </body>
