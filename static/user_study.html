@@ -62,69 +62,9 @@
 </script>
 
 
-
-
 <div class="page">
-
-    dataset
-    datafile
-    'rank_filter'
-
-                                    'component_method',{value:'connected_components',label:'Connected Components',checked:true},
-                                                             {value:'modularity',label:'Modularity'},
-
-                                    let link_rg = generate_radiogroup('link_method',[{value:'connectivity',label:'Connectivity',checked:true}],'load_mog()', 200)
-
-                                    let lcc_cg = generate_checkbox('gcc_only','Largest Connected Component Only','load_mog()', 200)
-
-
-    "mapper_node_size_filter"
-
     <div class="page-content" id="visualization" style="white-space: nowrap;">
-        <div style="text-align: left; width: 1200px;">
-            <div id="mog_row_agd">
-                <p class="row_title" id="row1_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/GnBu.png">
-                    Average Geodesic Distance
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_F"></svg>
-            </div>
-            <div id="mog_row_den_0_5">
-                <p class="row_title" id="row2_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/Oranges.png">
-                    Density (0.5)
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_F"></svg>
-            </div>
-            <div id="mog_row_ecc">
-                <p class="row_title" id="row3_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuGn.png">
-                    Eccentricity
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_F"></svg>
-            </div>
-            <div id="mog_row_fv">
-                <p class="row_title" id="row4_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
-                    Fiedler Vector
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_F"></svg>
-            </div>
-            <div id="mog_row_fv_norm">
-                <p class="row_title" id="row5_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
-                    Fiedler Vector Normalized
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_F"></svg>
-            </div>
-            <div id="mog_row_pr_0_85">
-                <p class="row_title" id="row5_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/YlOrRd.png">
-                    PageRank (alpha=0.85)
-                </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_F"></svg>
-            </div>
-        </div>
+        <div id="graphs_div" style="text-align: left; width: 1200px;"></div>
     </div>
 </div>
 
@@ -132,10 +72,6 @@
 <script>
 
 
-
-
-
-    let mogs = [];
 
 
     let MOG_Vis = function( svg_name, options, ff ){
@@ -163,7 +99,7 @@
                 mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
                 mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_value));
                 mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
-                mog_vis.add_count_labels();
+                //mog_vis.add_count_labels();
                 mog_vis.set_end_callback( ()=>send_to_cache() );
                 mog_vis.load()
             }
@@ -177,9 +113,6 @@
 
     }
 
-    function update_mog( svg_name, options, ff ) {
-        mogs.push( MOG_Vis(svg_name,options,ff) )
-    }
 
     function change_dataset() {
         update_datafiles();
@@ -187,21 +120,22 @@
     }
 
     let dataset = ['medium'];
-    let datafile = ['bcsstk.json']
+    let datafile = ['bcsstk.json', 'USair97.json', 'caltech.json', 'map.science.json', 'movies_out.json']
 
     function load_mog(){
-        letters = ['A','B','C','D','E','F'];
-
-        mogs.forEach( M=>M.remove() );
-        mogs = []
+        //letters = ['A','B','C','D','E','F'];
 
         let ds = dataset[0];
-        let df = datafile[0];
+
+        datafile.forEach( function(df){
+
+        //let df = datafile[0];
+        let df_base = df.split('.')[0];
 
         let possible_ff = ['agd','den_0_5','ecc','fv', 'fv_norm','pr_0_85']
-        possible_ff.forEach( ff=>{
-            document.getElementById("mog_row_"+ff).style.display = "none"
-        })
+        //possible_ff.forEach( ff=>{
+            //document.getElementById("mog_row_"+ff).style.display = "none"
+        //})
 
         ff = []
         if( 'agd' in datasets[ds][df]) ff.push('agd')
@@ -211,11 +145,36 @@
         else if( 'fv_norm' in datasets[ds][df]) ff.push('fv_norm')
         if( 'pr_0_85' in datasets[ds][df]) ff.push('pr_0_85')
 
+            let new_div = document.createElement("DIV");
+            new_div.innerHTML = '<svg height="600" width="600" style="border-style: solid; border-width: 1px;" id="graph_' + df_base + '"></svg>'
+            document.getElementById("graphs_div").appendChild(new_div);
+
+
+        d3.json("graph?dataset=" + ds + "&datafile=" + df, function (error, data) {
+            if (error) {
+                console.log(error);
+            } else {
+                graph_vis = FDL_Graph_Vis('#graph_' + df_base, data);
+                graph_vis.load();
+            }
+        });
+
         ff.forEach( cur_ff=>{
 
-            document.getElementById("mog_row_"+cur_ff).style.display = "block"
+            let new_div = document.createElement("DIV");
+            let new_div_html = ''
+            for (let j = 0; j < 4; j ++) {
+                coverN = 2 + 4 * j;
+                new_div_html += '<svg height="300" width="300" style="border-style: solid; border-width: 1px;" id="mog_' + df_base + '_' + cur_ff + '_' + coverN + '"></svg>'
+            }
+            new_div.innerHTML = new_div_html
+            document.getElementById("graphs_div").appendChild(new_div);
 
-            for (let j = 0; j < 6; j ++) {
+            //document.getElementById("mog_row_"+cur_ff).style.display = "block"
+
+
+
+            for (let j = 0; j < 4; j ++) {
                 coverN = 2 + 4*j;
                 let options = {
                     'dataset': ds,
@@ -224,15 +183,17 @@
                     'coverN': coverN,
                     'rank_filter':  false,
                     'coverOverlap': 0,
-                    'component_method': 'connected_components',
+                    'component_method': 'modularity', /*'connected_components'*/
                     'link_method': 'connectivity',
                     'gcc_only':  false,
                     'mapper_node_size_filter': 0
                 }
-                update_mog("#mog_vis_"+cur_ff+"_"+letters[j], options, cur_ff )
+                MOG_Vis('#mog_' + df_base + '_' + cur_ff + '_' + coverN, options, cur_ff )
+                //MOG_Vis("#mog_vis_"+cur_ff+"_"+letters[j], options, cur_ff )
 
             }
         })
+        });
 
     }
 
