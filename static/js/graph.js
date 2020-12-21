@@ -68,11 +68,10 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
         simulation.force("link").links(g_data.links);
 
-        zoom_handler = d3.zoom().on("zoom", zoom_actions);
-        zoom_handler(svg);
+        zoom_handler = d3.zoom().on("zoom", function(){ svg_g.attr("transform", d3.event.transform) });
+        svg.call(zoom_handler).call(zoom_handler.transform, d3.zoomIdentity);
 
         svg.style("cursor", "auto" )
-
 
         svg_txt.append("svg:image")
                 .attr('x', svg_width-25)
@@ -85,10 +84,8 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
     function ticked() {
         link
-            .attr("x1", d => d.source.x )
-            .attr("y1", d => d.source.y )
-            .attr("x2", d => d.target.x )
-            .attr("y2", d => d.target.y );
+            .attr("x1", d => d.source.x ).attr("y1", d => d.source.y )
+            .attr("x2", d => d.target.x ).attr("y2", d => d.target.y );
 
         node
             .attr("transform", function(d) {
@@ -113,9 +110,6 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
         d.fy = null;
     }
 
-    function zoom_actions(){
-        svg_g.attr("transform", d3.event.transform);
-    }
 
     function zoom_to_fit(paddingPercent, transitionDuration) {
         let bounds = svg_g.node().getBBox();
@@ -131,10 +125,10 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
             .translate(translate[0], translate[1])
             .scale(scale);
 
-        node
-            .transition()
-            .duration(transitionDuration || 0) // milliseconds
-            .call(zoom_handler.transform, transform);
+        svg.call(zoom_handler)
+                .transition()
+                .duration(transitionDuration || 0)
+                .call(zoom_handler.transform, transform)
     }
 
 
@@ -170,7 +164,6 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
 
         load : function(){
-            //console.log(g_data.nodes.length);
                 if( g_data.nodes.length < 1000 && g_data.links.length < 2500 ) {
                     /*svg.style("cursor", "progress" )
                     setTimeout( ()=>load_visualization(), 10);*/
@@ -233,11 +226,9 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
                     .attr("fill", "red");
         },
 
-        /*
-        zoomFit : function(paddingPercent, transitionDuration) {
-            zoom_to_fit( paddingPercent, transitionDuration);
+        zoomFit : function() {
+            zoom_to_fit( 0.975,2500 );
         },
-         */
 
         send_to_url : function(url){
             var xhr = new XMLHttpRequest();
