@@ -100,7 +100,7 @@
                 mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_value));
                 mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
                 //mog_vis.add_count_labels();
-                mog_vis.set_end_callback( ()=>send_to_cache() );
+                mog_vis.set_end_callback( ()=>{ mog_vis.zoomFit(); send_to_cache() } );
                 mog_vis.load()
             }
         });
