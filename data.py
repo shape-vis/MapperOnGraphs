@@ -186,12 +186,15 @@ def generate_data(max_time_per_file=1):
     for d0 in os.listdir("data/source"):
         if os.path.isdir("data/source/" + d0):
             for d1 in os.listdir("data/source/" + d0):
-                if fnmatch.fnmatch(d1.lower(), "*.json"):
-                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
-                if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
-                if fnmatch.fnmatch(d1.lower(), "*.tsv"):
-                    data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                try:
+                    if fnmatch.fnmatch(d1.lower(), "*.json"):
+                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                    if fnmatch.fnmatch(d1.lower(), "*.graph"):
+                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                    if fnmatch.fnmatch(d1.lower(), "*.tsv"):
+                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                except:
+                    print("data/source/" + d0 + "/" + d1 + " failed with " + str(sys.exc_info()[0]))
 
     for file in data_gen:
         if file is None: continue
