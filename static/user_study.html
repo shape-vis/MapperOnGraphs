@@ -120,7 +120,7 @@
     }
 
     let dataset = ['medium'];
-    let datafile = ['bcsstk.json', 'USair97.json', 'caltech.json', 'map.science.json', 'movies_out.json']
+    let datafile = ['bcsstk.json', 'bcsstk20.json', 'bcsstk22.json', 'collaboration_network_out.json', 'USair97.json', 'caltech.json', 'map.science.json', 'movies_out.json']
 
     function load_mog(){
         //letters = ['A','B','C','D','E','F'];
@@ -128,6 +128,11 @@
         let ds = dataset[0];
 
         datafile.forEach( function(df){
+
+            if( ! (df in datasets[ds]) ){
+                console.log('missing datafile ' + df)
+                return
+            }
 
         //let df = datafile[0];
         let df_base = df.split('.')[0];
