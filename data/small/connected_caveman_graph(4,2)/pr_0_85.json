@@ -1,1 +1,1 @@
-{"name": "pagerank", "alpha": 0.85, "process_time": 0.0002410411834716797, "data": {"0": 0.5, "7": 0.5}}
+{"name": "pagerank", "alpha": 0.85, "process_time": 0.00025391578674316406, "data": {"7": 0.5, "0": 0.5}}
