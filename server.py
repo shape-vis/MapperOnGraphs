@@ -211,7 +211,6 @@ def get_mog():
         with open(mog_cf, 'w') as outfile:
             outfile.write(mog.to_json())
 
-
     print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
     print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
     print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
@@ -243,6 +242,29 @@ def cache_mog():
         json.dump(request.json, outfile)
 
     return "{}"
+
+
+@app.route('/filter_summary.csv', methods=['GET', 'POST'])
+def generate_filter_summary():
+    ret = 'dataset,datafile,filter_function,processing time\n'
+    for ds0 in data_mod.data_sets:
+        for ds1 in data_mod.data_sets[ds0]:
+            for ff in data_mod.data_sets[ds0][ds1]:
+                with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+                    ff_data = json.load(json_file)
+                    ret += ds0 + ',"' + ds1 + '",' + ff + ',' + str(ff_data['process_time']) + '\n'
+    return app.response_class( response=ret, mimetype='text/csv')
+
+
+@app.route('/graph_summary.csv', methods=['GET', 'POST'])
+def generate_graph_summary():
+    ret = 'dataset,datafile,node_count,edge_count\n'
+    for ds0 in data_mod.data_sets:
+        for ds1 in data_mod.data_sets[ds0]:
+            graph_data, graph = GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
+            ret += ds0 + ',"' + ds1 + '",' + str(graph.number_of_nodes()) + ',' + str(graph.number_of_edges()) + '\n'
+
+    return app.response_class( response=ret, mimetype='text/csv')
 
 
 if __name__ == '__main__':

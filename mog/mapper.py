@@ -36,6 +36,7 @@ class Cover:
 def _get_components(graph: nx.classes.graph.Graph, values, cover: Cover, component_method):
     ret = []
     for ce in cover.get_cover_elements():
+
         filtered = list(filter(lambda v: ce['range'][0] <= values[v] <= ce['range'][1], values))
         subg = graph.subgraph(filtered)
 
