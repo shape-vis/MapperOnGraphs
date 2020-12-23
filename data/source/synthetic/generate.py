@@ -4,7 +4,13 @@ import json
 
 def write_json_graph(G, filename):
     with open(filename, 'w') as outfile:
-        json.dump(nx.node_link_data(G), outfile)
+        graph = nx.node_link_data(G)
+        for n in graph['nodes']:
+            n['id'] = str(n['id'])
+        for e in graph['links']:
+            e['source'] = str(e['source'])
+            e['target'] = str(e['target'])
+        json.dump(graph, outfile)
 
 
 write_json_graph(nx.connected_caveman_graph(3, 5), 'connected_caveman_graph(3,5).json')
