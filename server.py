@@ -9,6 +9,8 @@ from flask import send_file
 import mog.mapper as mapper
 import data as data_mod
 import mog.graph_io as GraphIO
+import layout.initial_layout as layout
+import networkx as nx
 
 app = Flask(__name__)
 
@@ -40,12 +42,13 @@ def load_graph():
     return GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
 
 
-def load_filter_function(ranked=False):
-    ds0 = request.args.get('dataset')
-    ds1 = request.args.get('datafile')
-    ff = request.args.get('filter_func')
+# def load_filter_function(ranked=False):
+#     ds0 = request.args.get('dataset')
+#     ds1 = request.args.get('datafile')
+#     ff = request.args.get('filter_func')
+def load_filter_function(dataset, datafile, filter_func, ranked=False):
 
-    with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+    with open('data/' + dataset + "/" + os.path.splitext(datafile)[0] + "/" + filter_func + ".json") as json_file:
         ff_data = json.load(json_file)['data']
 
     if ranked:
@@ -95,6 +98,46 @@ def get_cache_filename():
            + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
 
 
+def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap, component_method, link_method, rank_filter):
+    mog = mapper.MapperOnGraphs()
+
+    mog_cf = get_cache_fn("mog", dataset, datafile, {
+        'filter_func': filter_func,
+        'coverN': cover_elem_count,
+        'coverOverlap': cover_overlap,
+        'component_method': component_method,
+        'link_method': link_method,
+        'rank_filter': 'false' if rank_filter is None else rank_filter
+    })
+
+    if os.path.exists(mog_cf):
+        print("  >> " + datafile + " found in mog graph cache")
+        mog.load_mog(mog_cf)
+    else:
+        # Load the graph and filter function
+        graph_data, graph = GraphIO.read_json_graph('data/' + dataset + "/" + datafile)
+        print(" >> Input Node Count: " + str(graph.number_of_nodes()))
+        print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
+
+        values = load_filter_function(dataset,datafile,filter_func,rank_filter == 'true')
+
+        # Construct the cover
+        intervals = int(cover_elem_count)
+        overlap = float(cover_overlap)
+        cover = mapper.Cover(values, intervals, overlap)
+
+        # Construct MOG
+        mog.build_mog(graph, values, cover, component_method, link_method, verbose=graph.number_of_nodes() > 1000)
+
+        if graph.number_of_nodes() > 5000:
+            mog.strip_components_from_nodes()
+
+        with open(mog_cf, 'w') as outfile:
+            outfile.write(mog.to_json())
+
+    return mog, mog_cf
+
+
 @app.route('/')
 def send_main():
     try:
@@ -132,7 +175,11 @@ def get_graph():
         print("  >> " + request.args.get('datafile') + " found in graph layout cache")
         send_file(filename)
 
-    return send_file('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
+    graph_data, graph = GraphIO.read_json_graph('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
+    layout.initialize_radial_layout(graph)
+    # layout.initialize_vertical_layout(self.mapper_graph)
+    return json.dumps( nx.node_link_data(graph) )
+    #return send_file('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
 
 
 @app.route('/graph_layout', methods=['GET', 'POST'])
@@ -150,7 +197,10 @@ def get_filter_function():
     if not request_valid(True, True, True):
         return "{}"
 
-    return json.dumps(load_filter_function(request.args.get('rank_filter') == 'true'))
+    ds0 = request.args.get('dataset')
+    ds1 = request.args.get('datafile')
+    ff = request.args.get('filter_func')
+    return json.dumps(load_filter_function(ds0,ds1,ff,request.args.get('rank_filter') == 'true'))
 
 
 @app.route('/mog', methods=['GET', 'POST'])
@@ -159,7 +209,7 @@ def get_mog():
     if not request_valid(True, True, True):
         return "{}"
 
-    mog_layout_cf = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),{
+    mog_layout_cf = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'), {
         'filter_func': request.args.get('filter_func'),
         'coverN': request.args.get('coverN'),
         'coverOverlap': request.args.get('coverOverlap'),
@@ -174,42 +224,46 @@ def get_mog():
         print("  >> " + request.args.get('datafile') + " found in mog layout cache")
         return send_file(mog_layout_cf)
 
-    mog = mapper.MapperOnGraphs()
+    mog, mog_cf = generate_mog( request.args.get('dataset'), request.args.get('datafile'), request.args.get('filter_func'),
+        request.args.get('coverN'), request.args.get('coverOverlap'), request.args.get('component_method'),
+         request.args.get('link_method'), request.args.get('rank_filter') )
 
-    mog_cf = get_cache_fn("mog", request.args.get('dataset'), request.args.get('datafile'),{
-        'filter_func': request.args.get('filter_func'),
-        'coverN': request.args.get('coverN'),
-        'coverOverlap': request.args.get('coverOverlap'),
-        'component_method': request.args.get('component_method'),
-        'link_method': request.args.get('link_method'),
-        'rank_filter': 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
-    })
-
-    if os.path.exists(mog_cf):
-        print("  >> " + request.args.get('datafile') + " found in mog graph cache")
-        mog.load_mog(mog_cf)
-    else:
-        # Load the graph and filter function
-        graph_data, graph = load_graph()
-        print(" >> Input Node Count: " + str(graph.number_of_nodes()))
-        print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
-
-        values = load_filter_function(request.args.get('rank_filter') == 'true')
-
-        # Construct the cover
-        intervals = int(request.args.get('coverN'))
-        overlap = float(request.args.get('coverOverlap'))
-        cover = mapper.Cover(values, intervals, overlap)
-
-        # Construct MOG
-        mog.build_mog(graph, values, cover, request.args.get('component_method'),
-                                    request.args.get('link_method'), verbose=graph.number_of_nodes()>1000)
-
-        if graph.number_of_nodes() > 5000:
-            mog.strip_components_from_nodes()
-
-        with open(mog_cf, 'w') as outfile:
-            outfile.write(mog.to_json())
+    # mog = mapper.MapperOnGraphs()
+    #
+    # mog_cf = get_cache_fn("mog", request.args.get('dataset'), request.args.get('datafile'), {
+    #     'filter_func': request.args.get('filter_func'),
+    #     'coverN': request.args.get('coverN'),
+    #     'coverOverlap': request.args.get('coverOverlap'),
+    #     'component_method': request.args.get('component_method'),
+    #     'link_method': request.args.get('link_method'),
+    #     'rank_filter': 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
+    # })
+    #
+    # if os.path.exists(mog_cf):
+    #     print("  >> " + request.args.get('datafile') + " found in mog graph cache")
+    #     mog.load_mog(mog_cf)
+    # else:
+    #     # Load the graph and filter function
+    #     graph_data, graph = load_graph()
+    #     print(" >> Input Node Count: " + str(graph.number_of_nodes()))
+    #     print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
+    #
+    #     values = load_filter_function(request.args.get('rank_filter') == 'true')
+    #
+    #     # Construct the cover
+    #     intervals = int(request.args.get('coverN'))
+    #     overlap = float(request.args.get('coverOverlap'))
+    #     cover = mapper.Cover(values, intervals, overlap)
+    #
+    #     # Construct MOG
+    #     mog.build_mog(graph, values, cover, request.args.get('component_method'),
+    #                   request.args.get('link_method'), verbose=graph.number_of_nodes() > 1000)
+    #
+    #     if graph.number_of_nodes() > 5000:
+    #         mog.strip_components_from_nodes()
+    #
+    #     with open(mog_cf, 'w') as outfile:
+    #         outfile.write(mog.to_json())
 
     print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
     print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
@@ -228,7 +282,7 @@ def get_mog():
 
 @app.route('/mog_layout', methods=['GET', 'POST'])
 def cache_mog():
-    filename = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),{
+    filename = get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'), {
         'filter_func': request.args.get('filter_func'),
         'coverN': request.args.get('coverN'),
         'coverOverlap': request.args.get('coverOverlap'),
@@ -244,8 +298,8 @@ def cache_mog():
     return "{}"
 
 
-@app.route('/filter_summary.csv', methods=['GET', 'POST'])
-def generate_filter_summary():
+def generate_filter_summary(force_overwrite=False):
+    if not force_overwrite and os.path.exists("data/filter_summary.csv") : return
     ret = 'dataset,datafile,filter_function,processing time\n'
     for ds0 in data_mod.data_sets:
         for ds1 in data_mod.data_sets[ds0]:
@@ -253,18 +307,35 @@ def generate_filter_summary():
                 with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
                     ff_data = json.load(json_file)
                     ret += ds0 + ',"' + ds1 + '",' + ff + ',' + str(ff_data['process_time']) + '\n'
-    return app.response_class( response=ret, mimetype='text/csv')
+    with open("data/filter_summary.csv", 'w') as outfile:
+        outfile.write(ret)
 
 
-@app.route('/graph_summary.csv', methods=['GET', 'POST'])
-def generate_graph_summary():
+def generate_graph_summary(force_overwrite=False):
+    if not force_overwrite and os.path.exists("data/graph_summary.csv") : return
     ret = 'dataset,datafile,node_count,edge_count\n'
     for ds0 in data_mod.data_sets:
         for ds1 in data_mod.data_sets[ds0]:
             graph_data, graph = GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
             ret += ds0 + ',"' + ds1 + '",' + str(graph.number_of_nodes()) + ',' + str(graph.number_of_edges()) + '\n'
+    with open("data/graph_summary.csv", 'w') as outfile:
+        outfile.write(ret)
 
-    return app.response_class( response=ret, mimetype='text/csv')
+
+def generate_mog_profile(dataset,datafile):
+    ret = 'filter_func,cover_elem_count,component_method,connectivity_method,ranked,nodes,edges,compute_time\n'
+    for ff in data_mod.data_sets[dataset][datafile]:
+        for coverN in range(2,20):
+            mog, mog_cf = generate_mog( dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'false' )
+            ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog( dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'false' )
+            ret += ff + ',' + str(coverN) + ',' + 'modularity,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog(dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'true')
+            ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,true' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog(dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'true')
+            ret += ff + ',' + str(coverN) + ',' + 'modularity,connectivity,true' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+    with open("data/"+datafile[:-5]+".csv",'w') as outfile:
+        outfile.write(ret)
 
 
 if __name__ == '__main__':
@@ -272,4 +343,9 @@ if __name__ == '__main__':
         os.mkdir("cache")
     # data_mod.generate_data(1)
     data_mod.scan_datasets()
+    # generate_filter_summary()
+    # generate_graph_summary()
+    # for ds in ['small','medium']:
+    #     for df in data_mod.data_sets[ds]:
+    #         generate_mog_profile(ds,df)
     app.run(host='0.0.0.0', port=5000)
