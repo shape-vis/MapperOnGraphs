@@ -116,7 +116,7 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
         let midX = bounds.x + bounds.width / 2,
             midY = bounds.y + bounds.height / 2;
 
-        if (bounds.width == 0 || bounds.height == 0) return; // nothing to fit
+        if (bounds.width === 0 || bounds.height === 0) return; // nothing to fit
 
         let scale = (paddingPercent || 0.75) / Math.max(bounds.width / svg_width, bounds.height / svg_height);
         let translate = [svg_width / 2 - scale * midX, svg_height / 2 - scale * midY];
