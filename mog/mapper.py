@@ -4,7 +4,7 @@ import time
 import networkx as nx
 import statistics as stats
 import mog.graph_io as GraphIO
-
+import layout.initial_layout as layout
 
 class Cover:
     def __init__(self, values, intervals, overlap):
@@ -189,6 +189,8 @@ class MapperOnGraphs:
         self.mapper_graph = self.mapper_graph.subgraph(ns)
 
     def to_json(self):
+        layout.initialize_radial_layout(self.mapper_graph)
+        #layout.initialize_vertical_layout(self.mapper_graph)
         json_data = nx.node_link_data(self.mapper_graph)
         json_data['info'] = self.info
         return json.dumps(json_data)
