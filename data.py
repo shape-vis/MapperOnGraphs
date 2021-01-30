@@ -5,11 +5,9 @@ import ntpath
 import os
 import sys
 import time
-import mog.graph_io as GraphIO
-
-
 import networkx as nx
 
+import mog.graph_io as GraphIO
 import mog.filter_functions as ff
 
 data_sets = {}
@@ -32,14 +30,13 @@ filter_function_names = {'agd': 'Average Geodesic Distance',
                          'ev_norm_5': 'Eigen Function Normalized (6th)'}
 
 
-
 # Generate AGD
 def generate_agd(out_path, graph, weight):
     if not os.path.exists(out_path):
         print("   >> Generating AGD")
         start = time.time()
         data = ff.average_geodesic_distance(graph, _weight=weight)
-        GraphIO.write_json_data(out_path, {'name': 'agd', 'process_time':(time.time()-start), 'data':data} )
+        GraphIO.write_json_data(out_path, {'name': 'agd', 'process_time': (time.time() - start), 'data': data})
 
 
 # Generate eccentricity
@@ -48,7 +45,7 @@ def generate_ecc(out_path, graph):
         print("   >> Generating Eccentricity")
         start = time.time()
         data = ff.eccentricity(graph)
-        GraphIO.write_json_data(out_path, {'name': 'eccentricity', 'process_time':(time.time()-start),'data':data} )
+        GraphIO.write_json_data(out_path, {'name': 'eccentricity', 'process_time': (time.time() - start), 'data': data})
 
 
 # Generate pagerank
@@ -57,7 +54,8 @@ def generate_pr(out_path, graph, weight, alpha):
         print("   >> Generating Pagerank")
         start = time.time()
         data = ff.pagerank(graph, weight, alpha)
-        GraphIO.write_json_data(out_path, {'name': 'pagerank', 'alpha': alpha, 'process_time':(time.time()-start),'data':data} )
+        GraphIO.write_json_data(out_path, {'name': 'pagerank', 'alpha': alpha, 'process_time': (time.time() - start),
+                                           'data': data})
 
 
 # Generate fiedler vector
@@ -67,7 +65,9 @@ def generate_fv(out_path, graph, weight, normalized):
             print("   >> Generating Fiedler Vector")
             start = time.time()
             data = ff.fiedler_vector(graph, _weight=weight, _normalized=normalized)
-            GraphIO.write_json_data(out_path, {'name': 'fiedler', 'normalized': normalized, 'process_time': (time.time() - start), 'data': data})
+            GraphIO.write_json_data(out_path,
+                                    {'name': 'fiedler', 'normalized': normalized, 'process_time': (time.time() - start),
+                                     'data': data})
     except nx.exception.NetworkXError:
         print(">>> FAILED (fiedler vector): processing error. maybe graph not connected?")
 
@@ -79,7 +79,7 @@ def generate_den(out_path, graph, weight, eps):
         start = time.time()
         data = ff.density(graph, weight, eps)
         GraphIO.write_json_data(out_path, {'name': 'density', 'eps': eps, 'process_time': (time.time() - start),
-                                   'data': data})
+                                           'data': data})
 
 
 # Generate eigen functions
@@ -99,35 +99,42 @@ def generate_eig(out_path, graph, weight, which_eig, normalized):
                 if graph.number_of_nodes() > ev:
                     ev_path = out_path.format(str(ev))
                     GraphIO.write_json_data(ev_path, {'name': 'eigen', 'eigen': ev, 'normalized': normalized,
-                                               'process_time': (end - start),
-                                               'data': eig[ev][1]})
+                                                      'process_time': (end - start),
+                                                      'data': eig[ev][1]})
     except TypeError:
         print(">>> FAILED (eigen): type error")
 
 
 def process_graph(in_filename):
     print("Found Graph: " + in_filename)
-    basename,ext = os.path.splitext(ntpath.basename(in_filename).lower())
+    basename, ext = os.path.splitext(ntpath.basename(in_filename).lower())
 
-    if ext not in ['.json','.graph','.tsv']:
+    if ext not in ['.json', '.graph', '.tsv']:
         return
 
-    if os.path.exists('data/small/'+basename+'.json'): return 'data/small/'+basename+'.json'
-    if os.path.exists('data/medium/'+basename+'.json'): return 'data/medium/' + basename + '.json'
-    if os.path.exists('data/large/'+basename+'.json'): return 'data/large/' + basename + '.json'
-    if os.path.exists('data/very_large/'+basename+'.json'): return 'data/very_large/' + basename + '.json'
+    if os.path.exists('data/small/' + basename + '.json'): return 'data/small/' + basename + '.json'
+    if os.path.exists('data/medium/' + basename + '.json'): return 'data/medium/' + basename + '.json'
+    if os.path.exists('data/large/' + basename + '.json'): return 'data/large/' + basename + '.json'
+    if os.path.exists('data/very_large/' + basename + '.json'): return 'data/very_large/' + basename + '.json'
 
-    if ext == ".json": data, graph = GraphIO.read_json_graph(in_filename)
-    elif ext == ".graph": data, graph = GraphIO.read_graph_file(in_filename)
-    elif ext == ".tsv": data, graph = GraphIO.read_tsv_graph_file(in_filename)
-    else: return None
+    if ext == ".json":
+        data, graph = GraphIO.read_json_graph(in_filename)
+    elif ext == ".graph":
+        data, graph = GraphIO.read_graph_file(in_filename)
+    elif ext == ".tsv":
+        data, graph = GraphIO.read_tsv_graph_file(in_filename)
+    else:
+        return None
 
     gcc = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(gcc)
 
-    if graph.number_of_nodes() < 100: out_filename = 'data/small/'+basename+'.json'
-    elif graph.number_of_nodes() < 1000: out_filename = 'data/medium/'+basename+'.json'
-    elif graph.number_of_nodes() < 5000: out_filename = 'data/large/'+basename+'.json'
+    if graph.number_of_nodes() < 100:
+        out_filename = 'data/small/' + basename + '.json'
+    elif graph.number_of_nodes() < 1000:
+        out_filename = 'data/medium/' + basename + '.json'
+    elif graph.number_of_nodes() < 5000:
+        out_filename = 'data/large/' + basename + '.json'
     else:
         out_filename = 'data/very_large/' + basename + '.json'
 
@@ -162,8 +169,10 @@ def process_datafile(in_filename, max_time_per_file=1):
              multiprocessing.Process(target=generate_fv, args=(out_dir + "/fv.json", graph, 'value', False)),
              multiprocessing.Process(target=generate_fv, args=(out_dir + "/fv_norm.json", graph, 'value', True)),
              multiprocessing.Process(target=generate_den, args=(out_dir + "/den_0_5.json", graph, 'value', 0.5)),
-             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_{}.json", graph, 'value', range(1, 6), False)),
-             multiprocessing.Process(target=generate_eig, args=(out_dir + "/ev_norm_{}.json", graph, 'value', range(1, 6), True))]
+             multiprocessing.Process(target=generate_eig,
+                                     args=(out_dir + "/ev_{}.json", graph, 'value', range(1, 6), False)),
+             multiprocessing.Process(target=generate_eig,
+                                     args=(out_dir + "/ev_norm_{}.json", graph, 'value', range(1, 6), True))]
 
     # process the functions in parallel for max_time_per_file
     end_time = time.time() + max_time_per_file
@@ -188,11 +197,11 @@ def generate_data(max_time_per_file=1):
             for d1 in os.listdir("data/source/" + d0):
                 try:
                     if fnmatch.fnmatch(d1.lower(), "*.json"):
-                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
                     if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
                     if fnmatch.fnmatch(d1.lower(), "*.tsv"):
-                        data_gen.append( process_graph("data/source/" + d0 + "/" + d1) )
+                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
                 except:
                     print("data/source/" + d0 + "/" + d1 + " failed with " + str(sys.exc_info()[0]))
 
@@ -211,8 +220,8 @@ def generate_data(max_time_per_file=1):
 
 
 def scan_datasets():
-    #for d0 in os.listdir("data/"):
-    for d0 in ['small','medium','large','very_large']:
+    # for d0 in os.listdir("data/"):
+    for d0 in ['small', 'medium', 'large', 'very_large']:
         if os.path.isdir("data/" + d0):
             data_sets[d0] = {}
             for d1 in os.listdir("data/" + d0):
@@ -226,8 +235,54 @@ def scan_datasets():
                         del data_sets[d0][d1]
 
 
+
+def generate_filter_summary(force_overwrite=False):
+    if not force_overwrite and os.path.exists("data/filter_summary.csv") : return
+    ret = 'dataset,datafile,filter_function,processing time\n'
+    for ds0 in data_sets:
+        for ds1 in data_sets[ds0]:
+            for ff in data_sets[ds0][ds1]:
+                with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+                    ff_data = json.load(json_file)
+                    ret += ds0 + ',"' + ds1 + '",' + ff + ',' + str(ff_data['process_time']) + '\n'
+    with open("data/filter_summary.csv", 'w') as outfile:
+        outfile.write(ret)
+
+
+def generate_graph_summary(force_overwrite=False):
+    if not force_overwrite and os.path.exists("data/graph_summary.csv") : return
+    ret = 'dataset,datafile,node_count,edge_count\n'
+    for ds0 in data_sets:
+        for ds1 in data_sets[ds0]:
+            graph_data, graph = GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
+            ret += ds0 + ',"' + ds1 + '",' + str(graph.number_of_nodes()) + ',' + str(graph.number_of_edges()) + '\n'
+    with open("data/graph_summary.csv", 'w') as outfile:
+        outfile.write(ret)
+
+
+def generate_mog_profile(dataset,datafile):
+    ret = 'filter_func,cover_elem_count,component_method,connectivity_method,ranked,nodes,edges,compute_time\n'
+    for ff in data_sets[dataset][datafile]:
+        for coverN in range(2,20):
+            mog, mog_cf = generate_mog( dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'false' )
+            ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog( dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'false' )
+            ret += ff + ',' + str(coverN) + ',' + 'modularity,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog(dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'true')
+            ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,true' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+            mog, mog_cf = generate_mog(dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'true')
+            ret += ff + ',' + str(coverN) + ',' + 'modularity,connectivity,true' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+    with open("data/"+datafile[:-5]+".csv",'w') as outfile:
+        outfile.write(ret)
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         generate_data(int(sys.argv[1]))
     else:
         generate_data(1)
+    generate_filter_summary()
+    generate_graph_summary()
+    for ds in ['small','medium']:
+        for df in data_mod.data_sets[ds]:
+            generate_mog_profile(ds,df)

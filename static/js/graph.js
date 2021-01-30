@@ -68,7 +68,19 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
         simulation.force("link").links(g_data.links);
 
-        zoom_handler = d3.zoom().on("zoom", function(){ svg_g.attr("transform", d3.event.transform) });
+        zoom_handler = d3.zoom().on("zoom", function(){
+            if (typeof point_radius_func === 'function')
+                node.attr('r', d => point_radius_func(d) / d3.event.transform.k)
+            else
+                node.attr('r', point_radius_func / d3.event.transform.k)
+
+            if (typeof stroke_width_func === 'function')
+                link.attr("stroke-width", d => stroke_width_func(d) / d3.event.transform.k)
+            else
+                link.attr("stroke-width", stroke_width_func / d3.event.transform.k)
+
+            svg_g.attr("transform", d3.event.transform)
+        });
         svg.call(zoom_handler).call(zoom_handler.transform, d3.zoomIdentity);
 
         svg.style("cursor", "auto" )
