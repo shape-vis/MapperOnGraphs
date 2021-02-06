@@ -56,9 +56,7 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
             node.attr("fill", color_func );
 
         simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function (d) {
-                return d.id;
-            }))
+            .force("link", d3.forceLink().id( d =>d.id ))
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(svg_width / 2, svg_height / 2))
             .nodes(g_data.nodes)

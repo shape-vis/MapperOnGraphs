@@ -120,7 +120,9 @@
     }
 
     let dataset = ['medium'];
-    let datafile = ['bcsstk.json', 'bcsstk20.json', 'bcsstk22.json', 'collaboration_network_out.json', 'USair97.json', 'caltech.json', 'map.science.json', 'movies_out.json']
+    let datafile = ['bcsstk.json', 'bcsstk20.json', 'bcsstk22.json', 'collaboration_network.json',
+                        'USair97.json', 'caltech.json', 'map_of_science.json', 'movies.json',
+                        'watts_strogatz_graph(100,4,0.05).json', 'watts_strogatz_graph(100,5,0.05).json' ]
 
     function load_mog(){
         //letters = ['A','B','C','D','E','F'];
@@ -135,7 +137,8 @@
             }
 
         //let df = datafile[0];
-        let df_base = df.split('.')[0];
+        //let df_base = df.split('.')[0]
+        let df_base = df.replaceAll(".","_").replaceAll("(","_").replaceAll(',','_').replaceAll(')','_');
 
         let possible_ff = ['agd','den_0_5','ecc','fv', 'fv_norm','pr_0_85']
         //possible_ff.forEach( ff=>{

@@ -163,11 +163,14 @@ def get_graph():
     filename = get_cache_fn("graph_layout", request.args.get('dataset'), request.args.get('datafile'), {})
     if os.path.exists(filename):
         print("  >> " + request.args.get('datafile') + " found in graph layout cache")
-        send_file(filename)
+    else:
+        graph_data, graph = GraphIO.read_json_graph('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
+        layout.initialize_radial_layout(graph)
 
-    graph_data, graph = GraphIO.read_json_graph('data/' + request.args.get('dataset') + "/" + request.args.get('datafile'))
-    layout.initialize_radial_layout(graph)
-    return json.dumps( nx.node_link_data(graph) )
+        with open(filename, 'w') as outfile:
+            json.dump( nx.node_link_data(graph), outfile)
+
+    return send_file(filename)
 
 
 @app.route('/graph_layout', methods=['GET', 'POST'])
