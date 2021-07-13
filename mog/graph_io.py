@@ -45,7 +45,7 @@ def write_json_data(filename, data):
 
 
 def write_json_graph(filename, graph):
-    write_json_data(filename, nx.node_link_data(graph), separators=(',', ':'))
+    write_json_data(filename, nx.node_link_data(graph))
 
 
 def read_filter_function(filename, ranked=False):

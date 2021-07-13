@@ -3,7 +3,7 @@ import numpy as np
 import functools
 import math
 import time
-import graph_io as GraphIO
+import mog.graph_io as GraphIO
 
 
 def average_geodesic_distance(g, _weight, _out_path=None):
