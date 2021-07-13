@@ -92,11 +92,6 @@ def save_graph_layout(params, data):
 
 
 def get_mog(params):
-    # tmp = dict(
-    #     filter(lambda x: x[0] in ['dataset', 'datafile', 'filter_func', 'coverN', 'coverOverlap', 'component_method',
-    #                               'link_method', 'rank_filter'], params.items()))
-    # print(tmp)
-
     mog, mog_cf = generate_mog(params['dataset'], params['datafile'],
                                params['filter_func'],
                                params['coverN'], params['coverOverlap'],

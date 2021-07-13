@@ -182,7 +182,7 @@ def __pre_generate_mog( params, opts, opts_keys ):
         key = opts_keys[0]
         for o in opts[key]:
             params[key] = o
-            __pregenerate_mog(params, opts, opts_keys[1:])
+            __pre_generate_mog(params, opts, opts_keys[1:])
 
 
 def pre_generate_mog(dataset,datafile):
@@ -207,6 +207,7 @@ if __name__ == '__main__':
         generate_data(int(sys.argv[1]))
     else:
         generate_data(1)
+
     for d0 in data_sets:
         for d1 in data_sets[d0]:
             pre_generate_mog(d0,d1)
