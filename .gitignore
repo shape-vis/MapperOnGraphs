@@ -13,3 +13,4 @@ __pycache__
 mog/__pycache__
 data/very_large/com-youtube.ungraph.json
 cache
+docs/data/large/com-youtube.ungraph.json
