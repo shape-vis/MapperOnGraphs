@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
 
     <!-- Required meta tags -->
@@ -55,7 +55,7 @@
     <script src="js/cover.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
-
+    <script src="js/graph_loader.js"></script>
 </head>
 <body>
 
@@ -65,326 +65,128 @@
 </script>
 
 <div class="page">
-    <div class="sidebar">
-        <h2>Mapper on Graphs</h2>
-        <form id="parameterForm">
-            <div class="container" style="padding: 0;">
-                <div class="row">
-                    <div class="col-4" style="padding-right: 3px;">
-                        <label for="dataset" style="margin-top: 3px;">Data Set</label>
-                    </div>
-                    <div class="col-8" style="padding-right: 3px;">
-                        <select class="form-control form-control-sm" id="dataset" name="dataset"
-                                onchange="change_dataset();"></select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4" style="padding-right: 3px;">
-                        <label for="datafile" style="margin-top: 3px;">Data File</label>
-                    </div>
-                    <div class="col-8" style="padding-right: 3px;">
-                        <select class="form-control form-control-sm" id="datafile" name="datafile"
-                                onchange="change_datafile();"></select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4" style="padding-right: 3px;">
-                        <label for="filter_func" style="margin-top: 3px;">Filter Function</label>
-                    </div>
-                    <div class="col-8" style="padding-right: 3px;">
-                        <select class="form-control form-control-sm" id="filter_func" name="filter_func"
-                                onchange="change_filter_func();"></select>
-                    </div>
-                </div>
-                <div class="d-inline-block align-middle" style="text-align: center;">
-                    <script>
-                        let rank_cg = generate_checkbox('rank_filter','Histogram Equalization','change_filter_func()', 200)
-                        document.write(rank_cg.getHTML())
-                    </script>
-                </div>
-                <div class="form-group">
-                    <script>
-                        let coverN_slider = generate_slider('Cover Elements: ', 'coverN', 2, 100, 1, 2, 'change_cover()')
-                        document.write(coverN_slider.getHTML())
-                    </script>
-                    <!--
-                    <label for="coverN">Cover Elements: <span id="coverN_value">2</span></label>
-                    <input type="range" class="custom-range" min="2" max="100" step="1" value="2" id="coverN"
-                           name="coverN"
-                           oninput="document.getElementById('coverN_value').innerHTML = document.getElementById('coverN').value;"
-                           onchange="change_cover();">-->
-                </div>
-                <div class="form-group">
-                    <script>
-                        let cover_overlap_slider = generate_slider('Cover Overlap: ', 'coverOverlap', 0, 1, 0.1, 0, 'change_cover()')
-                        document.write(cover_overlap_slider.getHTML())
-                    </script>
-                    <!--
-                    <label for="coverOverlap">Cover Overlap: <span id="coverOverlap_value">0.0</span></label>
-                    <input type="range" class="custom-range" min="0" max="1" step="0.01" value="0.0"
-                           id="coverOverlap" name="coverOverlap"
-                           oninput="document.getElementById('coverOverlap_value').innerHTML = document.getElementById('coverOverlap').value;"
-                           onchange="change_cover(); ">-->
-                </div>
-                Component Method
-                <div class="d-inline-block align-middle" style="text-align: center;">
-                    <script>
-                        let component_rg = generate_radiogroup('component_method',
-                                                [{value:'connected_components',label:'Conn. Components',checked:true},
-                                                 {value:'modularity',label:'Modularity'},
-                                                 {value:'async_label_prop',label:'Async Label Prop'},
-                                                 {value:'label_prop',label:'Label Propagation'},
-                                                 {value:'centrality',label:'Centrality'}],
-                                                'change_cover()', 200)
-                        document.write(component_rg.getHTML())
-                    </script>
-                </div>
-                Connectivity Method
-                <div class="d-inline-block align-middle" style="text-align: center;">
-                    <script>
-                        let link_rg = generate_radiogroup('link_method',[
-                                    {value:'overlap',label:'Overlap',checked:false},
-                                    {value:'connectivity',label:'Connectivity',checked:true}]
-                            ,'change_cover()', 200)
-                        document.write(link_rg.getHTML())
-                    </script>
-                </div>
-                <div class="form-check">
-                    <script>
-                        let gcc_only_cb = generate_checkbox('gcc_only','Show LCC Only','change_cover()', 200)
-                        document.write(gcc_only_cb.getHTML())
-                    </script>
-                </div>
-                <div class="form-group">
-                    <script>
-                        let node_filter_slider = generate_slider('Mapper Node Size Filter: ', 'mapper_node_size_filter', 0, 20, 1, 0, 'change_cover()')
-                        document.write(node_filter_slider.getHTML())
-                    </script>
-                </div>
-            </div>
-        </form>
-    </div>
 
-    <div class="page-content" id="visualization" style="white-space: nowrap;">
-        <div style="float: left; text-align: center;">
-            <svg height="600" width="600" style="border: thick;" id="graph_vis"></svg>
-            <br>
-            <input type="button" id="downloadGraph" name="downloadGraph"
-                   onclick="downloadJson(graph_vis.get_graph(),'graph.json');" value="Download Graph">
+     <div class="page-content" id="visualization" style="white-space: nowrap;">
+        <div style="text-align: left; width: 1200px;">
+            <div id="mog_row_agd">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig1_graph_agd'); saveSVG('fig1_mog_agd'); saveSVG('fig1_graph_den_0_5');
+                        saveSVG('fig1_mog_den_0_5'); saveSVG('fig1_graph_ecc'); saveSVG('fig1_mog_ecc');
+                        saveSVG('fig1_graph_fv'); saveSVG('fig1_mog_fv'); saveSVG('fig1_graph_pr_0_85'); saveSVG('fig1_mog_pr_0_85'); "/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_graph_agd"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_mog_agd"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_graph_den_0_5"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_mog_den_0_5"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_graph_ecc"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_mog_ecc"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_graph_fv"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_mog_fv"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_graph_pr_0_85"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig1_mog_pr_0_85"></svg>
+
+            </div>
+
+            <div id="mog_row_agd">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig2_mog_agd_2');
+                        saveSVG('fig2_mog_agd_4'); saveSVG('fig2_mog_agd_8'); saveSVG('fig2_mog_agd_16'); "/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig2_mog_agd_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig2_mog_agd_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig2_mog_agd_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig2_mog_agd_16"></svg>
+            </div>
+
+            <div id="mog_row_agd">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig3_mog_agd_8_e0');
+                        saveSVG('fig3_mog_agd_8_e1'); saveSVG('fig3_mog_agd_8_e2'); saveSVG('fig3_mog_agd_8_e4'); "/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig3_mog_agd_8_e0"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig3_mog_agd_8_e1"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig3_mog_agd_8_e2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig3_mog_agd_8_e4"></svg>
+            </div>
+
+            <div id="mog_row_agd">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig4_mog_agd_8_connected_components');
+                        saveSVG('fig4_mog_agd_8_modularity'); saveSVG('fig4_mog_agd_8_async_label_prop');"/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig4_mog_agd_8_connected_components"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig4_mog_agd_8_modularity"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig4_mog_agd_8_async_label_prop"></svg>
+            </div>
+
+            <div id="mog_row_agd">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig5_mog_agd_8_overlap');
+                        saveSVG('fig5_mog_agd_8_connectivity');"/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig5_mog_agd_8_overlap"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig5_mog_agd_8_connectivity"></svg>
+            </div>
         </div>
-        <div style="text-align: center; width: 1200px;">
-            <svg height="600" width="600" style="border: thick;" id="mog_vis"></svg>
-            <br>
-            <input type="button" id="downloadMOG" name="downloadMOG"
-                   onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG">
-        </div>
-        <input type="button" id="mapperToGraphLayout" name="mapperToGraphLayout"
-                   onclick="set_graph_positions_from_mapper();" value="<=== Update Graph Layout From Mapper">
-    </div>
+     </div>
 </div>
 
 
 <script>
 
 
-    let graph_vis = null;
-    let mog_vis = null;
-    let histo_vis = null;
-    let cover_vis = null;
-
-    function set_mapper_positions_from_graph(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        let tmp = {}
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
-        })
-        mog_data.nodes.forEach(function(m){
-            m.x = m.y = 0;
-            m.components.forEach(function(n){
-                m.x += tmp[n].x
-                m.y += tmp[n].y
-            })
-            m.x = m.x / m.components.length
-            m.y = m.y / m.components.length
+        fig1 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
+        fig1.forEach( ff => {
+            let options = get_default_mog_options( 'medium', 'USair97.json', ff, 8, false )
+            MOG_Vis( '#fig1_mog_'+ff, options )
+            Graph_VIS( '#fig1_graph_'+ff, options, true )
         })
 
-         */
-    }
-
-    function set_graph_positions_from_mapper(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        console.log(graph_data)
-        let tmp = {}
-        let gx = d3.extent( graph_data.nodes, d=>d.x );
-        let gy = d3.extent( graph_data.nodes, d=>d.y );
-        let mx = d3.extent( mog_data.nodes, d=>d.x );
-        let my = d3.extent( mog_data.nodes, d=>d.y );
-
-        let scale = Math.min( ( gx[1]-gx[0] )/( mx[1]-mx[0] ), ( gy[1]-gy[0] )/( my[1]-my[0] ) )
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
+        let fig2 = [2, 4, 8, 16]
+        fig2.forEach( coverN => {
+            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', coverN, false )
+            MOG_Vis( '#fig2_mog_agd_'+coverN, options )
         })
-        mog_data.nodes.forEach(function(m){
-            m.components.forEach(function(n){
-                tmp[n].x = m.x*scale + Math.random()/10000
-                tmp[n].y = m.y*scale + Math.random()/10000
-            })
+
+        let fig3 = [0, 1, 2, 4]
+        fig3.forEach( eps => {
+            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            options.coverOverlap = eps/10
+            MOG_Vis( '#fig3_mog_agd_8_e'+eps, options )
         })
-        graph_vis.restart_simulation()
-        console.log(tmp)
-        console.log(graph_data)
 
-         */
-    }
 
-    function load_mog(options, cb){
-
-        let param_uri = $.param(options)
-
-        d3.json("mog?" + param_uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-
-                data['options'] = options
-                data['send_to_cache'] = function () {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "mog_layout?" + param_uri, true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    tmp_data = {'nodes': data.nodes, 'links': []};
-                    data.links.forEach(function (L) {
-                        tmp_data.links.push({'value': L.value, 'source': L.source.id, 'target': L.target.id});
-                    });
-                    xhr.send(JSON.stringify(tmp_data));
-                }
-
-                if(cb) cb(data)
-            }
+        let fig4 = ['connected_components','modularity','async_label_prop']
+        fig4.forEach( comp => {
+            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            options.component_method = comp
+            MOG_Vis( '#fig4_mog_agd_8_'+comp, options )
         })
-    }
 
-    function update_mog() {
-        if( mog_vis ) mog_vis.remove()
 
-        let options = {
-            'dataset': get_selected_dataset(),
-            'datafile': get_selected_datafile(),
-            'filter_func': get_selected_filter_func(),
-            'coverN': coverN_slider.getValue(),
-            'rank_filter':  rank_cg.isChecked(),
-            'coverOverlap': cover_overlap_slider.getValue(),
-            'component_method': component_rg.getSelected(),
-            'link_method': link_rg.getSelected(),
-            'gcc_only': gcc_only_cb.isChecked(),
-            'mapper_node_size_filter': node_filter_slider.getValue()
-        }
-
-        load_mog( options, function(data){
-            console.log(data)
-
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
-                var myScale = d3.scaleLinear()
-                      .domain([1, maxR])
-                      .range([2, Math.min(15,maxR)]);
-
-                let cs = colorSchemes[get_selected_filter_func()]
-
-                set_mapper_positions_from_graph()
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
-                mog_vis.set_link_width(d => Math.sqrt(d.value));
-                mog_vis.load()
+        let fig5 = [['overlap',0.5],['connectivity',0]]
+        fig5.forEach( link_overlap => {
+            let link_m = link_overlap[0]
+            let overlap = link_overlap[1]
+            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            options.component_method = 'connected_components'
+            options.link_method = link_m
+            options.coverOverlap = overlap
+            MOG_Vis( '#fig5_mog_agd_8_'+link_m, options )
         })
-    }
-    /*
-    function update_mog() {
-        if( mog_vis ) mog_vis.remove()
-
-        d3.json("mog?" + $("#parameterForm").serialize(), function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
-                var myScale = d3.scaleLinear()
-                      .domain([1, maxR])
-                      .range([2, Math.min(15,maxR)]);
-
-                let cs = colorSchemes[get_selected_filter_func()]
-
-                set_mapper_positions_from_graph()
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
-                mog_vis.set_link_width(d => Math.sqrt(d.value));
-                mog_vis.load()
-            }
-        });
-    }*/
-
-    function change_dataset() {
-        update_datafiles();
-        load_graph( change_filter_func );
-    }
-
-    function change_datafile() {
-        update_filter_functions()
-        load_graph( change_filter_func );
-    }
-
-    function change_filter_func() {
-        d3.json("filter_function?" + $("#parameterForm").serialize(), function (error, data) {
-
-            let cs = colorSchemes[get_selected_filter_func()].domain([0,1])
-            graph_vis.set_node_color(n=>cs(n), data);
-
-            histo_vis.set_position( 50, 20, 80, 200 );
-            histo_vis.update_drawing( 10, Object.values(data), colorSchemes[get_selected_filter_func()] )
-
-            change_cover();
-        });
-    }
-
-    function change_cover() {
-        update_mog();
-        cover_vis.set_position( 10, 20, 30, 200 );
-        cover_vis.update_drawing( parseFloat(document.getElementById('coverN').value),
-                                  parseFloat(document.getElementById('coverOverlap').value),
-                                  colorSchemes[get_selected_filter_func()] );
-    }
 
 
-    function load_graph(callback) {
-
-        if( graph_vis ) graph_vis.remove()
-
-        let svg = d3.select("#graph_vis")
-        //svg.empty()
-        svg.style("cursor", "progress" )
-
-        d3.json("graph?" + $("#parameterForm").serialize(), function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-
-                graph_vis = FDL_Graph_Vis("#graph_vis", data);
-                graph_vis.load();
-
-                if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
-                if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
-
-                if (callback) callback();
-            }
-            svg.style("cursor", "auto" )
-        });
-    }
-
-
-    load_datasets(change_datafile);
+	function saveSVG( plotID ){
+		let svgData = $("#"+plotID)[0].outerHTML;
+        let svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+        let svgUrl = URL.createObjectURL(svgBlob);
+        let downloadLink = document.createElement("a");
+        downloadLink.href = svgUrl;
+        downloadLink.download = plotID + ".svg";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+	}
 
 </script>
 

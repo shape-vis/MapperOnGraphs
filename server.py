@@ -1,17 +1,12 @@
 import json
 import os
 
+import cache
+import data as data_mod
 from flask import Flask
 from flask import request
-from flask import send_from_directory
 from flask import send_file
-
-import mog.mapper as mapper
-import data as data_mod
-import mog.graph_io as GraphIO
-import layout.initial_layout as layout
-import networkx as nx
-import cache
+from flask import send_from_directory
 
 app = Flask(__name__)
 
@@ -45,27 +40,6 @@ def get_arg_params():
         'gcc_only': 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
     }
 
-# def load_graph():
-#     ds0 = request.args.get('dataset')
-#     ds1 = request.args.get('datafile')
-#     return GraphIO.read_json_graph('data/' + ds0 + "/" + ds1)
-
-
-# def get_cache_filename():
-#     rank_filter = 'false' if request.args.get('rank_filter') is None else request.args.get('rank_filter')
-#     gcc_only = 'false' if request.args.get('gcc_only') is None else request.args.get('gcc_only')
-#
-#     dir = 'cache/' + request.args.get('dataset')
-#     if not os.path.exists(dir): os.mkdir(dir)
-#
-#     dir += '/' + request.args.get('datafile')
-#     if not os.path.exists(dir): os.mkdir(dir)
-#
-#     return dir + '/mog_' + request.args.get('filter_func') + '_' + rank_filter + '_' \
-#            + request.args.get('coverN') + '_' + request.args.get('coverOverlap') + '_' \
-#            + request.args.get('component_method') + '_' + request.args.get('link_method') + '_' \
-#            + request.args.get('mapper_node_size_filter') + '_' + gcc_only + '.json'
-
 
 @app.route('/')
 def send_main():
@@ -94,14 +68,23 @@ def get_graph():
         return send_file(cache.get_graph_filename(request.args.to_dict()))
 
 
-@app.route('/graph_layout', methods=['GET', 'POST'])
-def save_graph():
+@app.route('/cache', methods=['GET', 'POST'])
+def save_to_cache():
     # Check that the request is valid
-    if not request_valid(True, True, False):
-        return "{'result':'failed'}"
-    else:
-        cache.save_graph_layout(request.args.to_dict(), request.json)
-        return "{'result':'ok'}"
+    if request.args.get('type') == 'graph_layout':
+        if request_valid(True, True, False):
+            cache.save_graph_layout(request.args.to_dict(), request.json)
+            return "{'result':'ok'}"
+
+    if request.args.get('type') == 'mog_layout':
+        if request_valid(True, True, True):
+            filename = cache.get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),
+                                          get_arg_params())
+            with open(filename, 'w') as outfile:
+                json.dump(request.json, outfile)
+            return "{'result':'ok'}"
+
+    return "{'result':'failed'}"
 
 
 @app.route('/filter_function', methods=['GET', 'POST'])
@@ -127,15 +110,6 @@ def get_mog():
             return send_file(mog_layout_cf)
 
         return cache.get_mog(request.args.to_dict())
-
-
-@app.route('/mog_layout', methods=['GET', 'POST'])
-def cache_mog():
-    filename = cache.get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'), get_arg_params())
-    with open(filename, 'w') as outfile:
-        json.dump(request.json, outfile)
-
-    return "{}"
 
 
 if __name__ == '__main__':

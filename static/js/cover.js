@@ -59,8 +59,8 @@ var cover_visualization = function( svg_name ) {
             let group_maxes = new Array(coverN).fill(-1);
             let max_group = 0;
             for( let i = 0; i < coverN; i++){
-                let minV = Math.max(0,i/coverN-coverOverlap)
-                let maxV = Math.min(1,(i+1)/coverN+coverOverlap)
+                let minV = Math.max(0,i/coverN-coverOverlap-0.0001)
+                let maxV = Math.min(1,(i+1)/coverN+coverOverlap+0.0001)
 
                 let grp = 0;
                 while( group_maxes[grp] > minV ) grp++;

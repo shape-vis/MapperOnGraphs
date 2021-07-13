@@ -48,8 +48,8 @@ def _get_components(graph: nx.classes.graph.Graph, values, cover: Cover, compone
             components = nx.algorithms.community.asyn_lpa_communities(subg)
         elif component_method == 'label_prop':
             components = nx.algorithms.community.label_propagation_communities(subg)
-        elif component_method == 'centrality':
-            components = nx.algorithms.community.girvan_newman(subg)
+        # elif component_method == 'centrality':
+        #     components = nx.algorithms.community.girvan_newman(subg)
         else:
             components = nx.connected_components(subg)
 

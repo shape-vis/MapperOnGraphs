@@ -49,6 +49,8 @@ def initialize_vertical_layout(g, x_range=[0, 500], y_range=[0, 500]):
 def initialize_radial_layout(g, x_range=[0, 500], y_range=[0, 500]):
     abs_layout, tree_depth = __abstract_layout(g)
 
+    if tree_depth == 1: tree_depth = 2
+
     cen = [(x_range[0] + x_range[1]) / 2, (y_range[0] + y_range[1]) / 2]
     rad = min(x_range[1] - x_range[0], y_range[1] - y_range[0]) / 2
 

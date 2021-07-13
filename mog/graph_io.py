@@ -41,11 +41,11 @@ def read_tsv_graph_file(filename):
 
 def write_json_data(filename, data):
     with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile, separators=(',', ':'))
 
 
 def write_json_graph(filename, graph):
-    write_json_data(filename, nx.node_link_data(graph))
+    write_json_data(filename, nx.node_link_data(graph), separators=(',', ':'))
 
 
 def read_filter_function(filename, ranked=False):

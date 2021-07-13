@@ -83,13 +83,7 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
 
         svg.style("cursor", "auto" )
 
-        svg_txt.append("svg:image")
-                .attr('x', svg_width-25)
-                .attr('y', 5)
-                .attr('width', 20)
-                .attr('height', 20)
-                .attr("xlink:href", "static/img/fit-to-width.png")
-                .on("click", ()=>zoom_to_fit(0.975,2500) )
+
     }
 
     function ticked() {
@@ -234,6 +228,16 @@ var FDL_Graph_Vis = function( svg_name, _graph_data ) {
                     .attr("text-anchor", "end")
                     .attr("font-size", "10px")
                     .attr("fill", "red");
+        },
+
+        add_zoom_button : function(){
+            svg_txt.append("svg:image")
+                .attr('x', svg_width - 25)
+                .attr('y', 5)
+                .attr('width', 20)
+                .attr('height', 20)
+                .attr("xlink:href", "static/img/fit-to-width.png")
+                .on("click", () => zoom_to_fit(0.975, 2500))
         },
 
         zoomFit : function() {
