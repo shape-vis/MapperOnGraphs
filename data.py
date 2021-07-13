@@ -61,10 +61,10 @@ def process_graph(in_filename):
     print("Found Graph: " + in_filename)
     basename, ext = os.path.splitext(ntpath.basename(in_filename).lower())
 
-    if os.path.exists('data/very_small/' + basename + '.json'): return 'data/very_small/' + basename + '.json'
-    if os.path.exists('data/small/' + basename + '.json'): return 'data/small/' + basename + '.json'
-    if os.path.exists('data/medium/' + basename + '.json'): return 'data/medium/' + basename + '.json'
-    if os.path.exists('data/large/' + basename + '.json'): return 'data/large/' + basename + '.json'
+    if os.path.exists('docs/data/very_small/' + basename + '.json'): return 'docs/data/very_small/' + basename + '.json'
+    if os.path.exists('docs/data/small/' + basename + '.json'): return 'docs/data/small/' + basename + '.json'
+    if os.path.exists('docs/data/medium/' + basename + '.json'): return 'docs/data/medium/' + basename + '.json'
+    if os.path.exists('docs/data/large/' + basename + '.json'): return 'docs/data/large/' + basename + '.json'
 
     if ext == ".json": data, graph = GraphIO.read_json_graph(in_filename)
     elif ext == ".graph": data, graph = GraphIO.read_graph_file(in_filename)
@@ -74,12 +74,12 @@ def process_graph(in_filename):
     gcc = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(gcc)
 
-    if graph.number_of_nodes() < 100: out_filename = 'data/very_small/' + basename + '.json'
-    elif graph.number_of_nodes() < 1000: out_filename = 'data/small/' + basename + '.json'
-    elif graph.number_of_nodes() < 5000: out_filename = 'data/medium/' + basename + '.json'
-    else: out_filename = 'data/large/' + basename + '.json'
+    if graph.number_of_nodes() < 100: out_filename = 'docs/data/very_small/' + basename + '.json'
+    elif graph.number_of_nodes() < 1000: out_filename = 'docs/data/small/' + basename + '.json'
+    elif graph.number_of_nodes() < 5000: out_filename = 'docs/data/medium/' + basename + '.json'
+    else: out_filename = 'docs/data/large/' + basename + '.json'
 
-    print("   >> Converting to " + in_filename)
+    print("   >> Converting " + in_filename + " to " + out_filename)
 
     GraphIO.write_json_graph(out_filename, graph)
 
@@ -120,26 +120,26 @@ def process_datafile(in_filename, max_time_per_file=1):
             p.join()
 
 
-if not os.path.exists("data/very_small"): os.mkdir("data/very_small")
-if not os.path.exists("data/small"): os.mkdir("data/small")
-if not os.path.exists("data/medium"): os.mkdir("data/medium")
-if not os.path.exists("data/large"): os.mkdir("data/large")
+if not os.path.exists("docs/data/very_small"): os.mkdir("docs/data/very_small")
+if not os.path.exists("docs/data/small"): os.mkdir("docs/data/small")
+if not os.path.exists("docs/data/medium"): os.mkdir("docs/data/medium")
+if not os.path.exists("docs/data/large"): os.mkdir("docs/data/large")
 
 
 def generate_data(max_time_per_file=1):
     data_gen = []
-    for d0 in os.listdir("data/source"):
-        if os.path.isdir("data/source/" + d0):
-            for d1 in os.listdir("data/source/" + d0):
+    for d0 in os.listdir("data"):
+        if os.path.isdir("data/" + d0):
+            for d1 in os.listdir("data/" + d0):
                 try:
                     if fnmatch.fnmatch(d1.lower(), "*.json"):
-                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
+                        data_gen.append(process_graph("data/" + d0 + "/" + d1))
                     if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
+                        data_gen.append(process_graph("data/" + d0 + "/" + d1))
                     if fnmatch.fnmatch(d1.lower(), "*.tsv"):
-                        data_gen.append(process_graph("data/source/" + d0 + "/" + d1))
+                        data_gen.append(process_graph("data/" + d0 + "/" + d1))
                 except:
-                    print("data/source/" + d0 + "/" + d1 + " failed with " + str(sys.exc_info()[0]))
+                    print("data/" + d0 + "/" + d1 + " failed with " + str(sys.exc_info()[0]))
 
     for file in data_gen:
         if file is None: continue
@@ -158,11 +158,11 @@ def generate_data(max_time_per_file=1):
 def scan_datasets():
     # for d0 in os.listdir("data/"):
     for d0 in ['very_small', 'small', 'medium', 'large']:
-        if os.path.isdir("data/" + d0):
+        if os.path.isdir("docs/data/" + d0):
             data_sets[d0] = {}
-            for d1 in os.listdir("data/" + d0):
+            for d1 in os.listdir("docs/data/" + d0):
                 if fnmatch.fnmatch(d1.lower(), "*.json"):
-                    ff_dir = os.path.splitext("data/" + d0 + '/' + d1)[0]
+                    ff_dir = os.path.splitext("docs/data/" + d0 + '/' + d1)[0]
                     data_sets[d0][d1] = {}
                     for ff in filter_function_names.keys():
                         if os.path.exists(ff_dir + "/" + ff + ".json"):
@@ -171,9 +171,53 @@ def scan_datasets():
                         del data_sets[d0][d1]
 
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        generate_data(int(sys.argv[1]))
+
+def __pregenerate_mog( params, opts, opts_keys ):
+    if len(opts_keys) == 0:
+        cache.generate_mog(params['dataset'], params['datafile'],
+                           params['filter_func'],
+                           params['coverN'], params['coverOverlap'],
+                           params['component_method'],
+                           params['link_method'], params['rank_filter'])
     else:
-        generate_data(1)
+        key = opts_keys[0]
+        for o in opts[key]:
+            params[key] = o
+            __pregenerate_mog(params, opts, opts_keys[1:])
+
+
+def pregenerate_mog(dataset,datafile):
+    opts = {
+        'dataset': [dataset],
+        'datafile': [datafile],
+        'filter_func': data_sets[dataset][datafile],
+        'coverN': [2,3,4,6,8,10,20],
+        'coverOverlap': [0],
+        'component_method': ['connected_components','modularity','async_label_prop'],
+        'link_method': ['connectivity'],
+        'mapper_node_size_filter': [0],
+        'rank_filter': ['true','false'],
+        'gcc_only': ['false']
+    }
+
+    __pregenerate_mog( {}, opts, list(opts.keys()) )
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    # if len(sys.argv) > 1:
+    #     generate_data(int(sys.argv[1]))
+    # else:
+    #     generate_data(1)
+
+    scan_datasets()
+    print(data_sets)
+    for d0 in data_sets:
+        for d1 in data_sets[d0]:
+            pregenerate_mog(d0,d1)
 

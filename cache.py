@@ -10,23 +10,16 @@ import networkx as nx
 
 def get_filter_function(params):
     rank_filter = False if 'rank_filter' not in params else params['rank_filter'].lower() == 'true'
-    filename = 'data/' + params['dataset'] + "/" + os.path.splitext(params['datafile'])[0] + "/" + params['filter_func'] + ".json"
+    filename = 'docs/data/' + params['dataset'] + "/" + os.path.splitext(params['datafile'])[0] + "/" + params['filter_func'] + ".json"
     return GraphIO.read_filter_function(filename, rank_filter)
 
 
-def get_cache_fn(cache_type, dataset, datafile, params=None):
-    path = 'cache/' + dataset
-    if not os.path.exists(path): os.mkdir(path)
-
-    path += '/' + datafile
-    if not os.path.exists(path): os.mkdir(path)
-
-    path += '/' + cache_type
-
+def get_mog_path(dataset, datafile, ff, params=None):
+    path = 'docs/data/' + dataset + '/' + os.path.splitext(datafile)[0] + '/' + ff
     if params is not None:
-        pKeys = list(params.keys())
-        pKeys.sort()
-        for k in params.keys():
+        keys = list(params.keys())
+        keys.sort()
+        for k in keys:
             path += "_" + str(params[k])
     return path + ".json"
 
@@ -35,8 +28,7 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
                  rank_filter):
     mog = mapper.MapperOnGraphs()
 
-    mog_cf = get_cache_fn("mog", dataset, datafile, {
-        'filter_func': filter_func,
+    mog_cf = get_mog_path(dataset, datafile, filter_func, {
         'coverN': cover_elem_count,
         'coverOverlap': cover_overlap,
         'component_method': component_method,
@@ -45,11 +37,14 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
     })
 
     if os.path.exists(mog_cf):
-        print("  >> " + datafile + " found in mog graph cache")
+        print("  >> found " + mog_cf + " in cache")
         mog.load_mog(mog_cf)
     else:
+
+        print("  >> creating " + mog_cf)
+
         # Load the graph and filter function
-        graph_data, graph = GraphIO.read_json_graph('data/' + dataset + "/" + datafile)
+        graph_data, graph = GraphIO.read_json_graph('docs/data/' + dataset + "/" + datafile)
         print(" >> Input Node Count: " + str(graph.number_of_nodes()))
         print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
 
@@ -63,6 +58,10 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
 
         # Construct MOG
         mog.build_mog(graph, values, cover, component_method, link_method, verbose=graph.number_of_nodes() > 1000)
+
+        print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
+        print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
+        print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
         if graph.number_of_nodes() > 5000:
             mog.strip_components_from_nodes()
@@ -78,7 +77,7 @@ def get_graph_filename(params):
     if os.path.exists(filename):
         print("  >> " + params['datafile'] + " found in graph layout cache")
     else:
-        graph_data, graph = GraphIO.read_json_graph('data/' + params['dataset'] + "/" + params['datafile'])
+        graph_data, graph = GraphIO.read_json_graph('docs/data/' + params['dataset'] + "/" + params['datafile'])
         layout.initialize_radial_layout(graph)
 
         with open(filename, 'w') as outfile:
@@ -93,20 +92,16 @@ def save_graph_layout(params, data):
 
 
 def get_mog(params):
-    tmp = dict(
-        filter(lambda x: x[0] in ['dataset', 'datafile', 'filter_func', 'coverN', 'coverOverlap', 'component_method',
-                                  'link_method', 'rank_filter'], params.items()))
-    print(tmp)
+    # tmp = dict(
+    #     filter(lambda x: x[0] in ['dataset', 'datafile', 'filter_func', 'coverN', 'coverOverlap', 'component_method',
+    #                               'link_method', 'rank_filter'], params.items()))
+    # print(tmp)
 
     mog, mog_cf = generate_mog(params['dataset'], params['datafile'],
                                params['filter_func'],
                                params['coverN'], params['coverOverlap'],
                                params['component_method'],
                                params['link_method'], params['rank_filter'])
-
-    print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
-    print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
-    print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
     node_size_filter = int(params['mapper_node_size_filter'])
     if node_size_filter > 0:

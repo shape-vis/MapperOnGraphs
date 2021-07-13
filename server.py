@@ -8,7 +8,7 @@ from flask import request
 from flask import send_file
 from flask import send_from_directory
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/docs", static_folder='docs')
 
 
 def request_valid(dataset_req, datafile_req, filter_func_req):
@@ -43,13 +43,13 @@ def get_arg_params():
 
 @app.route('/')
 def send_main():
-    return send_file('static/index.html')
+    return send_file('docs/index.html')
 
 
 @app.route('/<path:path>')
 def send_static(path):
     try:
-        return send_from_directory('static', path)
+        return send_from_directory('docs', path)
     except Exception as e:
         return str(e)
 
