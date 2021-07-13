@@ -2,6 +2,13 @@ import networkx as nx
 import json
 
 
+def round_floats(o):
+    if isinstance(o, float): return round(o, 4)
+    if isinstance(o, dict): return {k: round_floats(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)): return [round_floats(x) for x in o]
+    return o
+
+
 def read_json_graph(filename):
     with open(filename) as f:
         js_graph = json.load(f)
@@ -41,7 +48,7 @@ def read_tsv_graph_file(filename):
 
 def write_json_data(filename, data):
     with open(filename, 'w') as outfile:
-        json.dump(data, outfile, separators=(',', ':'))
+        json.dump(round_floats(data), outfile, separators=(',', ':'))
 
 
 def write_json_graph(filename, graph):

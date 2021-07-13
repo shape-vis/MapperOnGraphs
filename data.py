@@ -171,8 +171,7 @@ def scan_datasets():
                         del data_sets[d0][d1]
 
 
-
-def __pregenerate_mog( params, opts, opts_keys ):
+def __pre_generate_mog( params, opts, opts_keys ):
     if len(opts_keys) == 0:
         cache.generate_mog(params['dataset'], params['datafile'],
                            params['filter_func'],
@@ -186,7 +185,7 @@ def __pregenerate_mog( params, opts, opts_keys ):
             __pregenerate_mog(params, opts, opts_keys[1:])
 
 
-def pregenerate_mog(dataset,datafile):
+def pre_generate_mog(dataset,datafile):
     opts = {
         'dataset': [dataset],
         'datafile': [datafile],
@@ -200,24 +199,15 @@ def pregenerate_mog(dataset,datafile):
         'gcc_only': ['false']
     }
 
-    __pregenerate_mog( {}, opts, list(opts.keys()) )
-
-
-
-
-
-
+    __pre_generate_mog( {}, opts, list(opts.keys()) )
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) > 1:
-    #     generate_data(int(sys.argv[1]))
-    # else:
-    #     generate_data(1)
-
-    scan_datasets()
-    print(data_sets)
+    if len(sys.argv) > 1:
+        generate_data(int(sys.argv[1]))
+    else:
+        generate_data(1)
     for d0 in data_sets:
         for d1 in data_sets[d0]:
-            pregenerate_mog(d0,d1)
+            pre_generate_mog(d0,d1)
 
