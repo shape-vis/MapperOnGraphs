@@ -5,16 +5,53 @@ import json
 import mog.graph_io as GraphIO
 import cache
 
+def csv_header( modal ):
+    ret = ''
+    for m in modal:
+        ret += str(m) + ','
+    return ret[:-1]
+
+
+def csv_add_row( modal, data ):
+    ret = '\n'
+    for m in modal:
+        if m in data:
+            s = str(data[m])
+            if s.find(",") >= 0: s = '"' + s + '"'
+            ret += s
+        ret += ','
+    return ret[:-1]
+
 
 def generate_filter_summary(force_overwrite=False):
     if not force_overwrite and os.path.exists("analysis/filter_summary.csv") : return
-    ret = 'dataset,datafile,filter_function,nodes,processing time\n'
+
+    ffs = list(data.filter_function_names.keys())
+    ffs.sort()
+
+    modal = ['dataset','datafile','nodes','edges'] + ffs
+
+    ret = csv_header(modal)
+
+    record = {}
     for ds0 in data.data_sets:
+        record['dataset'] = ds0
         for ds1 in data.data_sets[ds0]:
-            for ff in data.data_sets[ds0][ds1]:
-                with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
-                    ff_data = json.load(json_file)
-                    ret += ds0 + ',"' + ds1 + '",' + ff + ',' + str(len(ff_data['data'])) + ',' + str(ff_data['process_time']) + '\n'
+            record['datafile'] = ds1
+            record['nodes'] = 0
+            record['edges'] = 0
+
+            for ff in ffs:
+                record[ff] = ''
+                if ff in data.data_sets[ds0][ds1]:
+                    with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+                        ff_data = json.load(json_file)
+                        if 'num_of_nodes' in ff_data: record['nodes'] = ff_data['num_of_nodes']
+                        if 'num_of_edges' in ff_data : record['edges'] = ff_data['num_of_edges']
+                        record[ff] = ff_data['process_time']
+
+            ret += csv_add_row(modal, record)
+
     with open("analysis/filter_summary.csv", 'w') as outfile:
         outfile.write(ret)
 
@@ -48,9 +85,8 @@ def generate_mog_profile(dataset,datafile):
 
 if __name__ == '__main__':
     data.scan_datasets()
-    generate_filter_summary()
-    generate_graph_summary()
-    for ds in ['small','medium']:
-        for df in data.data_sets[ds]:
-            generate_mog_profile(ds,df)
-            
+    generate_filter_summary(True)
+    # generate_graph_summary()
+    # for ds in ['very_small', 'small','medium']:
+    #     for df in data.data_sets[ds]:
+    #         generate_mog_profile(ds,df)
