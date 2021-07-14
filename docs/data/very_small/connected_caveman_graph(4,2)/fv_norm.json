@@ -1,1 +1,1 @@
-{"name":"fiedler","normalized":true,"weight":"value","num_of_nodes":2,"num_of_edges":1,"process_time":0.0005276203155517578,"data":{"0":1.0,"7":-1.0}}
+{"name":"fiedler","normalized":true,"weight":"value","num_of_nodes":2,"num_of_edges":1,"process_time":0.0005,"data":{"7":1.0,"0":-1.0}}
