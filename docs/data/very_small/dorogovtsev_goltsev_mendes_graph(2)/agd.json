@@ -1,1 +1,1 @@
-{"name":"agd","num_of_nodes":6,"num_of_edges":9,"weight":"value","process_time":0.0006,"data":{"0":1.2,"1":1.2,"2":1.2,"3":1.6,"4":1.6,"5":1.6}}
+{"name":"agd","num_of_nodes":6,"num_of_edges":9,"weight":"value","process_time":0.0002,"data":{"0":0.0,"1":0.0,"2":0.0,"3":1.0,"4":1.0,"5":1.0},"ranked":{"0":0.0,"1":0.2,"2":0.4,"3":0.6,"4":0.8,"5":1.0}}

@@ -9,6 +9,7 @@ import networkx as nx
 
 import mog.graph_io as GraphIO
 import mog.filter_functions as ff
+import layout.initial_layout as layout
 
 import cache
 
@@ -20,6 +21,44 @@ filter_function_names = {'agd': 'Average Geodesic Distance',
                          'fv': 'Fiedler Vector',
                          'fv_norm': 'Fiedler Vector Normalized',
                          'den_0_5': 'Density 0.5'}
+
+
+def process_graph(in_filename):
+    print("Found: " + in_filename)
+    basename, ext = os.path.splitext(ntpath.basename(in_filename).lower())
+
+    # Check if the graph already exists
+    if os.path.exists('docs/data/very_small/' + basename + '.json'): return 'docs/data/very_small/' + basename + '.json'
+    if os.path.exists('docs/data/small/' + basename + '.json'): return 'docs/data/small/' + basename + '.json'
+    if os.path.exists('docs/data/medium/' + basename + '.json'): return 'docs/data/medium/' + basename + '.json'
+    if os.path.exists('docs/data/large/' + basename + '.json'): return 'docs/data/large/' + basename + '.json'
+
+    # Load the graph, if possible
+    if ext == ".json": data, graph = GraphIO.read_json_graph(in_filename)
+    elif ext == ".graph": data, graph = GraphIO.read_graph_file(in_filename)
+    elif ext == ".tsv": data, graph = GraphIO.read_tsv_graph_file(in_filename)
+    else: return None
+
+    # set outfile name
+    if graph.number_of_nodes() < 100: out_filename = 'docs/data/very_small/' + basename + '.json'
+    elif graph.number_of_nodes() < 1000: out_filename = 'docs/data/small/' + basename + '.json'
+    elif graph.number_of_nodes() < 5000: out_filename = 'docs/data/medium/' + basename + '.json'
+    else: out_filename = 'docs/data/large/' + basename + '.json'
+
+    print("   >> Converting " + in_filename + " to " + out_filename)
+
+    # Extract the largest connected component
+    gcc = max(nx.connected_components(graph), key=len)
+    graph = graph.subgraph(gcc)
+
+    # Provide a good quality initial layout for small and medium sized graphs
+    if graph.number_of_nodes() < 5000:
+        layout.initialize_radial_layout(graph)
+
+    # Write the graph to file
+    GraphIO.write_json_graph(out_filename, graph)
+
+    return out_filename
 
 
 # Generate AGD
@@ -57,36 +96,8 @@ def generate_den(out_path, graph, weight, eps):
         data = ff.density(graph, weight, eps, _out_path=out_path)
 
 
-def process_graph(in_filename):
-    print("Found Graph: " + in_filename)
-    basename, ext = os.path.splitext(ntpath.basename(in_filename).lower())
-
-    if os.path.exists('docs/data/very_small/' + basename + '.json'): return 'docs/data/very_small/' + basename + '.json'
-    if os.path.exists('docs/data/small/' + basename + '.json'): return 'docs/data/small/' + basename + '.json'
-    if os.path.exists('docs/data/medium/' + basename + '.json'): return 'docs/data/medium/' + basename + '.json'
-    if os.path.exists('docs/data/large/' + basename + '.json'): return 'docs/data/large/' + basename + '.json'
-
-    if ext == ".json": data, graph = GraphIO.read_json_graph(in_filename)
-    elif ext == ".graph": data, graph = GraphIO.read_graph_file(in_filename)
-    elif ext == ".tsv": data, graph = GraphIO.read_tsv_graph_file(in_filename)
-    else: return None
-
-    gcc = max(nx.connected_components(graph), key=len)
-    graph = graph.subgraph(gcc)
-
-    if graph.number_of_nodes() < 100: out_filename = 'docs/data/very_small/' + basename + '.json'
-    elif graph.number_of_nodes() < 1000: out_filename = 'docs/data/small/' + basename + '.json'
-    elif graph.number_of_nodes() < 5000: out_filename = 'docs/data/medium/' + basename + '.json'
-    else: out_filename = 'docs/data/large/' + basename + '.json'
-
-    print("   >> Converting " + in_filename + " to " + out_filename)
-
-    GraphIO.write_json_graph(out_filename, graph)
-
-    return out_filename
-
-
-def process_datafile(in_filename, max_time_per_file=1):
+# Function that controls the creating of filter functions
+def process_filter_functions(in_filename, max_time_per_file=1):
     print("Processing Graph: " + in_filename)
 
     ff_file_list = ["/agd.json", "/ecc.json", "/pr_0_85.json", "/fv.json", "/fv_norm.json", "/den_0_5.json"]
@@ -120,23 +131,17 @@ def process_datafile(in_filename, max_time_per_file=1):
             p.join()
 
 
-if not os.path.exists("docs/data/very_small"): os.mkdir("docs/data/very_small")
-if not os.path.exists("docs/data/small"): os.mkdir("docs/data/small")
-if not os.path.exists("docs/data/medium"): os.mkdir("docs/data/medium")
-if not os.path.exists("docs/data/large"): os.mkdir("docs/data/large")
-
-
 def generate_data(max_time_per_file=1):
+
+    # Find graphs and convert them into usable json format
     data_gen = []
     for d0 in os.listdir("data"):
         if os.path.isdir("data/" + d0):
             for d1 in os.listdir("data/" + d0):
                 try:
-                    if fnmatch.fnmatch(d1.lower(), "*.json"):
-                        data_gen.append(process_graph("data/" + d0 + "/" + d1))
-                    if fnmatch.fnmatch(d1.lower(), "*.graph"):
-                        data_gen.append(process_graph("data/" + d0 + "/" + d1))
-                    if fnmatch.fnmatch(d1.lower(), "*.tsv"):
+                    if fnmatch.fnmatch(d1.lower(), "*.json") \
+                            or fnmatch.fnmatch(d1.lower(), "*.graph") \
+                            or fnmatch.fnmatch(d1.lower(), "*.tsv"):
                         data_gen.append(process_graph("data/" + d0 + "/" + d1))
                 except:
                     print("data/" + d0 + "/" + d1 + " failed with " + str(sys.exc_info()[0]))
@@ -144,7 +149,7 @@ def generate_data(max_time_per_file=1):
     for file in data_gen:
         if file is None: continue
         try:
-            process_datafile(file, max_time_per_file)
+            process_filter_functions(file, max_time_per_file)
         except json.decoder.JSONDecodeError:
             print(">>> FAILED: json parse " + file)
         except TypeError:
@@ -202,11 +207,17 @@ def pre_generate_mog(dataset,datafile):
     __pre_generate_mog( {}, opts, list(opts.keys()) )
 
 
+if not os.path.exists("docs/data/very_small"): os.mkdir("docs/data/very_small")
+if not os.path.exists("docs/data/small"): os.mkdir("docs/data/small")
+if not os.path.exists("docs/data/medium"): os.mkdir("docs/data/medium")
+if not os.path.exists("docs/data/large"): os.mkdir("docs/data/large")
+
+
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        generate_data(int(sys.argv[1]))
-    else:
-        generate_data(1)
+    # if len(sys.argv) > 1:
+    #     generate_data(int(sys.argv[1]))
+    # else:
+    #     generate_data(1)
 
     scan_datasets()
 

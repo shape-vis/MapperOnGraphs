@@ -1,1 +1,1 @@
-{"name":"fiedler","normalized":false,"weight":"value","num_of_nodes":6,"num_of_edges":12,"process_time":0.0178,"data":{"0":-0.3885,"1":-0.196,"2":-0.5574,"3":0.5574,"4":0.196,"5":0.3885}}
+{"name":"fiedler","normalized":false,"weight":"value","num_of_nodes":6,"num_of_edges":12,"process_time":0.0139,"data":{"0":0.1844,"1":0.0,"2":0.3057,"3":0.6943,"4":1.0,"5":0.8156},"ranked":{"1":0.0,"0":0.2,"2":0.4,"3":0.6,"5":0.8,"4":1.0}}

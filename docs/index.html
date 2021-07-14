@@ -109,27 +109,9 @@
                 </div>
                 <div class="form-group">
                     <script>
-                        let coverN_slider = generate_slider('Cover Elements: ', 'coverN', 2, 100, 1, 2, 'change_cover()')
+                        let coverN_slider = generate_slider('Cover Elements: ', 'coverN', 2, 20, 1, 2, 'change_cover()')
                         document.write(coverN_slider.getHTML())
                     </script>
-                    <!--
-                    <label for="coverN">Cover Elements: <span id="coverN_value">2</span></label>
-                    <input type="range" class="custom-range" min="2" max="100" step="1" value="2" id="coverN"
-                           name="coverN"
-                           oninput="document.getElementById('coverN_value').innerHTML = document.getElementById('coverN').value;"
-                           onchange="change_cover();">-->
-                </div>
-                <div class="form-group">
-                    <script>
-                        let cover_overlap_slider = generate_slider('Cover Overlap: ', 'coverOverlap', 0, 1, 0.1, 0, 'change_cover()')
-                        document.write(cover_overlap_slider.getHTML())
-                    </script>
-                    <!--
-                    <label for="coverOverlap">Cover Overlap: <span id="coverOverlap_value">0.0</span></label>
-                    <input type="range" class="custom-range" min="0" max="1" step="0.01" value="0.0"
-                           id="coverOverlap" name="coverOverlap"
-                           oninput="document.getElementById('coverOverlap_value').innerHTML = document.getElementById('coverOverlap').value;"
-                           onchange="change_cover(); ">-->
                 </div>
                 Component Method
                 <div class="d-inline-block align-middle" style="text-align: center;">
@@ -137,33 +119,9 @@
                         let component_rg = generate_radiogroup('component_method',
                                                 [{value:'connected_components',label:'Conn. Components',checked:true},
                                                  {value:'modularity',label:'Modularity'},
-                                                 {value:'async_label_prop',label:'Async Label Prop'},
-                                                 {value:'label_prop',label:'Label Propagation'}/*,
-                                                 {value:'centrality',label:'Centrality'}*/],
+                                                 {value:'async_label_prop',label:'Async Label Prop'}],
                                                 'change_cover()', 200)
                         document.write(component_rg.getHTML())
-                    </script>
-                </div>
-                Connectivity Method
-                <div class="d-inline-block align-middle" style="text-align: center;">
-                    <script>
-                        let link_rg = generate_radiogroup('link_method',[
-                                    {value:'overlap',label:'Overlap',checked:false},
-                                    {value:'connectivity',label:'Connectivity',checked:true}]
-                            ,'change_cover()', 200)
-                        document.write(link_rg.getHTML())
-                    </script>
-                </div>
-                <div class="form-check">
-                    <script>
-                        let gcc_only_cb = generate_checkbox('gcc_only','Show LCC Only','change_cover()', 200)
-                        document.write(gcc_only_cb.getHTML())
-                    </script>
-                </div>
-                <div class="form-group">
-                    <script>
-                        let node_filter_slider = generate_slider('Mapper Node Size Filter: ', 'mapper_node_size_filter', 0, 20, 1, 0, 'change_cover()')
-                        document.write(node_filter_slider.getHTML())
                     </script>
                 </div>
             </div>
@@ -183,8 +141,6 @@
             <input type="button" id="downloadMOG" name="downloadMOG"
                    onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG">
         </div>
-        <input type="button" id="mapperToGraphLayout" name="mapperToGraphLayout"
-                   onclick="set_graph_positions_from_mapper();" value="<=== Update Graph Layout From Mapper">
     </div>
 </div>
 
@@ -197,139 +153,39 @@
     let histo_vis = null;
     let cover_vis = null;
 
-    function set_mapper_positions_from_graph(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        let tmp = {}
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
-        })
-        mog_data.nodes.forEach(function(m){
-            m.x = m.y = 0;
-            m.components.forEach(function(n){
-                m.x += tmp[n].x
-                m.y += tmp[n].y
-            })
-            m.x = m.x / m.components.length
-            m.y = m.y / m.components.length
-        })
-
-         */
-    }
-
-    function set_graph_positions_from_mapper(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        console.log(graph_data)
-        let tmp = {}
-        let gx = d3.extent( graph_data.nodes, d=>d.x );
-        let gy = d3.extent( graph_data.nodes, d=>d.y );
-        let mx = d3.extent( mog_data.nodes, d=>d.x );
-        let my = d3.extent( mog_data.nodes, d=>d.y );
-
-        let scale = Math.min( ( gx[1]-gx[0] )/( mx[1]-mx[0] ), ( gy[1]-gy[0] )/( my[1]-my[0] ) )
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
-        })
-        mog_data.nodes.forEach(function(m){
-            m.components.forEach(function(n){
-                tmp[n].x = m.x*scale + Math.random()/10000
-                tmp[n].y = m.y*scale + Math.random()/10000
-            })
-        })
-        graph_vis.restart_simulation()
-        console.log(tmp)
-        console.log(graph_data)
-
-         */
-    }
-
-    function load_mog(options, cb){
-
-        let param_uri = $.param(options)
-
-        d3.json("mog?" + param_uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-
-                data['options'] = options
-                data['send_to_cache'] = function () {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "mog_layout?" + param_uri, true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    tmp_data = {'nodes': data.nodes, 'links': []};
-                    data.links.forEach(function (L) {
-                        tmp_data.links.push({'value': L.value, 'source': L.source.id, 'target': L.target.id});
-                    });
-                    xhr.send(JSON.stringify(tmp_data));
-                }
-
-                if(cb) cb(data)
-            }
-        })
-    }
-
     function update_mog() {
         if( mog_vis ) mog_vis.remove()
 
-        let options = {
-            'dataset': get_selected_dataset(),
-            'datafile': get_selected_datafile(),
-            'filter_func': get_selected_filter_func(),
-            'coverN': coverN_slider.getValue(),
-            'rank_filter':  rank_cg.isChecked(),
-            'coverOverlap': cover_overlap_slider.getValue(),
-            'component_method': component_rg.getSelected(),
-            'link_method': link_rg.getSelected(),
-            'gcc_only': gcc_only_cb.isChecked(),
-            'mapper_node_size_filter': node_filter_slider.getValue()
-        }
+        let ds = get_selected_dataset()
+        let df = get_selected_datafile()
+        df = df.substring(0,df.length-5)
+        let ff = get_selected_filter_func()
+        let covN = coverN_slider.getValue()
+        let link_m = component_rg.getSelected()
+        let rank = ( rank_cg.isChecked() ) ? 'true' : 'false'
 
-        load_mog( options, function(data){
-            console.log(data)
+        let uri = 'data/' + ds + '/' + df + '/' + ff + '_' + link_m + '_' + covN + '_0_connectivity_' + rank + '.json'
 
+        d3.json(uri, function (error, data) {
+            if (error) {
+                console.log(error);
+            } else {
                 let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
-                var myScale = d3.scaleLinear()
+                let myScale = d3.scaleLinear()
                       .domain([1, maxR])
                       .range([2, Math.min(15,maxR)]);
 
                 let cs = colorSchemes[get_selected_filter_func()]
 
-                set_mapper_positions_from_graph()
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
-                mog_vis.set_link_width(d => Math.sqrt(d.value));
-                mog_vis.load()
-        })
-    }
-    /*
-    function update_mog() {
-        if( mog_vis ) mog_vis.remove()
-
-        d3.json("mog?" + $("#parameterForm").serialize(), function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
-                var myScale = d3.scaleLinear()
-                      .domain([1, maxR])
-                      .range([2, Math.min(15,maxR)]);
-
-                let cs = colorSchemes[get_selected_filter_func()]
-
-                set_mapper_positions_from_graph()
                 mog_vis = FDL_Graph_Vis("#mog_vis", data);
                 mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
                 mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
                 mog_vis.load()
             }
-        });
-    }*/
+        })
+
+    }
 
     function change_dataset() {
         update_datafiles();
@@ -342,7 +198,15 @@
     }
 
     function change_filter_func() {
-        d3.json("filter_function?" + $("#parameterForm").serialize(), function (error, data) {
+
+        let ds = get_selected_dataset()
+        let df = get_selected_datafile()
+        df = df.substring(0,df.length-5)
+        let ff = get_selected_filter_func()
+
+        d3.json("data/" + ds + '/' + df + '/' + ff + '.json', function (error, _data) {
+
+            let data = ( rank_cg.isChecked() ) ? _data['ranked'] : _data['data']
 
             let cs = colorSchemes[get_selected_filter_func()].domain([0,1])
             graph_vis.set_node_color(n=>cs(n), data);
@@ -355,10 +219,19 @@
     }
 
     function change_cover() {
+        let poss_val = [2,3,4,6,8,10,20]
+        let closest = poss_val[0]
+        let coverN = coverN_slider.getValue()
+        poss_val.forEach( v =>{
+            if( Math.abs(coverN-v) < Math.abs(coverN-closest) ) closest = v
+        })
+        coverN = closest
+
+        coverN_slider.setValue(coverN)
         update_mog();
         cover_vis.set_position( 10, 20, 30, 200 );
-        cover_vis.update_drawing( parseFloat(document.getElementById('coverN').value),
-                                  parseFloat(document.getElementById('coverOverlap').value),
+        cover_vis.update_drawing( coverN,
+                                  0,
                                   colorSchemes[get_selected_filter_func()] );
     }
 
@@ -371,7 +244,7 @@
         //svg.empty()
         svg.style("cursor", "progress" )
 
-        d3.json("graph?" + $("#parameterForm").serialize(), function (error, data) {
+        d3.json("data/" + get_selected_dataset() + '/' + get_selected_datafile(), function (error, data) {
             if (error) {
                 console.log(error);
             } else {

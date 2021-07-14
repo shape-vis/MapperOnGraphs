@@ -2,13 +2,6 @@ import networkx as nx
 import json
 
 
-def round_floats(o):
-    if isinstance(o, float): return round(o, 4)
-    if isinstance(o, dict): return {k: round_floats(v) for k, v in o.items()}
-    if isinstance(o, (list, tuple)): return [round_floats(x) for x in o]
-    return o
-
-
 def read_json_graph(filename):
     with open(filename) as f:
         js_graph = json.load(f)
@@ -46,6 +39,22 @@ def read_tsv_graph_file(filename):
     return [None, graph]
 
 
+def read_filter_function(filename, ranked=False):
+    with open(filename) as json_file:
+        ff = json.load(json_file)
+
+    if ranked:
+        return ff['ranked']
+    return ff['data']
+
+
+def round_floats(o):
+    if isinstance(o, float): return round(o, 4)
+    if isinstance(o, dict): return {k: round_floats(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)): return [round_floats(x) for x in o]
+    return o
+
+
 def write_json_data(filename, data):
     with open(filename, 'w') as outfile:
         json.dump(round_floats(data), outfile, separators=(',', ':'))
@@ -53,22 +62,3 @@ def write_json_data(filename, data):
 
 def write_json_graph(filename, graph):
     write_json_data(filename, nx.node_link_data(graph))
-
-
-def read_filter_function(filename, ranked=False):
-    with open(filename) as json_file:
-        ff_data = json.load(json_file)['data']
-
-    if ranked:
-        tmp = list(ff_data.keys())
-        tmp.sort(key=(lambda e: ff_data[e]))
-        for i in range(len(tmp)):
-            ff_data[tmp[i]] = i / (len(tmp) - 1)
-    else:
-        val_max = ff_data[max(ff_data.keys(), key=(lambda k: ff_data[k]))]
-        val_min = ff_data[min(ff_data.keys(), key=(lambda k: ff_data[k]))]
-        if val_min == val_max: val_max += 1
-        for (key, val) in ff_data.items():
-            ff_data[key] = (float(val) - val_min) / (val_max - val_min)
-
-    return ff_data

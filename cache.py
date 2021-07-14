@@ -63,8 +63,8 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
         print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
         print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
-        if graph.number_of_nodes() > 5000:
-            mog.strip_components_from_nodes()
+        #if graph.number_of_nodes() > 5000:
+        mog.strip_components_from_nodes()
 
         with open(mog_cf, 'w') as outfile:
             outfile.write(mog.to_json())

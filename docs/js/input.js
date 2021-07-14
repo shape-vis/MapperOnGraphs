@@ -57,8 +57,13 @@ function generate_slider(label, id, min_val = 0, max_val=100, step=1, default_va
     return {
         getHTML : function(){return _html},
         getValue : function(){
-            return document.getElementById(id).value
+            return parseFloat(document.getElementById(id).value)
+        },
+        setValue : function(v){
+            document.getElementById( id + '_value').innerHTML = v
+            document.getElementById(id).value = v
         }
+
     }
 }
 

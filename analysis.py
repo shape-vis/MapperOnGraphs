@@ -5,6 +5,7 @@ import json
 import mog.graph_io as GraphIO
 import cache
 
+
 def csv_header( modal ):
     ret = ''
     for m in modal:

@@ -1,10 +1,8 @@
-from typing import Iterable
-
 
 class DisjointSet:
     """class that holds a disjoint set"""
 
-    def __init__(self, items = [], key=(lambda x: x)):
+    def __init__(self, items=[], key=(lambda x: x)):
         self._data = dict()
         self._key_func = key
         for item in items:
@@ -18,12 +16,23 @@ class DisjointSet:
         self._data[self._key_func(item)] = item
         self._num_sets = self._num_sets+1
 
-    def find(self, item):
+    def find(self, item, __depth=0):
         key = self._key_func(item)
         if key not in self._data:
             self._data[key] = item
         elif item != self._data[key]:
-            self._data[key] = self.find(self._data[key])
+            if __depth < 50:
+                self._data[key] = self.find(self._data[key], __depth+1)
+            elif __depth < 200:
+                key2 = self._key_func(self._data[key])
+                self._data[key] = self.find(self._data[key2], __depth+1)
+            else:
+                newitem = item
+                newkey = key
+                while newitem != self._data[newkey]:
+                    newitem = self._data[newkey]
+                    newkey = self._key_func(newitem)
+                self._data[key] = newitem
         return self._data[key]
 
     def findKey(self, key):
@@ -32,14 +41,12 @@ class DisjointSet:
             return
         return self.find(self._data[key])
 
-
     def union(self, old_parent, new_parent) -> None:
         parent0, parent1 = self.find(old_parent), self.find(new_parent)
         if not parent0 == parent1:
             self._data[self._key_func(parent0)] = parent1
             self._num_sets = self._num_sets-1
         return parent1
-
 
     def unionKey(self, old_parent_key, new_parent_key) -> None:
         parent0, parent1 = self.findKey(old_parent_key), self.findKey(new_parent_key)

@@ -6,6 +6,7 @@ import statistics as stats
 import mog.graph_io as GraphIO
 import layout.initial_layout as layout
 
+
 class Cover:
     def __init__(self, values, intervals, overlap):
         self.intervals = intervals
@@ -63,13 +64,13 @@ def _get_nodes(values, components):
     nodes = []
     for component in components:
         comp_vals = list(map((lambda _l: values[_l]), component['components']))
-        nodes.append({'id': 'mapper_node_' + str(len(nodes)),
-                      'cover': component['cover'],
-                      'min_value': min(comp_vals),
-                      'max_value': max(comp_vals),
-                      'avg_value': stats.mean(comp_vals),
-                      'component_count': len(component['components']),
-                      'components': list(component['components'])
+        nodes.append({'id': 'mn' + str(len(nodes)),
+                      'cover': component['cover']['level'],
+                      'min_v': min(comp_vals),
+                      'max_v': max(comp_vals),
+                      'avg_v': stats.mean(comp_vals),
+                      'comp_len': len(component['components']),
+                      'comp': list(component['components'])
                       })
     return nodes
 
@@ -77,9 +78,9 @@ def _get_nodes(values, components):
 def _get_links_by_node_overlap(nodes):
     links = []
     for i in range(0, len(nodes)):
-        node_set_i = set(nodes[i]['components'])
+        node_set_i = set(nodes[i]['comp'])
         for j in range(i + 1, len(nodes)):
-            w = len(node_set_i & set(nodes[j]['components']))
+            w = len(node_set_i & set(nodes[j]['comp']))
             if w > 0:
                 if nodes[i]['min_value'] < nodes[j]['min_value']:
                     links.append({"source": nodes[i]['id'], "target": nodes[j]['id'], 'value': w})
@@ -93,7 +94,7 @@ def _get_links_by_graph_cut(input_graph: nx.classes.graph.Graph, mapper_nodes):
     for n in input_graph.nodes:
         node_map[n] = []
     for m in mapper_nodes:
-        for n in m['components']:
+        for n in m['comp']:
             node_map[n].append(m)
 
     edge_map = {}
@@ -131,7 +132,8 @@ class MapperOnGraphs:
             'component_method': component_method,
             'link_method': link_method,
             'cover_overlap': cover.get_overlap(),
-            'cover_intervals': cover.get_intervals()
+            'cover_intervals': cover.get_intervals(),
+            'cover': cover.get_cover_elements()
         }
 
         start_time = time.time()
@@ -157,7 +159,7 @@ class MapperOnGraphs:
         if verbose:
             print("MapperOnGraphs: Step 4 of 4")
 
-        self.mapper_graph = nx.readwrite.node_link_graph({'nodes': nodes, 'links': links})
+        self.mapper_graph = nx.readwrite.node_link_graph({'nodes': nodes, 'links': links}, directed=False, multigraph=False)
 
         self.info['compute_time'] = time.time() - start_time
 
@@ -177,7 +179,7 @@ class MapperOnGraphs:
 
     def strip_components_from_nodes(self):
         for (n, data) in self.mapper_graph.nodes.items():
-            del data['components']
+            del data['comp']
 
     def filter_node_size(self, minimum_node_size):
         component_sizes = {}
@@ -193,4 +195,7 @@ class MapperOnGraphs:
         # layout.initialize_vertical_layout(self.mapper_graph)
         json_data = nx.node_link_data(self.mapper_graph)
         json_data['info'] = self.info
+        del json_data['directed']
+        del json_data['multigraph']
+        del json_data['graph']
         return json.dumps(GraphIO.round_floats(json_data), separators=(',', ':'))
