@@ -44,7 +44,7 @@ def generate_filter_summary(force_overwrite=False):
             for ff in ffs:
                 record[ff] = ''
                 if ff in data.data_sets[ds0][ds1]:
-                    with open('data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
+                    with open('docs/data/' + ds0 + "/" + os.path.splitext(ds1)[0] + "/" + ff + ".json") as json_file:
                         ff_data = json.load(json_file)
                         if 'num_of_nodes' in ff_data: record['nodes'] = ff_data['num_of_nodes']
                         if 'num_of_edges' in ff_data : record['edges'] = ff_data['num_of_edges']
