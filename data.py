@@ -214,10 +214,11 @@ if not os.path.exists("docs/data/large"): os.mkdir("docs/data/large")
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) > 1:
-    #     generate_data(int(sys.argv[1]))
-    # else:
-    #     generate_data(1)
+
+    timeout = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+
+    if timeout > 0:
+        generate_data(timeout)
 
     scan_datasets()
 

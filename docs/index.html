@@ -170,7 +170,7 @@
             if (error) {
                 console.log(error);
             } else {
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
+                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.comp_len))
                 let myScale = d3.scaleLinear()
                       .domain([1, maxR])
                       .range([2, Math.min(15,maxR)]);
@@ -178,7 +178,7 @@
                 let cs = colorSchemes[get_selected_filter_func()]
 
                 mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
+                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.comp_len)) );
                 mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
                 mog_vis.load()
