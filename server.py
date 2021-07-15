@@ -87,6 +87,27 @@ def save_to_cache():
     return "{'result':'failed'}"
 
 
+@app.route('/update_mog', methods=['GET', 'POST'])
+def update_mog():
+    # Check that the request is valid
+    if request_valid(True, True, True):
+        filename = cache.get_mog_path(request.args.get('dataset'),
+                                      request.args.get('datafile'),
+                                      request.args.get('filter_func'),
+                                      {
+                                          'component_method' : request.args.get('component_method'),
+                                          'link_method': request.args.get('link_method'),
+                                          'coverN': request.args.get('coverN'),
+                                          'rank_filter': request.args.get('rank_filter'),
+                                          'coverOverlap': request.args.get('coverOverlap')
+                                      })
+        with open(filename, 'w') as outfile:
+            json.dump(request.json, outfile)
+        return "{'result':'ok'}"
+
+    return "{'result':'failed'}"
+
+
 @app.route('/filter_function', methods=['GET', 'POST'])
 def get_filter_function():
     # Check that the request is valid

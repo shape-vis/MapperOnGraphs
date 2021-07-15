@@ -20,7 +20,7 @@ function construct_options_dict( obj, selected=null ){
 }
 
 function load_datasets( callback=null ){
-    d3.json( "datasets", function( dinput ) {
+    d3.json( "data/datasets.json", function( dinput ) {
         datasets = dinput;
         console.log(datasets)
         document.getElementById("dataset").innerHTML = construct_options_array( Object.keys(datasets) );

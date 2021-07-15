@@ -124,6 +124,14 @@
                         document.write(component_rg.getHTML())
                     </script>
                 </div>
+
+                Connectivity Method
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                <script>
+                    let link_rg = generate_radiogroup('link_method',[{value:'connectivity',label:'Connectivity',checked:true}],'load_mog()', 200)
+                    document.write(link_rg.getHTML())
+                </script>
+                </div>
             </div>
         </form>
     </div>
@@ -179,7 +187,7 @@
 
                 mog_vis = FDL_Graph_Vis("#mog_vis", data);
                 mog_vis.set_node_radius( d => myScale(Math.sqrt(d.comp_len)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
+                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_v) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
                 mog_vis.load()
             }

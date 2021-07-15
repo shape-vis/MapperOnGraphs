@@ -87,50 +87,32 @@
                     </div>
                 </div>
 
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let rank_cg = generate_checkbox('rank_filter','Histogram Equalization','load_mog()', 200)
-                                    document.write(rank_cg.getHTML())
-                                </script>
-                                </div>
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                <script>
+                    let rank_cg = generate_checkbox('rank_filter','Histogram Equalization','load_mog()', 200)
+                    document.write(rank_cg.getHTML())
+                </script>
+                </div>
 
-                                Component Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let component_rg = generate_radiogroup('component_method',
-                                                            [{value:'connected_components',label:'Connected Components',checked:true},
-                                                             {value:'modularity',label:'Modularity'},
-                                                             {value:'async_label_prop',label:'Async Label Propagation'},
-                                                             {value:'label_prop',label:'Label Propagation'},
-                                                             {value:'centrality',label:'Centrality'}],
-                                                            'load_mog()', 200)
-                                    document.write(component_rg.getHTML())
-                                </script>
-                                </div>
+                Component Method
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                <script>
+                    let component_rg = generate_radiogroup('component_method',
+                                            [{value:'connected_components',label:'Connected Components',checked:true},
+                                             {value:'modularity',label:'Modularity'},
+                                             {value:'async_label_prop',label:'Async Label Propagation'}],
+                                            'load_mog()', 200)
+                    document.write(component_rg.getHTML())
+                </script>
+                </div>
 
-                                Connectivity Method
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let link_rg = generate_radiogroup('link_method',[{value:'connectivity',label:'Connectivity',checked:true}],'load_mog()', 200)
-                                    document.write(link_rg.getHTML())
-                                </script>
-                                </div>
-
-                                Mapper Graph Filtering
-                                <div class="d-inline-block align-middle" style="text-align: center;">
-                                <script>
-                                    let lcc_cg = generate_checkbox('gcc_only','Largest Connected Component Only','load_mog()', 200)
-                                    document.write(lcc_cg.getHTML())
-                                </script>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="mapper_node_size_filter">Mapper Node Size Filter: <span
-                                            id="mapper_node_size_filter_value">0</span></label>
-                                    <input type="range" class="custom-range" min="0" max="20" step="1" value="0"
-                                           id="mapper_node_size_filter" name="mapper_node_size_filter"
-                                           onchange="load_mog(); document.getElementById('mapper_node_size_filter_value').innerHTML = document.getElementById('mapper_node_size_filter').value;">
-                                </div>
+                Connectivity Method
+                <div class="d-inline-block align-middle" style="text-align: center;">
+                <script>
+                    let link_rg = generate_radiogroup('link_method',[{value:'connectivity',label:'Connectivity',checked:true}],'load_mog()', 200)
+                    document.write(link_rg.getHTML())
+                </script>
+                </div>
             </div>
 
 
@@ -139,6 +121,18 @@
         <!-- img src="static/img/viridis.png" width="100%" height="20" -->
     </div>
 
+<script>
+    let covers = [2,3,4,6,8,10,20]
+    function generateFilterFunctionSVG( ff ){
+        html = ''
+        covers.forEach( cover => {
+            html += '<svg height="200" width="200" style="border-style: solid; ' +
+                    'border-width: 1px;" id="mog_vis_' + ff + '_' + cover + '"></svg>'
+        })
+        document.write(html)
+    }
+</script>
+
     <div class="page-content" id="visualization" style="white-space: nowrap;">
         <div style="text-align: left; width: 1200px;">
             <div id="mog_row_agd">
@@ -146,42 +140,42 @@
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/GnBu.png">
                     Average Geodesic Distance
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_agd_F"></svg>
+                <script>generateFilterFunctionSVG('agd')</script>
             </div>
             <div id="mog_row_den_0_5">
                 <p class="row_title" id="row2_title">
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/Oranges.png">
                     Density (0.5)
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_den_0_5_F"></svg>
+                <script>generateFilterFunctionSVG('den_0_5')</script>
             </div>
             <div id="mog_row_ecc">
                 <p class="row_title" id="row3_title">
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuGn.png">
                     Eccentricity
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_ecc_F"></svg>
+                <script>generateFilterFunctionSVG('ecc')</script>
             </div>
             <div id="mog_row_fv">
                 <p class="row_title" id="row4_title">
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
                     Fiedler Vector
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_F"></svg>
+                <script>generateFilterFunctionSVG('fv')</script>
             </div>
             <div id="mog_row_fv_norm">
                 <p class="row_title" id="row5_title">
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
                     Fiedler Vector Normalized
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_fv_norm_F"></svg>
+                <script>generateFilterFunctionSVG('fv_norm')</script>
             </div>
             <div id="mog_row_pr_0_85">
                 <p class="row_title" id="row6_title">
                     <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/YlOrRd.png">
                     PageRank (alpha=0.85)
                 </p>
-                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_A"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_B"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_C"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_D"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_E"></svg><svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="mog_vis_pr_0_85_F"></svg>
+                <script>generateFilterFunctionSVG('pr_0_85')</script>
             </div>
         </div>
     </div>
@@ -197,30 +191,46 @@
     let mogs = [];
 
 
-    let MOG_Vis = function( svg_name, options, ff ){
+    let MOG_Vis = function( svg_name, options, static_uri=true ){
         let param_uri = $.param(options)
         let mog_data = null
         let mog_vis = null
+        let uri = 'mog?' + param_uri
+        let ff = options.filter_func
+
+        if( static_uri ){
+            let ds = options.dataset
+            let df = options.datafile
+            df = df.substring(0,df.length-5)
+            let covN = options.coverN
+            let link_m = options.link_method
+            let rank = ( options.rank_filter ) ? 'true' : 'false'
+            let comp_m = options.component_method
+            let overlap = options.coverOverlap
+
+            uri = 'data/' + ds + '/' + df + '/' + ff + '_' + comp_m
+                    + '_' + covN + '_' + overlap + '_' + link_m + '_' + rank + '.json'
+        }
 
         function send_to_cache(){
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "mog_layout?"+param_uri, true);
+            xhr.open("POST", "update_mog?"+param_uri, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            tmp_data = {'nodes':mog_data.nodes,'links':[]};
+            tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
             mog_data.links.forEach( function(L){
                tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
             });
             xhr.send(JSON.stringify(tmp_data));
         }
 
-        d3.json("mog?" + param_uri, function (error, data) {
+        d3.json(uri, function (error, data) {
             if (error) {
                 console.log(error);
             } else {
                 mog_data = data
                 mog_vis = FDL_Graph_Vis(svg_name, mog_data);
-                mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
-                mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_value));
+                mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.comp_len), 20));
+                mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_v));
                 mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
                 mog_vis.add_count_labels();
                 mog_vis.set_end_callback( ()=>{ mog_vis.zoomFit(); send_to_cache() } );
@@ -236,30 +246,6 @@
 
     }
 
-    function update_mog( svg_name, options, ff ) {
-        mogs.push( MOG_Vis(svg_name,options,ff) )
-        /*
-        let param_uri = $.param(options)
-        //console.log(param_uri)
-        d3.json("mog?" + param_uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                mog_vis = FDL_Graph_Vis(svg_name, data);
-                mog_vis.update_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
-                mog_vis.update_node_color(colorSchemes[ff],n=>n.avg_value);
-                mog_vis.update_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
-                mog_vis.add_count_labels();
-                mog_vis.set_end_callback( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) } );
-                mogs.push(mog_vis)
-
-                //setTimeout( function(){ mog_vis.zoomFit(0.95,1000) }, 2000);
-                //setTimeout( function(){ mog_vis.send_to_url("mog_cache?"+param_uri) }, 5000);
-            }
-        });
-         */
-
-    }
 
     function change_dataset() {
         update_datafiles();
@@ -267,7 +253,6 @@
     }
 
     function load_mog(){
-        letters = ['A','B','C','D','E','F'];
 
         mogs.forEach( M=>M.remove() );
         mogs = []
@@ -288,12 +273,11 @@
         else if( 'fv_norm' in datasets[ds][df]) ff.push('fv_norm')
         if( 'pr_0_85' in datasets[ds][df]) ff.push('pr_0_85')
 
-        ff.forEach( cur_ff=>{
+        ff.forEach( cur_ff => {
 
             document.getElementById("mog_row_"+cur_ff).style.display = "block"
 
-            for (let j = 0; j < 6; j ++) {
-                coverN = 2 + 4*j;
+            covers.forEach( coverN => {
                 let options = {
                     'dataset': ds,
                     'datafile': df,
@@ -302,13 +286,10 @@
                     'rank_filter':  rank_cg.isChecked(),
                     'coverOverlap': 0,
                     'component_method': component_rg.getSelected(),
-                    'link_method': link_rg.getSelected(),
-                    'gcc_only':  lcc_cg.isChecked(),
-                    'mapper_node_size_filter': get_selected_value('mapper_node_size_filter')
+                    'link_method': link_rg.getSelected()
                 }
-                update_mog("#mog_vis_"+cur_ff+"_"+letters[j], options, cur_ff )
-
-            }
+                mogs.push( MOG_Vis( "#mog_vis_"+cur_ff+"_"+coverN, options ) )
+            })
         })
 
     }
@@ -324,13 +305,13 @@
 <div id="overlay" onclick="overlay_off()"></div>
 
 <script>
-function overlay_on() {
-  document.getElementById("overlay").style.display = "block";
-}
+    function overlay_on() {
+        document.getElementById("overlay").style.display = "block";
+    }
 
-function overlay_off() {
-  document.getElementById("overlay").style.display = "none";
-}
+    function overlay_off() {
+        document.getElementById("overlay").style.display = "none";
+    }
 </script>
 
 </body>
