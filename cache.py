@@ -1,11 +1,19 @@
 import json
 import os
+import sys
 
 import mog.mapper as mapper
-import data as data_mod
 import mog.graph_io as GraphIO
-import layout.initial_layout as layout
-import networkx as nx
+
+
+def get_graph_path( params ):
+    return 'docs/data/' + params['dataset'] + '/' + params['datafile']
+
+
+def save_graph_layout(params, data):
+    filename = get_graph_path(params['dataset'], params['datafile'])
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
 
 
 def get_filter_function(params):
@@ -24,71 +32,66 @@ def get_mog_path(dataset, datafile, ff, params=None):
     return path + ".json"
 
 
-def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap, component_method, link_method,
-                 rank_filter):
+def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap, comp_method, link_method, rank_filter):
     mog = mapper.MapperOnGraphs()
 
     mog_cf = get_mog_path(dataset, datafile, filter_func, {
-        'coverN': cover_elem_count,
-        'coverOverlap': cover_overlap,
-        'component_method': component_method,
-        'link_method': link_method,
-        'rank_filter': 'false' if rank_filter is None else rank_filter
-    })
+                                                        'coverN': cover_elem_count,
+                                                        'coverOverlap': cover_overlap,
+                                                        'component_method': comp_method,
+                                                        'link_method': link_method,
+                                                        'rank_filter': 'false' if rank_filter is None else rank_filter
+                                                    })
 
     if os.path.exists(mog_cf):
         print("  >> found " + mog_cf + " in cache")
-        mog.load_mog(mog_cf)
-    else:
+        try:
+            mog.load_mog(mog_cf)
+            return mog, mog_cf
+        except:
+            print("    failed to load -- " + str(sys.exc_info()[0]))
 
-        print("  >> creating " + mog_cf)
+    print("  >> creating " + mog_cf)
 
-        # Load the graph and filter function
-        graph_data, graph = GraphIO.read_json_graph('docs/data/' + dataset + "/" + datafile)
-        print(" >> Input Node Count: " + str(graph.number_of_nodes()))
-        print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
+    # Load the graph and filter function
+    graph_data, graph = GraphIO.read_json_graph('docs/data/' + dataset + "/" + datafile)
+    print(" >> Input Node Count: " + str(graph.number_of_nodes()))
+    print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
 
-        values = get_filter_function({'dataset': dataset, 'datafile': datafile, 'filter_func': filter_func,
-                                      'rank_filter': rank_filter})
+    values = get_filter_function({'dataset': dataset, 'datafile': datafile, 'filter_func': filter_func,
+                                  'rank_filter': rank_filter})
 
-        # Construct the cover
-        intervals = int(cover_elem_count)
-        overlap = float(cover_overlap)
-        cover = mapper.Cover(values, intervals, overlap)
+    # Construct the cover
+    intervals = int(cover_elem_count)
+    overlap = float(cover_overlap)
+    cover = mapper.Cover(values, intervals, overlap)
 
-        # Construct MOG
-        mog.build_mog(graph, values, cover, component_method, link_method, verbose=graph.number_of_nodes() > 1000)
+    # Construct MOG
+    mog.build_mog(graph, values, cover, comp_method, link_method, verbose=graph.number_of_nodes() > 1000)
 
-        print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
-        print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
-        print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
+    print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
+    print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
+    print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
 
-        #if graph.number_of_nodes() > 5000:
-        mog.strip_components_from_nodes()
+    mog.strip_components_from_nodes()
 
-        with open(mog_cf, 'w') as outfile:
-            outfile.write(mog.to_json())
+    with open(mog_cf, 'w') as outfile:
+        outfile.write(mog.to_json())
 
     return mog, mog_cf
 
 
-def get_graph_filename(params):
-    filename = get_cache_fn("graph_layout", params['dataset'], params['datafile'])
-    if os.path.exists(filename):
-        print("  >> " + params['datafile'] + " found in graph layout cache")
-    else:
-        graph_data, graph = GraphIO.read_json_graph('docs/data/' + params['dataset'] + "/" + params['datafile'])
-        layout.initialize_radial_layout(graph)
-
-        with open(filename, 'w') as outfile:
-            json.dump(nx.node_link_data(graph), outfile)
-    return filename
-
-
-def save_graph_layout(params, data):
-    filename = get_cache_fn("graph_layout", params['dataset'], params['datafile'])
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
+# def get_graph_filename(params):
+#     filename = get_cache_fn("graph_layout", params['dataset'], params['datafile'])
+#     if os.path.exists(filename):
+#         print("  >> " + params['datafile'] + " found in graph layout cache")
+#     else:
+#         graph_data, graph = GraphIO.read_json_graph('docs/data/' + params['dataset'] + "/" + params['datafile'])
+#         layout.initialize_radial_layout(graph)
+#
+#         with open(filename, 'w') as outfile:
+#             json.dump(nx.node_link_data(graph), outfile)
+#     return filename
 
 
 def get_mog(params):

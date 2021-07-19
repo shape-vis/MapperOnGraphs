@@ -65,23 +65,15 @@ def get_graph():
     if not request_valid(True, True, False):
         return "{'result':'failed'}"
     else:
-        return send_file(cache.get_graph_filename(request.args.to_dict()))
+        return send_file(cache.get_graph_path(request.args.to_dict()))
 
 
-@app.route('/cache', methods=['GET', 'POST'])
-def save_to_cache():
+@app.route('/update_graph', methods=['GET', 'POST'])
+def update_graph():
     # Check that the request is valid
     if request.args.get('type') == 'graph_layout':
         if request_valid(True, True, False):
             cache.save_graph_layout(request.args.to_dict(), request.json)
-            return "{'result':'ok'}"
-
-    if request.args.get('type') == 'mog_layout':
-        if request_valid(True, True, True):
-            filename = cache.get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),
-                                          get_arg_params())
-            with open(filename, 'w') as outfile:
-                json.dump(request.json, outfile)
             return "{'result':'ok'}"
 
     return "{'result':'failed'}"
@@ -121,15 +113,8 @@ def get_filter_function():
 def get_mog():
     # Check that the request is valid
     if not request_valid(True, True, True):
-        return "{}"
+        return "{'result':'failed'}"
     else:
-        mog_layout_cf = cache.get_cache_fn("mog_layout", request.args.get('dataset'), request.args.get('datafile'),
-                                           get_arg_params())
-
-        if os.path.exists(mog_layout_cf):
-            print("  >> " + request.args.get('datafile') + " found in mog layout cache")
-            return send_file(mog_layout_cf)
-
         return cache.get_mog(request.args.to_dict())
 
 

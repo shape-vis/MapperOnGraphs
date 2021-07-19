@@ -33,21 +33,6 @@
 
     <title>Mapper on Graphs</title>
 
-    <!--script src="https://d3js.org/d3.v4.min.js"
-            integrity="sha384-1EOYqz4UgZkewWm70NbT1JBUXSQpOIS2AaJy6/evZH+lXOrt9ITSJbFctNeyBoIJ"
-            crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-            crossorigin="anonymous"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"
-            integrity="sha384-hX5odjoulJel81+3dsnorXlZ7kA46f8qrV+2sBCcEAXaCyEAiRusFRjaefWw2NPp"
-            crossorigin="anonymous"></script-->
     <script src="js/lib/d3@v4.js"></script>
     <script src="js/lib/jquery@3.4.1.js"></script>
     <script src="js/lib/popper@1.16.0.js"></script>
@@ -66,7 +51,7 @@
 <body>
 
 <script>
-	insert_navbar("index.html");
+	insert_navbar("interactive.html");
     insert_page_header();
 </script>
 
@@ -197,54 +182,6 @@
     let histo_vis = null;
     let cover_vis = null;
 
-    function set_mapper_positions_from_graph(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        let tmp = {}
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
-        })
-        mog_data.nodes.forEach(function(m){
-            m.x = m.y = 0;
-            m.components.forEach(function(n){
-                m.x += tmp[n].x
-                m.y += tmp[n].y
-            })
-            m.x = m.x / m.components.length
-            m.y = m.y / m.components.length
-        })
-
-         */
-    }
-
-    function set_graph_positions_from_mapper(){
-        /*
-        let graph_data = graph_vis.get_graph()
-        let mog_data = mog_vis.get_graph()
-        console.log(graph_data)
-        let tmp = {}
-        let gx = d3.extent( graph_data.nodes, d=>d.x );
-        let gy = d3.extent( graph_data.nodes, d=>d.y );
-        let mx = d3.extent( mog_data.nodes, d=>d.x );
-        let my = d3.extent( mog_data.nodes, d=>d.y );
-
-        let scale = Math.min( ( gx[1]-gx[0] )/( mx[1]-mx[0] ), ( gy[1]-gy[0] )/( my[1]-my[0] ) )
-        graph_data.nodes.forEach(function(n){
-            tmp[n.id] = n
-        })
-        mog_data.nodes.forEach(function(m){
-            m.components.forEach(function(n){
-                tmp[n].x = m.x*scale + Math.random()/10000
-                tmp[n].y = m.y*scale + Math.random()/10000
-            })
-        })
-        graph_vis.restart_simulation()
-        console.log(tmp)
-        console.log(graph_data)
-
-         */
-    }
 
     function load_mog(options, cb){
 
@@ -258,11 +195,11 @@
                 data['options'] = options
                 data['send_to_cache'] = function () {
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "mog_layout?" + param_uri, true);
+                    xhr.open("POST", "update_mog?"+param_uri, true);
                     xhr.setRequestHeader('Content-Type', 'application/json');
-                    tmp_data = {'nodes': data.nodes, 'links': []};
-                    data.links.forEach(function (L) {
-                        tmp_data.links.push({'value': L.value, 'source': L.source.id, 'target': L.target.id});
+                    tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
+                    mog_data.links.forEach( function(L){
+                       tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
                     });
                     xhr.send(JSON.stringify(tmp_data));
                 }
@@ -289,47 +226,23 @@
         }
 
         load_mog( options, function(data){
-            console.log(data)
+            //console.log(data)
 
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
+                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.comp_len))
                 var myScale = d3.scaleLinear()
                       .domain([1, maxR])
                       .range([2, Math.min(15,maxR)]);
 
                 let cs = colorSchemes[get_selected_filter_func()]
 
-                set_mapper_positions_from_graph()
                 mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
+                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.comp_len)) );
+                mog_vis.set_node_color(n =>{ return cs(n.avg_v) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
                 mog_vis.load()
         })
     }
-    /*
-    function update_mog() {
-        if( mog_vis ) mog_vis.remove()
 
-        d3.json("mog?" + $("#parameterForm").serialize(), function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.component_count))
-                var myScale = d3.scaleLinear()
-                      .domain([1, maxR])
-                      .range([2, Math.min(15,maxR)]);
-
-                let cs = colorSchemes[get_selected_filter_func()]
-
-                set_mapper_positions_from_graph()
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.component_count)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_value) });
-                mog_vis.set_link_width(d => Math.sqrt(d.value));
-                mog_vis.load()
-            }
-        });
-    }*/
 
     function change_dataset() {
         update_datafiles();

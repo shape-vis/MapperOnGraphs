@@ -28,9 +28,10 @@ function clear_chart( chart_name ){
 	$(chart_name).empty();
 }
 
-var pages = ["small_multiples.html","figures.html", "user_study.html"];
+var pages = ["small_multiples.html","figures.html", "interactive.html", "user_study.html"];
 var page_titles = {"small_multiples.html": "Small Multiple Parameter Explorer",
                     "figures.html": "Paper Figures",
+                    "interactive.html": "Interactive",
                     "user_study.html": "User Study"};
 
 
@@ -39,7 +40,7 @@ function insert_page_header(){
                 <h2 style="margin: 0; font-weight: bold;">Homology-Preserving Graph Skeletonization Using Mapper on Graphs</h2>
                 <h3 style="padding-left: 5px; padding-top: 10px;">Paul Rosen; Mustafa Hajij; and Bei Wang</h3>`;
 
-	if( new Date() > new Date(2020, 07, 14) )
+	if( new Date() > new Date(2020, 9, 14) )
 		html += '<h3 style="padding-left: 5px; padding-top: 10px;">Under submission to Transactions on Visualization and Computer Graphics</h3>';
 
 	html += '</div>';

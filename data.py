@@ -174,6 +174,8 @@ def scan_datasets():
                             data_sets[d0][d1][ff] = filter_function_names[ff]
                     if len(data_sets[d0][d1]) == 0:
                         del data_sets[d0][d1]
+    GraphIO.write_json_data('docs/data/datasets.json',data_sets)
+
 
 
 def __pre_generate_mog( params, opts, opts_keys ):
@@ -225,5 +227,3 @@ if __name__ == '__main__':
     for d0 in data_sets:
         for d1 in data_sets[d0]:
             pre_generate_mog(d0,d1)
-
-    GraphIO.write_json_data('docs/data/datasets.json',data_sets)
