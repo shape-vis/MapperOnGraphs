@@ -161,7 +161,6 @@ def generate_data(max_time_per_file=1):
 
 
 def scan_datasets():
-    # for d0 in os.listdir("data/"):
     for d0 in ['very_small', 'small', 'medium', 'large']:
         if os.path.isdir("docs/data/" + d0):
             data_sets[d0] = {}
@@ -227,4 +226,4 @@ if __name__ == '__main__':
         for d0 in data_sets:
             for d1 in data_sets[d0]:
                 procs.append( pool.apply_async(pre_generate_mog, (d0,d1,data_sets[d0][d1]) ) )
-        print([res.get(timeout=100) for res in procs])
+        print([res.get(timeout=900) for res in procs])
