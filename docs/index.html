@@ -147,6 +147,16 @@
     let histo_vis = null;
     let cover_vis = null;
 
+    function getCoverN( val ) {
+        let poss_val = [2, 3, 4, 6, 8, 10, 20]
+        let closest = poss_val[0]
+        poss_val.forEach(v => {
+            if (Math.abs(val - v) < Math.abs(val - closest)) closest = v
+        })
+        return closest
+    }
+
+
     function update_mog() {
         if( mog_vis ) mog_vis.remove()
 
@@ -195,15 +205,8 @@
     }
 
     function change_cover() {
-        let poss_val = [2,3,4,6,8,10,20]
-        let closest = poss_val[0]
-        let coverN = coverN_slider.getValue()
-        poss_val.forEach( v =>{
-            if( Math.abs(coverN-v) < Math.abs(coverN-closest) ) closest = v
-        })
-        coverN = closest
-
-        coverN_slider.setValue(coverN)
+        coverN = getCoverN( coverN_slider.getValue() )
+        coverN_slider.setValue( coverN )
         update_mog();
         cover_vis.set_position( 10, 20, 30, 200 );
         cover_vis.update_drawing( coverN, 0, colorSchemes[get_selected_filter_func()] );
@@ -211,7 +214,19 @@
 
 
     function load_graph(callback) {
+        if( graph_vis ) graph_vis.remove()
 
+        graph_vis = New_Graph_Vis( "#graph_vis",
+                                    {'dataset': get_selected_dataset(), 'datafile': get_selected_datafile()},
+                                    true,
+                                    ()=>{
+                                        if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
+                                        if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
+
+                                        if (callback) callback();
+                                    } )
+
+        /*
         if( graph_vis ) graph_vis.remove()
 
         let svg = d3.select("#graph_vis")
@@ -233,6 +248,8 @@
             }
             svg.style("cursor", "auto" )
         });
+
+         */
     }
 
 

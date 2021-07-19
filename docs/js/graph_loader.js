@@ -25,6 +25,9 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
     let uri = 'mog?' + param_uri
     let ff = options.filter_func
 
+    let svg = d3.select(svg_name)
+    svg.style("cursor", "progress" )
+
     if( static_uri ){
         let ds = options.dataset
         let df = options.datafile
@@ -40,10 +43,10 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
     }
 
     function send_to_cache(){
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open("POST", "update_mog?"+param_uri, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
+        let tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
         mog_data.links.forEach( function(L){
            tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
         });
@@ -63,6 +66,7 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
             mog_vis.set_end_callback( ()=>{ mog_vis.zoomFit(); send_to_cache() } );
             mog_vis.load()
         }
+        svg.style("cursor", "auto" )
     });
 
     return {
@@ -72,6 +76,74 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
     }
 
 }
+
+
+
+let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
+    let param_uri = $.param(options)
+    let graph_data = null
+    let graph_vis = null
+    let uri = 'graph?' + param_uri
+
+    let svg = d3.select(svg_name)
+    svg.style("cursor", "progress" )
+
+    if( static_uri ){
+        let ds = options.dataset
+        let df = options.datafile
+
+        uri = 'data/' + ds + '/' + df
+    }
+
+    function send_to_cache(){
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_graph?"+param_uri, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        let tmp_data = {'nodes':graph_data.nodes,'links':[]};
+        graph_data.links.forEach( function(L){
+           tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
+        });
+        xhr.send(JSON.stringify(tmp_data));
+    }
+
+    d3.json(uri, function (error, data) {
+        if (error) {
+            console.log(error);
+        } else {
+            graph_data = data
+            graph_vis = FDL_Graph_Vis("#graph_vis", data);
+            graph_vis.set_end_callback( ()=>{ graph_vis.zoomFit(); send_to_cache() } );
+            graph_vis.load();
+        }
+        svg.style("cursor", "auto" )
+        if( cb ) cb()
+    });
+
+    return {
+        remove : function(){
+            if( graph_vis ) graph_vis.remove();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -117,6 +189,7 @@ let Graph_VIS = function(svg_name, options, show_ff = false){
     let graph_data = null
     let ff_data = null
 
+
     d3.json("graph?" + param_uri, function (error, _g_data) {
         if (error) {
             console.log(error);
@@ -145,6 +218,7 @@ let Graph_VIS = function(svg_name, options, show_ff = false){
                 });
                 graph_vis.load();
             }
+
         }
     });
 }

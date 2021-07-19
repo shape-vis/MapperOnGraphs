@@ -1,28 +1,28 @@
 
-    var colorSchemes = {
-        'agd': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGnBu),
-        'den_0_5': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateOranges),
-        'ecc': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuGn),
-        'ev_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
-        'ev_norm_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
-        'fv': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
-        'fv_norm': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
-        'pr_0_85': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateYlOrRd),
-        'default': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGreys)
-    }
+var colorSchemes = {
+    'agd': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGnBu),
+    'den_0_5': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateOranges),
+    'ecc': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuGn),
+    'ev_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+    'ev_norm_1': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+    'fv': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+    'fv_norm': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateBuPu),
+    'pr_0_85': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateYlOrRd),
+    'default': d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateGreys)
+}
 
 
-    var colorSchemeImages = {
-        'agd': 'static/img/GnBu.png',
-        'den_0_5': 'static/img/Oranges.png',
-        'ecc': 'static/img/BuGn.png',
-        'ev_1': 'static/img/BuPu.png',
-        'ev_norm_1': 'static/img/BuPu.png',
-        'fv': 'static/img/BuPu.png',
-        'fv_norm': 'static/img/BuPu.png',
-        'pr_0_85': '`static/img/YlOrRd.png`',
-        'default': 'static/img/Greys.png'
-    }
+var colorSchemeImages = {
+    'agd': 'static/img/GnBu.png',
+    'den_0_5': 'static/img/Oranges.png',
+    'ecc': 'static/img/BuGn.png',
+    'ev_1': 'static/img/BuPu.png',
+    'ev_norm_1': 'static/img/BuPu.png',
+    'fv': 'static/img/BuPu.png',
+    'fv_norm': 'static/img/BuPu.png',
+    'pr_0_85': '`static/img/YlOrRd.png`',
+    'default': 'static/img/Greys.png'
+}
 
 function clear_chart( chart_name ){
 	$(chart_name).empty();
@@ -76,154 +76,6 @@ function insert_navbar( curpage ){
     document.write(html);
 }
 
-
-/*
-function add_scales( chart_name, xExt, yExt, lc_margin = {left: 25, right: 5, top: 5, bottom: 20} ){
-	var lc_svg = d3.select(chart_name);
-	var lc_svg_width  = +lc_svg.attr("width");
-	var lc_svg_height = +lc_svg.attr("height");
-
-	let lc_width  = lc_svg_width  - lc_margin.left - lc_margin.right,
-		lc_height = lc_svg_height - lc_margin.top  - lc_margin.bottom;
-
-	var xAxis = d3.scaleLinear().domain( xExt ).range([ 0, lc_width ]);
-	var yAxis = d3.scaleLinear().domain( yExt ).range([ lc_height, 0]);
-
-    lc_svg.append("g")
-        .attr("transform", "translate(" + (lc_margin.left) + "," + (lc_margin.top) + ")")
-        .call(d3.axisLeft(yAxis).ticks(5));
-
-    lc_svg.append("g")
-            .attr("transform", "translate(" + (lc_margin.left) + "," + (lc_margin.top+lc_height) + ")")
-            .call(d3.axisBottom(xAxis).ticks(10));
-
-}
-
-function init_linechart( chart_name, xExt, yExt, lc_margin = {left: 25, right: 5, top: 5, bottom: 20} ){
-
-	var lc_svg = d3.select(chart_name);
-	var lc_svg_width  = +lc_svg.attr("width");
-	var lc_svg_height = +lc_svg.attr("height");
-
-	let lc_width  = lc_svg_width  - lc_margin.left - lc_margin.right,
-		lc_height = lc_svg_height - lc_margin.top  - lc_margin.bottom;
-
-	var xAxis = d3.scaleLinear().domain( xExt ).range([ 0, lc_width ]);
-	var yAxis = d3.scaleLinear().domain( yExt ).range([ lc_height, 0]);
-
-    let cp = lc_svg.append("clipPath")       // define a clip path
-                        .attr("id", "boxclip") // give the clipPath an ID
-                        .append("rect")          // shape it as an ellipse
-                            .attr("x", 0)         // position the x-centre
-                            .attr("y", 0)         // position the y-centre
-                            .attr("width", lc_width)         // set the x radius
-                            .attr("height", lc_height);
-
-    let svg_grp = lc_svg.append("g")
-                    .attr("transform", "translate(" + lc_margin.left + "," + lc_margin.top + ")");
-
-	return {'xAxis':xAxis, 'yAxis':yAxis, 'clipPath': cp, 'group': svg_grp };
-}
-
-
-function insert_linechart( chart, data, class_name, stroke_size = 3 ){
-
-	return chart.group.append("path")
-							.datum( data )
-								.attr("clip-path", "url(#boxclip)")
-								.attr("class", class_name)
-								.attr("stroke-width", stroke_size + "px")
-								.attr("d", d3.line()
-										.x(function(d) { return chart.xAxis(d[0]+0.002); })
-										.y(function(d) { return chart.yAxis(d[1]); })
-									  );
-}
-
-function add_linechart( chart_name, data, xExt, yExt, class_name, lc_margin = {left: 25, right: 5, top: 5, bottom: 20}, stroke_size = 3 ){
-
-	var lc_svg = d3.select(chart_name);
-	var lc_svg_width  = +lc_svg.attr("width");
-	var lc_svg_height = +lc_svg.attr("height");
-
-	let lc_width  = lc_svg_width  - lc_margin.left - lc_margin.right,
-		lc_height = lc_svg_height - lc_margin.top  - lc_margin.bottom;
-
-	var xAxis = d3.scaleLinear().domain( xExt ).range([ 0, lc_width ]);
-	var yAxis = d3.scaleLinear().domain( yExt ).range([ lc_height, 0]);
-
-    cp = lc_svg.append("clipPath")       // define a clip path
-                        .attr("id", "boxclip") // give the clipPath an ID
-                        .append("rect")          // shape it as an ellipse
-                            .attr("x", 0)         // position the x-centre
-                            .attr("y", 0)         // position the y-centre
-                            .attr("width", lc_width)         // set the x radius
-                            .attr("height", lc_height);
-
-    svg_grp = lc_svg.append("g")
-                    .attr("transform", "translate(" + lc_margin.left + "," + lc_margin.top + ")");
-
-
-	path = svg_grp.append("path")
-					.datum( data )
-						.attr("clip-path", "url(#boxclip)")
-						.attr("class", class_name)
-						.attr("stroke-width", stroke_size + "px")
-						.attr("d", d3.line()
-								.x(function(d) { return xAxis(d[0]+0.002); })
-								.y(function(d) { return yAxis(d[1]); })
-						);
-	return {'clip-path': cp, 'group': svg_grp, 'path': path};
-}
-
-function add_image(chart_name, url, x, y, w, h, border_class ){
-	var lc_svg = d3.select(chart_name);
-	var lc_svg_width  = +lc_svg.attr("width");
-	var lc_svg_height = +lc_svg.attr("height");
-
-    svg_grp = lc_svg.append("g");
-
-    svg_grp.append("svg:image")
-        .attr('x', x)
-        .attr('y', y)
-        .attr('width', w)
-        .attr('height', h)
-        .attr("href", url);
-        //.attr("xlink:href", url);
-
-    svg_grp.append("rect")
-        .attr('x', x)
-        .attr('y', y)
-        .attr('width', w)
-        .attr('height', h)
-        .attr("class", border_class)
-        .attr("stroke-width","2px")
-        .attr("fill", "none");
-
-}
-
-
-// load datasets
-function __load_ds( idx, updateFunc ){
-    if( idx >= ds_names.length ){
-        updateFunc();
-    }
-    else{
-        key = ds_names[idx];
-        d3.json( datasets[key] + ".json", function( dinput ){
-            loaded_data[key] = dinput;
-            __load_ds(idx+1, updateFunc);
-        });
-    }
-}
-
-
-function load_data( updateFunc ){
-	ds_names = Object.keys(datasets);
-    __load_ds(0, updateFunc);
-}
-
-
-*/
 
 
 /*****************************************
