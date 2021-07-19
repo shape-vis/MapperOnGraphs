@@ -52,6 +52,7 @@
     <script src="js/graph.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
+    <script src="js/graph_loader.js"></script>
 
 </head>
 <body>
@@ -118,64 +119,38 @@
 
         </form>
 
-        <!-- img src="static/img/viridis.png" width="100%" height="20" -->
     </div>
+
 
 <script>
     let covers = [2,3,4,6,8,10,20]
-    function generateFilterFunctionSVG( ff ){
-        html = ''
+    function generateFilterFunctionSVGs( title, ff, ff_img ){
+        html = '<div id="mog_row_'+ff+'">' +
+                    '<p class="row_title" id="row_title_'+ff+'">' +
+                        '<img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="'+ff_img+'"/>' +
+                        title +
+                    '</p>'
+
         covers.forEach( cover => {
             html += '<svg height="200" width="200" style="border-style: solid; ' +
                     'border-width: 1px;" id="mog_vis_' + ff + '_' + cover + '"></svg>'
         })
+        html += '</div>'
         document.write(html)
     }
 </script>
 
+
     <div class="page-content" id="visualization" style="white-space: nowrap;">
         <div style="text-align: left; width: 1200px;">
-            <div id="mog_row_agd">
-                <p class="row_title" id="row1_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/GnBu.png">
-                    Average Geodesic Distance
-                </p>
-                <script>generateFilterFunctionSVG('agd')</script>
-            </div>
-            <div id="mog_row_den_0_5">
-                <p class="row_title" id="row2_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/Oranges.png">
-                    Density (0.5)
-                </p>
-                <script>generateFilterFunctionSVG('den_0_5')</script>
-            </div>
-            <div id="mog_row_ecc">
-                <p class="row_title" id="row3_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuGn.png">
-                    Eccentricity
-                </p>
-                <script>generateFilterFunctionSVG('ecc')</script>
-            </div>
-            <div id="mog_row_fv">
-                <p class="row_title" id="row4_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
-                    Fiedler Vector
-                </p>
-                <script>generateFilterFunctionSVG('fv')</script>
-            </div>
-            <div id="mog_row_fv_norm">
-                <p class="row_title" id="row5_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/BuPu.png">
-                    Fiedler Vector Normalized
-                </p>
-                <script>generateFilterFunctionSVG('fv_norm')</script>
-            </div>
-            <div id="mog_row_pr_0_85">
-                <p class="row_title" id="row6_title">
-                    <img width=100 height=16 style="padding-bottom: 3px; padding-right: 5px;" src="img/YlOrRd.png">
-                    PageRank (alpha=0.85)
-                </p>
-                <script>generateFilterFunctionSVG('pr_0_85')</script>
+                <script>
+                    generateFilterFunctionSVGs('Average Geodesic Distance','agd', "img/GnBu.png")
+                    generateFilterFunctionSVGs('Density (0.5)', 'den_0_5', "img/Oranges.png")
+                    generateFilterFunctionSVGs('Eccentricity','ecc', "img/BuGn.png")
+                    generateFilterFunctionSVGs('Fiedler Vector','fv', "img/BuPu.png")
+                    generateFilterFunctionSVGs('Fiedler Vector (Normalized)','fv_norm',"img/BuPu.png")
+                    generateFilterFunctionSVGs('PageRank (alpha=0.85)','pr_0_85',"img/YlOrRd.png")
+                </script>
             </div>
         </div>
     </div>
@@ -184,94 +159,23 @@
 
 <script>
 
-
-
-
-
     let mogs = [];
-
-
-    let MOG_Vis = function( svg_name, options, static_uri=true ){
-        let param_uri = $.param(options)
-        let mog_data = null
-        let mog_vis = null
-        let uri = 'mog?' + param_uri
-        let ff = options.filter_func
-
-        if( static_uri ){
-            let ds = options.dataset
-            let df = options.datafile
-            df = df.substring(0,df.length-5)
-            let covN = options.coverN
-            let link_m = options.link_method
-            let rank = ( options.rank_filter ) ? 'true' : 'false'
-            let comp_m = options.component_method
-            let overlap = options.coverOverlap
-
-            uri = 'data/' + ds + '/' + df + '/' + ff + '_' + comp_m
-                    + '_' + covN + '_' + overlap + '_' + link_m + '_' + rank + '.json'
-        }
-
-        function send_to_cache(){
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_mog?"+param_uri, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
-            mog_data.links.forEach( function(L){
-               tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
-            });
-            xhr.send(JSON.stringify(tmp_data));
-        }
-
-        d3.json(uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                mog_data = data
-                mog_vis = FDL_Graph_Vis(svg_name, mog_data);
-                mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.comp_len), 20));
-                mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_v));
-                mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
-                mog_vis.add_count_labels();
-                mog_vis.set_end_callback( ()=>{ mog_vis.zoomFit(); send_to_cache() } );
-                mog_vis.load()
-            }
-        });
-
-        return {
-            remove : function(){
-                if( mog_vis ) mog_vis.remove();
-            }
-        }
-
-    }
-
-
-    function change_dataset() {
-        update_datafiles();
-        change_datafile();
-    }
 
     function load_mog(){
 
         mogs.forEach( M=>M.remove() );
         mogs = []
 
-        let ds = get_selected_dataset();
-        let df = get_selected_datafile();
-
         let possible_ff = ['agd','den_0_5','ecc','fv', 'fv_norm','pr_0_85']
         possible_ff.forEach( ff=>{
             document.getElementById("mog_row_"+ff).style.display = "none"
         })
 
-        ff = []
-        if( 'agd' in datasets[ds][df]) ff.push('agd')
-        if( 'den_0_5' in datasets[ds][df]) ff.push('den_0_5')
-        if( 'ecc' in datasets[ds][df]) ff.push('ecc')
-        if( 'fv' in datasets[ds][df]) ff.push('fv')
-        else if( 'fv_norm' in datasets[ds][df]) ff.push('fv_norm')
-        if( 'pr_0_85' in datasets[ds][df]) ff.push('pr_0_85')
+        let ds = get_selected_dataset();
+        let df = get_selected_datafile();
+
+        let ff = Object.keys(datasets[ds][df]).sort()
+        if( ff.includes('fv') ) ff = ff.filter( item => item!=='fv_norm')
 
         ff.forEach( cur_ff => {
 
@@ -294,24 +198,17 @@
 
     }
 
+    function change_dataset() {
+        update_datafiles();
+        change_datafile();
+    }
+
     function change_datafile() {
         load_mog();
     }
 
     load_datasets(change_datafile);
 
-</script>
-
-<div id="overlay" onclick="overlay_off()"></div>
-
-<script>
-    function overlay_on() {
-        document.getElementById("overlay").style.display = "block";
-    }
-
-    function overlay_off() {
-        document.getElementById("overlay").style.display = "none";
-    }
 </script>
 
 </body>

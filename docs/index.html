@@ -33,21 +33,6 @@
 
     <title>Mapper on Graphs</title>
 
-    <!--script src="https://d3js.org/d3.v4.min.js"
-            integrity="sha384-1EOYqz4UgZkewWm70NbT1JBUXSQpOIS2AaJy6/evZH+lXOrt9ITSJbFctNeyBoIJ"
-            crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-            crossorigin="anonymous"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"
-            integrity="sha384-hX5odjoulJel81+3dsnorXlZ7kA46f8qrV+2sBCcEAXaCyEAiRusFRjaefWw2NPp"
-            crossorigin="anonymous"></script-->
     <script src="js/lib/d3@v4.js"></script>
     <script src="js/lib/jquery@3.4.1.js"></script>
     <script src="js/lib/popper@1.16.0.js"></script>
@@ -61,6 +46,7 @@
     <script src="js/cover.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
+    <script src="js/graph_loader.js"></script>
 
 </head>
 <body>
@@ -164,35 +150,17 @@
     function update_mog() {
         if( mog_vis ) mog_vis.remove()
 
-        let ds = get_selected_dataset()
-        let df = get_selected_datafile()
-        df = df.substring(0,df.length-5)
-        let ff = get_selected_filter_func()
-        let covN = coverN_slider.getValue()
-        let link_m = component_rg.getSelected()
-        let rank = ( rank_cg.isChecked() ) ? 'true' : 'false'
-
-        let uri = 'data/' + ds + '/' + df + '/' + ff + '_' + link_m + '_' + covN + '_0_connectivity_' + rank + '.json'
-
-        d3.json(uri, function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-                let maxR = Math.sqrt(d3.max( data.nodes, d=>d.comp_len))
-                let myScale = d3.scaleLinear()
-                      .domain([1, maxR])
-                      .range([2, Math.min(15,maxR)]);
-
-                let cs = colorSchemes[get_selected_filter_func()]
-
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
-                mog_vis.set_node_radius( d => myScale(Math.sqrt(d.comp_len)) );
-                mog_vis.set_node_color(n =>{ console.log(n); return cs(n.avg_v) });
-                mog_vis.set_link_width(d => Math.sqrt(d.value));
-                mog_vis.load()
-            }
-        })
-
+        let options = {
+            'dataset': get_selected_dataset(),
+            'datafile': get_selected_datafile(),
+            'filter_func': get_selected_filter_func(),
+            'coverN': coverN_slider.getValue(),
+            'rank_filter':  rank_cg.isChecked(),
+            'coverOverlap': 0,
+            'component_method': component_rg.getSelected(),
+            'link_method': link_rg.getSelected()
+        }
+        mog_vis = MOG_Vis( "#mog_vis", options )
     }
 
     function change_dataset() {
@@ -238,9 +206,7 @@
         coverN_slider.setValue(coverN)
         update_mog();
         cover_vis.set_position( 10, 20, 30, 200 );
-        cover_vis.update_drawing( coverN,
-                                  0,
-                                  colorSchemes[get_selected_filter_func()] );
+        cover_vis.update_drawing( coverN, 0, colorSchemes[get_selected_filter_func()] );
     }
 
 
