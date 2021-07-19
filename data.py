@@ -177,7 +177,6 @@ def scan_datasets():
     GraphIO.write_json_data('docs/data/datasets.json',data_sets)
 
 
-
 def __pre_generate_mog( params, opts, opts_keys ):
     if len(opts_keys) == 0:
         cache.generate_mog(params['dataset'], params['datafile'],
@@ -192,11 +191,11 @@ def __pre_generate_mog( params, opts, opts_keys ):
             __pre_generate_mog(params, opts, opts_keys[1:])
 
 
-def pre_generate_mog(dataset,datafile):
+def pre_generate_mog(dataset,datafile,ff):
     opts = {
         'dataset': [dataset],
         'datafile': [datafile],
-        'filter_func': data_sets[dataset][datafile],
+        'filter_func': ff,
         'coverN': [2,3,4,6,8,10,20],
         'coverOverlap': [0],
         'component_method': ['connected_components','modularity','async_label_prop'],
@@ -205,7 +204,6 @@ def pre_generate_mog(dataset,datafile):
         'rank_filter': ['true','false'],
         'gcc_only': ['false']
     }
-
     __pre_generate_mog( {}, opts, list(opts.keys()) )
 
 
@@ -224,6 +222,9 @@ if __name__ == '__main__':
 
     scan_datasets()
 
-    for d0 in data_sets:
-        for d1 in data_sets[d0]:
-            pre_generate_mog(d0,d1)
+    with multiprocessing.Pool(processes=6) as pool:
+        procs = []
+        for d0 in data_sets:
+            for d1 in data_sets[d0]:
+                procs.append( pool.apply_async(pre_generate_mog, (d0,d1,data_sets[d0][d1]) ) )
+        print([res.get(timeout=100) for res in procs])
