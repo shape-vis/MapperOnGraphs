@@ -12,6 +12,7 @@ def get_graph_path( params ):
 
 def save_graph_layout(params, data):
     filename = get_graph_path(params)
+    print(filename)
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
 
