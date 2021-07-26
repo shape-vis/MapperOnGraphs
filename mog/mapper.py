@@ -82,7 +82,7 @@ def _get_links_by_node_overlap(nodes):
         for j in range(i + 1, len(nodes)):
             w = len(node_set_i & set(nodes[j]['comp']))
             if w > 0:
-                if nodes[i]['min_value'] < nodes[j]['min_value']:
+                if nodes[i]['min_v'] < nodes[j]['min_v']:
                     links.append({"source": nodes[i]['id'], "target": nodes[j]['id'], 'value': w})
                 else:
                     links.append({"target": nodes[i]['id'], "source": nodes[j]['id'], 'value': w})

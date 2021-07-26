@@ -64,19 +64,19 @@ def get_graph():
     # Check that the request is valid
     if not request_valid(True, True, False):
         return "{'result':'failed'}"
-    else:
-        return send_file(cache.get_graph_path(request.args.to_dict()))
+
+    return send_file(cache.get_graph_path(request.args.to_dict()))
 
 
 @app.route('/update_graph', methods=['GET', 'POST'])
 def update_graph():
     # Check that the request is valid
-    if request.args.get('type') == 'graph_layout':
-        if request_valid(True, True, False):
-            cache.save_graph_layout(request.args.to_dict(), request.json)
-            return "{'result':'ok'}"
+    if not request_valid(True, True, False):
+        return "{'result':'failed'}"
 
-    return "{'result':'failed'}"
+    cache.save_graph_layout(request.args.to_dict(), request.json)
+    return "{'result':'ok'}"
+
 
 
 @app.route('/update_mog', methods=['GET', 'POST'])

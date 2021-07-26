@@ -137,30 +137,38 @@
 
         fig1 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
         fig1.forEach( ff => {
-            let options = get_default_mog_options( 'medium', 'USair97.json', ff, 8, false )
+            let options = get_default_mog_options( 'small', 'usair97.json', ff, 8, false )
             MOG_Vis( '#fig1_mog_'+ff, options )
-            Graph_VIS( '#fig1_graph_'+ff, options, true )
+            Load_Graph_W_FF( '#fig1_graph_'+ff, options )
+            /*
+            Load_Filter_Function(options, (ff_data)=>{
+                Load_Graph_Vis( '#fig1_graph_'+ff, options, ( gv )=>{
+                    let cs = colorSchemes[ff].domain([0,1])
+                    gv.set_node_color( n => cs(n), ff_data.data )
+                } )
+            })*/
+
         })
 
         let fig2 = [2, 4, 8, 16]
         fig2.forEach( coverN => {
-            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', coverN, false )
-            MOG_Vis( '#fig2_mog_agd_'+coverN, options )
+            let options = get_default_mog_options( 'small', 'usair97.json', 'agd', coverN, false )
+            MOG_Vis( '#fig2_mog_agd_'+coverN, options, false )
         })
 
         let fig3 = [0, 1, 2, 4]
         fig3.forEach( eps => {
-            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            let options = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
             options.coverOverlap = eps/10
-            MOG_Vis( '#fig3_mog_agd_8_e'+eps, options )
+            MOG_Vis( '#fig3_mog_agd_8_e'+eps, options, false )
         })
 
 
         let fig4 = ['connected_components','modularity','async_label_prop']
         fig4.forEach( comp => {
-            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            let options = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
             options.component_method = comp
-            MOG_Vis( '#fig4_mog_agd_8_'+comp, options )
+            MOG_Vis( '#fig4_mog_agd_8_'+comp, options, false )
         })
 
 
@@ -168,11 +176,11 @@
         fig5.forEach( link_overlap => {
             let link_m = link_overlap[0]
             let overlap = link_overlap[1]
-            let options = get_default_mog_options( 'medium', 'USair97.json', 'agd', 8, false )
+            let options = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
             options.component_method = 'connected_components'
             options.link_method = link_m
             options.coverOverlap = overlap
-            MOG_Vis( '#fig5_mog_agd_8_'+link_m, options )
+            MOG_Vis( '#fig5_mog_agd_8_'+link_m, options, false )
         })
 
 

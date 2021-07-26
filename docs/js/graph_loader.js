@@ -80,24 +80,19 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
 
 
 let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
-    let param_uri = $.param(options)
-    let graph_data = null
-    let graph_vis = null
-    let uri = 'graph?' + param_uri
+
+    let uri = 'graph?' + $.param(options)
+    if( static_uri ) uri = 'data/' + options.dataset + '/' + options.datafile
 
     let svg = d3.select(svg_name)
     svg.style("cursor", "progress" )
 
-    if( static_uri ){
-        let ds = options.dataset
-        let df = options.datafile
-
-        uri = 'data/' + ds + '/' + df
-    }
+    let graph_data = null
+    let graph_vis = null
 
     function send_to_cache(){
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_graph?"+param_uri, true);
+        xhr.open("POST", "update_graph?" + $.param(options), true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         let tmp_data = {'nodes':graph_data.nodes,'links':[]};
         graph_data.links.forEach( function(L){
@@ -111,7 +106,7 @@ let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
             console.log(error);
         } else {
             graph_data = data
-            graph_vis = FDL_Graph_Vis("#graph_vis", data);
+            graph_vis = FDL_Graph_Vis(svg_name, data);
             graph_vis.set_end_callback( ()=>{ graph_vis.zoomFit(); send_to_cache() } );
             graph_vis.load();
         }
@@ -122,6 +117,9 @@ let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
     return {
         remove : function(){
             if( graph_vis ) graph_vis.remove();
+        },
+        set_node_color : function( func, data ){
+            if(graph_vis) graph_vis.set_node_color(func, data);
         }
     }
 }
@@ -130,6 +128,79 @@ let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
 
 
 
+
+
+let Load_Graph_Vis = function( svg_name, options, cb, static_uri=true ){
+
+    let uri = 'graph?' + $.param(options)
+    if( static_uri ) uri = 'data/' + options.dataset + '/' + options.datafile
+
+    let svg = d3.select(svg_name)
+    svg.style("cursor", "progress" )
+
+    let graph_data = null
+    let graph_vis = null
+
+    function send_to_cache(){
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_graph?" + $.param(options), true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        let tmp_data = {'nodes':graph_data.nodes,'links':[]};
+        graph_data.links.forEach( function(L){
+           tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
+        });
+        xhr.send(JSON.stringify(tmp_data));
+    }
+
+    d3.json(uri, function (error, data) {
+        if (error) {
+            console.log(error);
+        } else {
+            graph_data = data
+            graph_vis = FDL_Graph_Vis(svg_name, data);
+            graph_vis.set_end_callback( ()=>{ graph_vis.zoomFit(); send_to_cache() } );
+            graph_vis.load();
+        }
+        svg.style("cursor", "auto" )
+        cb({
+            remove : function(){
+                if( graph_vis ) graph_vis.remove();
+            },
+            set_node_color : function( func, data ){
+                if(graph_vis) graph_vis.set_node_color(func, data);
+            }
+        })
+    });
+}
+
+
+let Load_Filter_Function = function( options, cb, static_uri=true ){
+
+    let uri = "filter_function?" + $.param(options)
+
+    if (static_uri) {
+        let df = options.datafile.substring(0,options.datafile.length-5)
+        uri = 'data/' + options.dataset + '/' + df + '/' + options.filter_func + '.json'
+    }
+
+    d3.json(uri, function (error, _ff_data) {
+        if (error) {
+            console.log(error);
+        } else {
+            cb(_ff_data)
+        }
+    })
+}
+
+let Load_Graph_W_FF = function( svg_name, options, cb=null, static_uri = true ){
+    Load_Filter_Function(options, (ff_data)=>{
+        Load_Graph_Vis( svg_name, options, ( gv )=>{
+            let cs = colorSchemes[options.filter_func].domain([0,1])
+            gv.set_node_color( n => cs(n), ff_data.data )
+            if(cb) cb(gv, ff_data)
+        } )
+    })
+}
 
 
 
