@@ -53,8 +53,11 @@ var histogram_vis = function( svg_name ) {
                             .attr("x", d => x(0) )
                             .attr("y", d => y(d.x0) )
                             .attr("width", d => x(d.length)-x(0)+2 )
-                            .attr("height", d => y(d.x1) - y(d.x0) - 1 )
+                            .attr("height", d => y(d.x1) - y(d.x0) - 2 )
                             .style("fill", d => colorScheme(d.x0) )
+                            .style("stroke",'DarkGray')
+                            .style("stroke-width",'0.4')
+
 
         }
     }

@@ -98,6 +98,8 @@ var cover_visualization = function( svg_name ) {
                             .attr("height", d => y(d[1]) - y(d[0]) )
                             //.style("fill", d => seqColorScheme((d[0]+d[1])/2) )
                             .style("fill", d => createGradient( colorScheme(d[0]), colorScheme(d[1]) ) )
+                            .style("stroke",'DarkGray')
+                            .style("stroke-width",'0.4')
 
 
         }

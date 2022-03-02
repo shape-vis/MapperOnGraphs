@@ -127,6 +127,16 @@
                 <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig5_mog_agd_8_overlap"></svg>
                 <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig5_mog_agd_8_connectivity"></svg>
             </div>
+
+            <div id="mog_visualization">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig6_histogram');
+                        saveSVG('fig6_graph'); saveSVG('fig6_mog');"/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig6_histogram"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig6_graph"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig6_mog"></svg>
+            </div>
         </div>
      </div>
 </div>
@@ -182,6 +192,22 @@
             options.coverOverlap = overlap
             MOG_Vis( '#fig5_mog_agd_8_'+link_m, options, false )
         })
+
+
+        let fig6_options = get_default_mog_options( 'small', 'movies.json', 'fv', 6, false )
+        fig6_options.component_method = 'modularity'
+        fig6_options.link_method = 'connectivity'
+        fig6_options.coverOverlap = 0
+        MOG_Vis( '#fig6_mog', fig6_options, false )
+        Load_Graph_W_FF( '#fig6_graph', fig6_options, (gv, ff_data)=>{
+            fig6_histo_vis = histogram_vis("#fig6_histogram");
+            fig6_cover_vis = cover_visualization("#fig6_histogram");
+            fig6_cover_vis.set_position( 5, 5, 30, 190 );
+            fig6_histo_vis.set_position( 40, 5, 80, 190 );
+            fig6_cover_vis.update_drawing( fig6_options.coverN, 0, colorSchemes[fig6_options.filter_func] );
+            fig6_histo_vis.update_drawing( 10, Object.values(ff_data.data), colorSchemes[fig6_options.filter_func] )
+        } )
+
 
 
 	function saveSVG( plotID ){
