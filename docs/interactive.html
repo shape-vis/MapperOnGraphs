@@ -39,11 +39,9 @@
     <script src="js/lib/bootstrap@4.4.1.js"></script>
     <script src="js/lib/d3-scale-chromatic@v1.js"></script>
 
-    <script src="js/menu.js"></script>
-    <script src="js/graph.js"></script>
-    <script src="js/histogram.js"></script>
-    <script src="js/dataDownload.js"></script>
-    <script src="js/cover.js"></script>
+    <script src="js/GraphVisualization.js"></script>
+    <script src="js/HistogramVisualization.js"></script>
+    <script src="js/CoverVisualization.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
 
@@ -235,7 +233,7 @@
 
                 let cs = colorSchemes[get_selected_filter_func()]
 
-                mog_vis = FDL_Graph_Vis("#mog_vis", data);
+                mog_vis = GraphVisualization("#mog_vis", data);
                 mog_vis.set_node_radius( d => myScale(Math.sqrt(d.comp_len)) );
                 mog_vis.set_node_color(n =>{ return cs(n.avg_v) });
                 mog_vis.set_link_width(d => Math.sqrt(d.value));
@@ -289,11 +287,11 @@
                 console.log(error);
             } else {
 
-                graph_vis = FDL_Graph_Vis("#graph_vis", data);
+                graph_vis = GraphVisualization("#graph_vis", data);
                 graph_vis.load();
 
-                if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
-                if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
+                if(histo_vis == null) histo_vis = HistogramVisualization("#graph_vis");
+                if(cover_vis == null) cover_vis = CoverVisualization("#graph_vis");
 
                 if (callback) callback();
             }

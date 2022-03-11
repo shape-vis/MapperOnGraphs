@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 
 import mog.mapper as mapper
 import mog.graph_io as GraphIO
@@ -55,29 +56,30 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
     print("  >> creating " + mog_cf)
 
     # Load the graph and filter function
+    start_time = time.time()
     graph_data, graph = GraphIO.read_json_graph('docs/data/' + dataset + "/" + datafile)
-    print(" >> Input Node Count: " + str(graph.number_of_nodes()))
-    print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
 
     values = get_filter_function({'dataset': dataset, 'datafile': datafile, 'filter_func': filter_func,
                                   'rank_filter': rank_filter})
+    end_time = time.time()
+
+    print(" >> Input Load Time: " + str(end_time-start_time))
+    print(" >> Input Node Count: " + str(graph.number_of_nodes()))
+    print(" >> Input Edge Count: " + str(graph.number_of_nodes()))
 
     # Construct the cover
     intervals = int(cover_elem_count)
     overlap = float(cover_overlap)
     cover = mapper.Cover(values, intervals, overlap)
 
-    # Construct MOG
+    # Construct & save MOG
     mog.build_mog(graph, values, cover, comp_method, link_method, verbose=graph.number_of_nodes() > 1000)
+    mog.strip_components_from_nodes()
+    mog.save_json(mog_cf)
 
     print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
     print(" >> MOG Edge Count: " + str(mog.number_of_nodes()))
     print(" >> MOG Compute Time: " + str(mog.compute_time()) + " seconds")
-
-    mog.strip_components_from_nodes()
-
-    with open(mog_cf, 'w') as outfile:
-        outfile.write(mog.to_json())
 
     return mog, mog_cf
 
@@ -96,6 +98,7 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
 
 
 def get_mog(params):
+    print("asdf")
     mog, mog_cf = generate_mog(params['dataset'], params['datafile'],
                                params['filter_func'],
                                params['coverN'], params['coverOverlap'],

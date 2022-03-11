@@ -48,6 +48,7 @@ def send_main():
 
 @app.route('/<path:path>')
 def send_static(path):
+    print(path)
     try:
         return send_from_directory('docs', path)
     except Exception as e:

@@ -48,11 +48,9 @@
             integrity="sha384-hX5odjoulJel81+3dsnorXlZ7kA46f8qrV+2sBCcEAXaCyEAiRusFRjaefWw2NPp"
             crossorigin="anonymous"></script>
 
-    <script src="js/menu.js"></script>
-    <script src="js/graph.js"></script>
-    <script src="js/histogram.js"></script>
-    <script src="js/dataDownload.js"></script>
-    <script src="js/cover.js"></script>
+    <script src="js/GraphVisualization.js"></script>
+    <script src="js/HistogramVisualization.js"></script>
+    <script src="js/CoverVisualization.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
     <script src="js/graph_loader.js"></script>
@@ -68,6 +66,8 @@
 
      <div class="page-content" id="visualization" style="white-space: nowrap;">
         <div style="text-align: left; width: 1200px;">
+            <svg height="512" width="512" style="border-style: solid; border-width: 1px;" id="figure"></svg>
+<!--
             <div id="mog_row_agd">
                 <p class="row_title" id="row1_title">
                     Figure ? <input type="button" value="Save Images" onclick="saveSVG('fig1_graph_agd'); saveSVG('fig1_mog_agd'); saveSVG('fig1_graph_den_0_5');
@@ -137,40 +137,229 @@
                 <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig6_graph"></svg>
                 <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig6_mog"></svg>
             </div>
-        </div>
+
+            <div id="case_studies_airport">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="save_fig7()"/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_graph"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_agd_20"></svg><br>
+
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_den_0_5_20"></svg>    <br>
+
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_ecc_20"></svg>    <br>
+
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_fv_20"></svg>    <br>
+
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig7_mog_pr_0_85_20"></svg>
+
+
+            </div>
+
+
+
+            <div id="case_studies_ca_condmat">
+                <p class="row_title" id="row1_title">
+                    Figure ? <input type="button" value="Save Images" onclick="save_fig8()"/>
+                </p>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_graph"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_2"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_4"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_6"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_8"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_10"></svg>
+                <svg height="200" width="200" style="border-style: solid; border-width: 1px;" id="fig8_mog_pr_20"></svg><br>
+            </div>
+        </div> -->
      </div>
+
 </div>
 
 
 <script>
 
+    exps = []
+
+    fig1 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
+    fig1.forEach( ff => {
+        let opt = get_default_mog_options( 'small', 'usair97.json', ff, 8, false )
+        exps.push({ name: 'fig1_mog_' + ff, type: 'mog', options: opt })
+        exps.push({ name: 'fig1_graph_' + ff, type: 'graph_ff', options: opt  })
+    })
+
+    let fig2 = [2, 4, 8, 16]
+    fig2.forEach( coverN => {
+        let opt = get_default_mog_options( 'small', 'usair97.json', 'agd', coverN, false )
+        exps.push({ name: 'fig2_mog_agd_' + coverN, type: 'mog', options: opt })
+    })
+
+    let fig3 = [0, 1, 2, 4]
+    fig3.forEach( eps => {
+        let opt = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
+        opt.coverOverlap = eps/10
+        exps.push({ name: 'fig3_mog_agd_8_e'+eps, type: 'mog', options: opt })
+    })
+
+    let fig4 = ['connected_components','modularity','async_label_prop']
+    fig4.forEach( comp => {
+        let opt = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
+        opt.component_method = comp
+        exps.push({ name: 'fig4_mog_agd_8_'+comp, type: 'mog', options: opt })
+    })
+
+    let fig5 = [['overlap',0.5],['connectivity',0]]
+    fig5.forEach( link_overlap => {
+        let link_m = link_overlap[0]
+        let overlap = link_overlap[1]
+        let opt = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
+        opt.component_method = 'connected_components'
+        opt.link_method = link_m
+        opt.coverOverlap = overlap
+        exps.push({ name: 'fig5_mog_agd_8_'+link_m, type: 'mog', options: opt })
+    })
+
+
+    let fig7 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
+    let cn = [2,3,4,6,8,10,20]
+    fig7.forEach( ff_method => {
+        cn.forEach( n => {
+            let fig7_options = get_default_mog_options( 'small', 'map_of_science.json', 'agd', 2, false )
+            fig7_options.component_method = 'modularity'
+            fig7_options.link_method = 'connectivity'
+            fig7_options.coverOverlap = 0
+            fig7_options.coverN = n
+            fig7_options.filter_func = ff_method
+            exps.push({ name: 'fig7_mog_'+ff_method+"_"+n, type: 'mog', options: fig7_options })
+        })
+    })
+    exps.push({ name: 'fig7_graph', type: 'graph', options: get_default_mog_options( 'small', 'map_of_science.json', 'agd', 2, false ) })
+
+
+    let cn8 = [2,3,4,6,8,10]
+    cn8.forEach( n => {
+        let fig8_options = get_default_mog_options( 'large', 'ca-condmat.json', 'pr_0_85', 2, false )
+        fig8_options.component_method = 'connected_components'
+        fig8_options.link_method = 'connectivity'
+        fig8_options.coverOverlap = 0
+        fig8_options.coverN = n
+        exps.push({ name: 'fig8_mog_pr_'+n, type: 'mog', options: fig8_options })
+    })
+    exps.push({ name: 'fig8_graph', type: 'graph', options: get_default_mog_options( 'large', 'ca-condmat.json', 'pr_0_85', 2, false ) })
+
+    /*
+
+
+        let fig6_options = get_default_mog_options( 'small', 'movies.json', 'fv', 6, false )
+        fig6_options.component_method = 'modularity'
+        fig6_options.link_method = 'connectivity'
+        fig6_options.coverOverlap = 0
+        Load_MOG_Vis( '#fig6_mog', fig6_options, false )
+        Load_Graph_Vis_W_FF( '#fig6_graph', fig6_options, (gv, ff_data)=>{
+            fig6_histo_vis = HistogramVisualization("#fig6_histogram");
+            fig6_cover_vis = CoverVisualization("#fig6_histogram");
+            fig6_cover_vis.set_position( 5, 5, 30, 190 );
+            fig6_histo_vis.set_position( 40, 5, 80, 190 );
+            fig6_cover_vis.update_drawing( fig6_options.coverN, 0, colorSchemes[fig6_options.filter_func] );
+            fig6_histo_vis.update_drawing( 10, Object.values(ff_data.data), colorSchemes[fig6_options.filter_func] )
+        } )
+
+
+
+    */
+
+
+
+    function nextExperiment() {
+        d3.select("#figure").selectAll('*').remove()
+
+        if(exps.length === 0 ) return
+        exp = exps.pop()
+
+        d3.xml("figures/" + exp.name + ".svg", function(xml) {
+            if( xml != null ){
+                nextExperiment()
+            }
+            else if( exp.type === 'mog' ){
+                Load_MOG_Vis( '#figure', exp.options, true, ()=>{
+                    saveSVG( '#figure', exp.name)
+                    nextExperiment()
+                } )
+            }
+            else if( exp.type === 'graph' ){
+                Load_Graph_Vis( '#figure', exp.options, true, null, () => {
+                    saveSVG( '#figure', exp.name)
+                    nextExperiment()
+                } )
+            }
+            else if( exp.type === 'graph_ff' ){
+                Load_Graph_Vis_W_FF( '#figure', exp.options, true, null, () => {
+                    saveSVG( '#figure', exp.name)
+                    nextExperiment()
+                } )
+            }
+            else{
+                console.log("skipping: " + exp.name )
+                nextExperiment()
+            }
+        })
+
+    }
+
+    nextExperiment()
+
+    /*
 
         fig1 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
         fig1.forEach( ff => {
             let options = get_default_mog_options( 'small', 'usair97.json', ff, 8, false )
-            MOG_Vis( '#fig1_mog_'+ff, options )
-            Load_Graph_W_FF( '#fig1_graph_'+ff, options )
-            /*
+            Load_MOG_Vis( '#fig1_mog_'+ff, options )
+            Load_Graph_Vis_W_FF( '#fig1_graph_'+ff, options )
+
             Load_Filter_Function(options, (ff_data)=>{
                 Load_Graph_Vis( '#fig1_graph_'+ff, options, ( gv )=>{
                     let cs = colorSchemes[ff].domain([0,1])
                     gv.set_node_color( n => cs(n), ff_data.data )
                 } )
-            })*/
+            })
 
         })
 
         let fig2 = [2, 4, 8, 16]
         fig2.forEach( coverN => {
             let options = get_default_mog_options( 'small', 'usair97.json', 'agd', coverN, false )
-            MOG_Vis( '#fig2_mog_agd_'+coverN, options, false )
+            Load_MOG_Vis( '#fig2_mog_agd_'+coverN, options, false )
         })
 
         let fig3 = [0, 1, 2, 4]
         fig3.forEach( eps => {
             let options = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
             options.coverOverlap = eps/10
-            MOG_Vis( '#fig3_mog_agd_8_e'+eps, options, false )
+            Load_MOG_Vis( '#fig3_mog_agd_8_e'+eps, options, false )
         })
 
 
@@ -178,7 +367,7 @@
         fig4.forEach( comp => {
             let options = get_default_mog_options( 'small', 'usair97.json', 'agd', 8, false )
             options.component_method = comp
-            MOG_Vis( '#fig4_mog_agd_8_'+comp, options, false )
+            Load_MOG_Vis( '#fig4_mog_agd_8_'+comp, options, false )
         })
 
 
@@ -190,7 +379,7 @@
             options.component_method = 'connected_components'
             options.link_method = link_m
             options.coverOverlap = overlap
-            MOG_Vis( '#fig5_mog_agd_8_'+link_m, options, false )
+            Load_MOG_Vis( '#fig5_mog_agd_8_'+link_m, options, false )
         })
 
 
@@ -198,10 +387,10 @@
         fig6_options.component_method = 'modularity'
         fig6_options.link_method = 'connectivity'
         fig6_options.coverOverlap = 0
-        MOG_Vis( '#fig6_mog', fig6_options, false )
-        Load_Graph_W_FF( '#fig6_graph', fig6_options, (gv, ff_data)=>{
-            fig6_histo_vis = histogram_vis("#fig6_histogram");
-            fig6_cover_vis = cover_visualization("#fig6_histogram");
+        Load_MOG_Vis( '#fig6_mog', fig6_options, false )
+        Load_Graph_Vis_W_FF( '#fig6_graph', fig6_options, (gv, ff_data)=>{
+            fig6_histo_vis = HistogramVisualization("#fig6_histogram");
+            fig6_cover_vis = CoverVisualization("#fig6_histogram");
             fig6_cover_vis.set_position( 5, 5, 30, 190 );
             fig6_histo_vis.set_position( 40, 5, 80, 190 );
             fig6_cover_vis.update_drawing( fig6_options.coverN, 0, colorSchemes[fig6_options.filter_func] );
@@ -209,18 +398,54 @@
         } )
 
 
+        let fig7_options = get_default_mog_options( 'small', 'map_of_science.json', 'agd', 2, false )
+        fig7_options.component_method = 'modularity'
+        fig7_options.link_method = 'connectivity'
+        fig7_options.coverOverlap = 0
+        fig7 = ['agd', 'den_0_5', 'ecc', 'fv', 'pr_0_85']
+        let cn = [2,3,4,6,8,10,20]
+        fig7.forEach( ff_method => {
+            cn.forEach( n => {
+                fig7_options.coverN = n
+                fig7_options.filter_func = ff_method
+                Load_MOG_Vis( '#fig7_mog_'+ff_method+"_"+n, fig7_options, false )
+            })
+        })
+        Load_Graph_Vis_W_FF( '#fig7_graph', fig7_options)
 
-	function saveSVG( plotID ){
-		let svgData = $("#"+plotID)[0].outerHTML;
-        let svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
-        let svgUrl = URL.createObjectURL(svgBlob);
-        let downloadLink = document.createElement("a");
-        downloadLink.href = svgUrl;
-        downloadLink.download = plotID + ".svg";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-	}
+        function save_fig7(){
+            saveSVG('fig7_graph');
+            fig7.forEach( ff_method => {
+                cn.forEach(n => {
+                    saveSVG('fig7_mog_' + ff_method + "_" + n);
+                })
+            })
+        }
+
+
+
+
+        let fig8_options = get_default_mog_options( 'large', 'ca-condmat.json', 'pr_0_85', 2, false )
+        fig8_options.component_method = 'connected_components'
+        fig8_options.link_method = 'connectivity'
+        fig8_options.coverOverlap = 0
+        let cn8 = [2,3,4,6,8,10]
+        cn8.forEach( n => {
+            fig8_options.coverN = n
+            Load_MOG_Vis( '#fig8_mog_pr_'+n, fig8_options, false )
+        })
+        Load_Graph_Vis_W_FF( '#fig8_graph', fig8_options)
+
+        function save_fig8(){
+            saveSVG('fig8_graph');
+            cn8.forEach(n => {
+                saveSVG('fig8_mog_pr_' + n);
+            })
+        }
+
+*/
+
+
 
 </script>
 

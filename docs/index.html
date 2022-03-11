@@ -39,11 +39,9 @@
     <script src="js/lib/bootstrap@4.4.1.js"></script>
     <script src="js/lib/d3-scale-chromatic@v1.js"></script>
 
-    <script src="js/menu.js"></script>
-    <script src="js/graph.js"></script>
-    <script src="js/histogram.js"></script>
-    <script src="js/dataDownload.js"></script>
-    <script src="js/cover.js"></script>
+    <script src="js/GraphVisualization.js"></script>
+    <script src="js/HistogramVisualization.js"></script>
+    <script src="js/CoverVisualization.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
     <script src="js/graph_loader.js"></script>
@@ -125,22 +123,21 @@
     <div class="page-content" id="visualization" style="white-space: nowrap;">
         <div style="float: left; text-align: center;">
             <svg height="600" width="600" style="border: thick;" id="graph_vis"></svg>
-            <br>
+            <!-- <br>
             <input type="button" id="downloadGraph" name="downloadGraph"
-                   onclick="downloadJson(graph_vis.get_graph(),'graph.json');" value="Download Graph">
+                   onclick="downloadJson(graph_vis.get_graph(),'graph.json');" value="Download Graph"> -->
         </div>
         <div style="text-align: center; width: 1200px;">
             <svg height="600" width="600" style="border: thick;" id="mog_vis"></svg>
-            <br>
+            <!-- <br>
             <input type="button" id="downloadMOG" name="downloadMOG"
-                   onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG">
+                   onclick="downloadJson(mog_vis.get_graph(),'mog.json');" value="Download MOG"> -->
         </div>
     </div>
 </div>
 
 
 <script>
-
 
     let graph_vis = null;
     let mog_vis = null;
@@ -156,7 +153,6 @@
         return closest
     }
 
-
     function update_mog() {
         if( mog_vis ) mog_vis.remove()
 
@@ -170,17 +166,17 @@
             'component_method': component_rg.getSelected(),
             'link_method': link_rg.getSelected()
         }
-        mog_vis = MOG_Vis( "#mog_vis", options )
+        mog_vis = Load_MOG_Vis( "#mog_vis", options )
     }
 
     function change_dataset() {
         update_datafiles();
-        load_graph( change_filter_func );
+        load_graph( );
     }
 
     function change_datafile() {
         update_filter_functions()
-        load_graph( change_filter_func );
+        load_graph( );
     }
 
     function change_filter_func() {
@@ -194,8 +190,10 @@
 
             let data = ( rank_cg.isChecked() ) ? _data['ranked'] : _data['data']
 
-            let cs = colorSchemes[get_selected_filter_func()].domain([0,1])
-            graph_vis.set_node_color(n=>cs(n), data);
+            if( graph_vis ) {
+                let cs = colorSchemes[get_selected_filter_func()].domain([0, 1])
+                graph_vis.set_node_color(n => cs(n), data);
+            }
 
             histo_vis.set_position( 50, 20, 80, 200 );
             histo_vis.update_drawing( 10, Object.values(data), colorSchemes[get_selected_filter_func()] )
@@ -212,46 +210,19 @@
         cover_vis.update_drawing( coverN, 0, colorSchemes[get_selected_filter_func()] );
     }
 
-
-    function load_graph(callback) {
+    function load_graph() {
         if( graph_vis ) graph_vis.remove()
 
-        graph_vis = New_Graph_Vis( "#graph_vis",
-                                    {'dataset': get_selected_dataset(), 'datafile': get_selected_datafile()},
-                                    true,
-                                    ()=>{
-                                        if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
-                                        if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
-
-                                        if (callback) callback();
-                                    } )
-
-        /*
-        if( graph_vis ) graph_vis.remove()
-
-        let svg = d3.select("#graph_vis")
-        //svg.empty()
-        svg.style("cursor", "progress" )
-
-        d3.json("data/" + get_selected_dataset() + '/' + get_selected_datafile(), function (error, data) {
-            if (error) {
-                console.log(error);
-            } else {
-
-                graph_vis = FDL_Graph_Vis("#graph_vis", data);
-                graph_vis.load();
-
-                if(histo_vis == null) histo_vis = histogram_vis("#graph_vis");
-                if(cover_vis == null) cover_vis = cover_visualization("#graph_vis");
-
-                if (callback) callback();
-            }
-            svg.style("cursor", "auto" )
-        });
-
-         */
+        Load_Graph_Vis( "#graph_vis",
+                        {'dataset': get_selected_dataset(), 'datafile': get_selected_datafile()},
+                        true,
+                        (gv)=>{
+                            graph_vis = gv
+                            if(histo_vis == null) histo_vis = HistogramVisualization("#graph_vis");
+                            if(cover_vis == null) cover_vis = CoverVisualization("#graph_vis");
+                            change_filter_func()
+                        } )
     }
-
 
     load_datasets(change_datafile);
 

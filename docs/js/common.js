@@ -38,10 +38,11 @@ var page_titles = {"small_multiples.html": "Small Multiple Parameter Explorer",
 function insert_page_header(){
     html = `<div class="page" style="padding: 15px;">
                 <h2 style="margin: 0; font-weight: bold;">Homology-Preserving Graph Skeletonization Using Mapper on Graphs</h2>
-                <h3 style="padding-left: 5px; padding-top: 10px;">Paul Rosen; Mustafa Hajij; and Bei Wang</h3>`;
+                <!-- <h3 style="padding-left: 5px; padding-top: 10px;">Paul Rosen; Mustafa Hajij; and Bei Wang</h3>-->`;
 
-	if( new Date() > new Date(2020, 9, 14) )
-		html += '<h3 style="padding-left: 5px; padding-top: 10px;">Under submission to Transactions on Visualization and Computer Graphics</h3>';
+	// if( new Date() > new Date(2020, 9, 14) )
+	// 	html += '<h3 style="padding-left: 5px; padding-top: 10px;">Under submission to Transactions on Visualization and Computer Graphics</h3>';
+	html += '<h3 style="padding-left: 5px; padding-top: 10px;">IEEE VIS Submission #</h3>';
 
 	html += '</div>';
 
@@ -78,11 +79,28 @@ function insert_navbar( curpage ){
 
 
 
-/*****************************************
- * Google Analytics Tracking Information *
- *****************************************/
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+function downloadText(text, filename) {
+    var a = document.createElement('a');
+    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    a.setAttribute('download', filename);
+    a.click()
+}
 
-  gtag('config', 'UA-45288229-3');
+function downloadJson(obj, filename) {
+    downloadText(JSON.stringify(obj), filename);
+}
+
+
+function saveSVG( plotID, name='' ){
+    if( name === '' ) name = plotID.substring(1)
+    let svgData = $(plotID)[0].outerHTML;
+    let svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+    let svgUrl = URL.createObjectURL(svgBlob);
+    let downloadLink = document.createElement("a");
+    downloadLink.href = svgUrl;
+    downloadLink.download = name + ".svg";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+

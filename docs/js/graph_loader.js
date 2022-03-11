@@ -18,7 +18,7 @@ function get_default_mog_options(ds,df,ff,coverN=3,rank=false,component='modular
 
 
 
-let MOG_Vis = function( svg_name, options, static_uri=true ){
+let Load_MOG_Vis = function(svg_name, options, static_uri=true, end_cb = ()=>{} ){
     let param_uri = $.param(options)
     let mog_data = null
     let mog_vis = null
@@ -42,28 +42,25 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
                 + '_' + covN + '_' + overlap + '_' + link_m + '_' + rank + '.json'
     }
 
-    function send_to_cache(){
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_mog?"+param_uri, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        let tmp_data = {'info':mog_data.info,'nodes':mog_data.nodes,'links':[]};
-        mog_data.links.forEach( function(L){
-           tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
-        });
-        xhr.send(JSON.stringify(tmp_data));
-    }
-
     d3.json(uri, function (error, data) {
         if (error) {
             console.log(error);
         } else {
             mog_data = data
-            mog_vis = FDL_Graph_Vis(svg_name, mog_data);
+            mog_vis = GraphVisualization(svg_name, mog_data);
             mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.comp_len), 20));
             mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_v));
             mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
             mog_vis.add_count_labels();
-            mog_vis.set_end_callback( ()=>{ mog_vis.zoomFit(); send_to_cache() } );
+            mog_vis.set_tick_callback( (n) => {
+                if(n===10) mog_vis.zoomFit();
+                if(n===100) mog_vis.zoomFit();
+            })
+            mog_vis.set_end_callback( ()=>{
+                mog_vis.zoomFit();
+                mog_vis.send_to_url( "update_mog?"+param_uri, {'info':mog_data.info} )
+                end_cb()
+            });
             mog_vis.load()
         }
         svg.style("cursor", "auto" )
@@ -72,14 +69,16 @@ let MOG_Vis = function( svg_name, options, static_uri=true ){
     return {
         remove : function(){
             if( mog_vis ) mog_vis.remove();
+        },
+        get_graph : function(){
+            return mog_vis
         }
     }
 
 }
 
 
-
-let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
+let Load_Graph_Vis = function(svg_name, options, static_uri=true, cb = null, end_cb = ()=>{} ){
 
     let uri = 'graph?' + $.param(options)
     if( static_uri ) uri = 'data/' + options.dataset + '/' + options.datafile
@@ -90,28 +89,25 @@ let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
     let graph_data = null
     let graph_vis = null
 
-    function send_to_cache(){
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_graph?" + $.param(options), true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        let tmp_data = {'nodes':graph_data.nodes,'links':[]};
-        graph_data.links.forEach( function(L){
-           tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
-        });
-        xhr.send(JSON.stringify(tmp_data));
-    }
-
     d3.json(uri, function (error, data) {
         if (error) {
             console.log(error);
         } else {
             graph_data = data
-            graph_vis = FDL_Graph_Vis(svg_name, data);
-            graph_vis.set_end_callback( ()=>{ graph_vis.zoomFit(); send_to_cache() } );
+            graph_vis = GraphVisualization(svg_name, data);
+            graph_vis.set_tick_callback( (n) => {
+                if(n===10) graph_vis.zoomFit();
+                if(n===100) graph_vis.zoomFit();
+            })
+            graph_vis.set_end_callback( ()=>{
+                graph_vis.zoomFit();
+                graph_vis.send_to_url( "update_graph?" + $.param(options) )
+                end_cb()
+            } );
             graph_vis.load();
         }
         svg.style("cursor", "auto" )
-        if( cb ) cb()
+        if( cb ) cb(graph_vis)
     });
 
     return {
@@ -124,55 +120,15 @@ let New_Graph_Vis = function( svg_name, options, static_uri=true, cb = null ){
     }
 }
 
-
-
-
-
-
-
-let Load_Graph_Vis = function( svg_name, options, cb, static_uri=true ){
-
-    let uri = 'graph?' + $.param(options)
-    if( static_uri ) uri = 'data/' + options.dataset + '/' + options.datafile
-
-    let svg = d3.select(svg_name)
-    svg.style("cursor", "progress" )
-
-    let graph_data = null
-    let graph_vis = null
-
-    function send_to_cache(){
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_graph?" + $.param(options), true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        let tmp_data = {'nodes':graph_data.nodes,'links':[]};
-        graph_data.links.forEach( function(L){
-           tmp_data.links.push({'value':L.value,'source':L.source.id,'target':L.target.id});
-        });
-        xhr.send(JSON.stringify(tmp_data));
-    }
-
-    d3.json(uri, function (error, data) {
-        if (error) {
-            console.log(error);
-        } else {
-            graph_data = data
-            graph_vis = FDL_Graph_Vis(svg_name, data);
-            graph_vis.set_end_callback( ()=>{ graph_vis.zoomFit(); send_to_cache() } );
-            graph_vis.load();
-        }
-        svg.style("cursor", "auto" )
-        cb({
-            remove : function(){
-                if( graph_vis ) graph_vis.remove();
-            },
-            set_node_color : function( func, data ){
-                if(graph_vis) graph_vis.set_node_color(func, data);
-            }
-        })
-    });
+let Load_Graph_Vis_W_FF = function(svg_name, options, static_uri = true, cb=null, end_cb = ()=>{} ){
+    Load_Filter_Function(options, (ff_data)=>{
+        Load_Graph_Vis( svg_name, options, true, (gv )=>{
+            let cs = colorSchemes[options.filter_func].domain([0,1])
+            gv.set_node_color( n => cs(n), ff_data.data )
+            if(cb) cb(gv, ff_data)
+        }, end_cb )
+    })
 }
-
 
 let Load_Filter_Function = function( options, cb, static_uri=true ){
 
@@ -192,15 +148,6 @@ let Load_Filter_Function = function( options, cb, static_uri=true ){
     })
 }
 
-let Load_Graph_W_FF = function( svg_name, options, cb=null, static_uri = true ){
-    Load_Filter_Function(options, (ff_data)=>{
-        Load_Graph_Vis( svg_name, options, ( gv )=>{
-            let cs = colorSchemes[options.filter_func].domain([0,1])
-            gv.set_node_color( n => cs(n), ff_data.data )
-            if(cb) cb(gv, ff_data)
-        } )
-    })
-}
 
 
 
@@ -270,7 +217,7 @@ let Graph_VIS = function(svg_name, options, show_ff = false){
                 d3.json("filter_function?" + param_uri, function (error, _ff_data) {
                     ff_data = _ff_data
                     let cs = colorSchemes[options.filter_func].domain([0, 1])
-                    graph_vis = FDL_Graph_Vis(svg_name, graph_data);
+                    graph_vis = GraphVisualization(svg_name, graph_data);
                     graph_vis.set_node_radius( ()=> 3)
                     graph_vis.set_end_callback(()=>{
                         graph_vis.zoomFit()
@@ -281,7 +228,7 @@ let Graph_VIS = function(svg_name, options, show_ff = false){
                 });
             }
             else{
-                graph_vis = FDL_Graph_Vis(svg_name, data);
+                graph_vis = GraphVisualization(svg_name, data);
                 graph_vis.set_node_radius( ()=> 3)
                 graph_vis.set_end_callback(()=>{
                     graph_vis.zoomFit()

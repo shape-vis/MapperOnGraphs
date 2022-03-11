@@ -54,8 +54,7 @@
     <script src="js/lib/bootstrap@4.4.1.js"></script>
     <script src="js/lib/d3-scale-chromatic@v1.js"></script>
 
-    <script src="js/menu.js"></script>
-    <script src="js/graph.js"></script>
+    <script src="js/GraphVisualization.js"></script>
     <script src="js/common.js"></script>
     <script src="js/input.js"></script>
 
@@ -101,7 +100,7 @@
                 console.log(error);
             } else {
                 mog_data = data
-                mog_vis = FDL_Graph_Vis(svg_name, mog_data);
+                mog_vis = GraphVisualization(svg_name, mog_data);
                 mog_vis.set_node_radius(d => Math.min( Math.sqrt(d.component_count), 20));
                 mog_vis.set_node_color(n=>colorSchemes[ff](n.avg_value));
                 mog_vis.set_link_width(d => Math.min( Math.sqrt(d.value), 20)/2 );
@@ -168,7 +167,7 @@
             if (error) {
                 console.log(error);
             } else {
-                graph_vis = FDL_Graph_Vis('#graph_' + df_base, data);
+                graph_vis = GraphVisualization('#graph_' + df_base, data);
                 graph_vis.load();
             }
         });

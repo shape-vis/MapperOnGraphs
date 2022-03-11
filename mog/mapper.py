@@ -191,7 +191,8 @@ class MapperOnGraphs:
         self.mapper_graph = self.mapper_graph.subgraph(ns)
 
     def to_json(self):
-        layout.initialize_radial_layout(self.mapper_graph)
+        if self.mapper_graph.number_of_nodes() < 2500:
+            layout.initialize_radial_layout(self.mapper_graph)
         # layout.initialize_vertical_layout(self.mapper_graph)
         json_data = nx.node_link_data(self.mapper_graph)
         json_data['info'] = self.info
@@ -199,3 +200,14 @@ class MapperOnGraphs:
         del json_data['multigraph']
         del json_data['graph']
         return json.dumps(GraphIO.round_floats(json_data), separators=(',', ':'))
+
+    def save_json(self, out_file_path):
+        if self.mapper_graph.number_of_nodes() < 2500:
+            layout.initialize_radial_layout(self.mapper_graph)
+        json_data = nx.node_link_data(self.mapper_graph)
+        json_data['info'] = self.info
+        del json_data['directed']
+        del json_data['multigraph']
+        del json_data['graph']
+        with open(out_file_path, 'w') as outfile:
+            json.dump(GraphIO.round_floats(json_data), outfile, separators=(',', ':'))
