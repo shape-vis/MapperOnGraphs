@@ -223,16 +223,16 @@ if __name__ == '__main__':
 
     timeout = int(sys.argv[1]) if len(sys.argv) > 1 else 1
 
-    # if timeout > 0:
-    #     generate_data(timeout)
+    if timeout > 0:
+        generate_data(timeout)
 
-    process_graph('data/snap/com-youtube.ungraph.graph')
-    process_filter_functions('docs/data/large/amazon0302.json', 18000, True)
-    process_filter_functions('docs/data/large/com-amazon.ungraph.json', 18000, True)
-    process_filter_functions('docs/data/large/com-youtube.ungraph.json', 18000, True)
+    # process_graph('data/snap/com-youtube.ungraph.graph')
+    # process_filter_functions('docs/data/large/amazon0302.json', 18000, True)
+    # process_filter_functions('docs/data/large/com-amazon.ungraph.json', 18000, True)
+    # process_filter_functions('docs/data/large/com-youtube.ungraph.json', 18000, True)
     #
-    # scan_datasets()
-    #
+    scan_datasets()
+
     # with multiprocessing.Pool(processes=6) as pool:
     #     procs = []
     #     for d0 in data_sets:

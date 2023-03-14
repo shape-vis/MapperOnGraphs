@@ -41,3 +41,15 @@ pr_0_85,20,modularity,connectivity,false,2370,22008,28.3551
 pr_0_85,20,modularity,connectivity,true,4956,24606,4.9827
 pr_0_85,20,async_label_prop,connectivity,false,2341,19850,3.8587
 pr_0_85,20,async_label_prop,connectivity,true,5047,16128,3.2704
+pr_0_85,30,connected_components,connectivity,false,2866,28236,1.5425009727478027
+pr_0_85,30,connected_components,connectivity,true,5076,17913,1.5295109748840332
+pr_0_85,30,modularity,connectivity,false,2900,31358,15.572088956832886
+pr_0_85,30,modularity,connectivity,true,5118,27802,4.782377004623413
+pr_0_85,30,async_label_prop,connectivity,false,2902,29264,6.587179899215698
+pr_0_85,30,async_label_prop,connectivity,true,5203,20952,3.899836301803589
+pr_0_85,40,connected_components,connectivity,false,3230,35852,1.4272468090057373
+pr_0_85,40,connected_components,connectivity,true,5186,21889,1.4590978622436523
+pr_0_85,40,modularity,connectivity,false,3265,40367,8.981199741363525
+pr_0_85,40,modularity,connectivity,true,5238,35176,4.323050022125244
+pr_0_85,40,async_label_prop,connectivity,false,3348,40534,6.5303568840026855
+pr_0_85,40,async_label_prop,connectivity,true,5316,26714,3.8493740558624268

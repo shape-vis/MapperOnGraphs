@@ -10,7 +10,7 @@ do
   if [ ! -f "$FPNG" ]; then
     echo "Converting $FSVG to $FPNG"
     # mogrify -format png $FSVG
-    inkscape --export-png $FPNG -w 512 $FSVG
+    inkscape --export-type="png" $FPNG -w 512 $FSVG
   fi
 done
 

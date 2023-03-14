@@ -13,6 +13,10 @@ pr_0_85,10,connected_components,connectivity,false,1467,1542,9.3723
 pr_0_85,10,connected_components,connectivity,true,259557,513084,18.131
 pr_0_85,20,connected_components,connectivity,false,5601,7182,10.1937
 pr_0_85,20,connected_components,connectivity,true,287438,649658,20.0847
+pr_0_85,30,connected_components,connectivity,false,12969,19159,12.313739776611328
+pr_0_85,30,connected_components,connectivity,true,298531,709839,26.167845964431763
+pr_0_85,40,connected_components,connectivity,false,23977,39665,15.209020137786865
+pr_0_85,40,connected_components,connectivity,true,305133,746713,28.070165872573853
 fv,2,connected_components,connectivity,false,2,1,8.9752
 fv,2,connected_components,connectivity,true,569,568,9.6464
 fv,3,connected_components,connectivity,false,3,2,8.7358
@@ -27,6 +31,10 @@ fv,10,connected_components,connectivity,false,9,8,8.7337
 fv,10,connected_components,connectivity,true,11515,19865,9.6238
 fv,20,connected_components,connectivity,false,17,19,9.6794
 fv,20,connected_components,connectivity,true,30581,60069,13.4473
+fv,30,connected_components,connectivity,false,26,30,13.099802255630493
+fv,30,connected_components,connectivity,true,48260,100590,16.22029995918274
+fv,40,connected_components,connectivity,false,35,48,14.089134931564331
+fv,40,connected_components,connectivity,true,63911,137869,18.783643007278442
 fv_norm,2,connected_components,connectivity,false,68,67,10.7915
 fv_norm,2,connected_components,connectivity,true,114144,117055,14.8
 fv_norm,3,connected_components,connectivity,false,67,69,10.219
@@ -41,3 +49,7 @@ fv_norm,10,connected_components,connectivity,false,197,352,9.3398
 fv_norm,10,connected_components,connectivity,true,240907,447511,17.2594
 fv_norm,20,connected_components,connectivity,false,268,550,9.9416
 fv_norm,20,connected_components,connectivity,true,262142,566586,19.2131
+fv_norm,30,connected_components,connectivity,false,345,716,14.215333938598633
+fv_norm,30,connected_components,connectivity,true,269949,617128,26.209072828292847
+fv_norm,40,connected_components,connectivity,false,354,754,15.048501968383789
+fv_norm,40,connected_components,connectivity,true,274862,649876,28.61992883682251

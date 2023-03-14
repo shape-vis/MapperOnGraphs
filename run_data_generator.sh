@@ -30,7 +30,7 @@ fi
 
 
 #python data.py 0
-python data.py 1
+python data.py 5
 #python data.py 30
 python data.py 900
 

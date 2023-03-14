@@ -34,16 +34,32 @@ def get_mog_path(dataset, datafile, ff, params=None):
     return path + ".json"
 
 
-def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap, comp_method, link_method, rank_filter):
+def get_cluster_path(datafile, params=None):
+    path = 'docs/data/clusters/' + os.path.splitext(datafile)[0]
+    if params is not None:
+        keys = list(params.keys())
+        keys.sort()
+        for k in keys:
+            path += "_" + str(params[k])
+    return path + ".json"
+
+
+
+def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap, comp_method, link_method, rank_filter, no_strip=False):
     mog = mapper.MapperOnGraphs()
 
-    mog_cf = get_mog_path(dataset, datafile, filter_func, {
-                                                        'coverN': cover_elem_count,
-                                                        'coverOverlap': cover_overlap,
-                                                        'component_method': comp_method,
-                                                        'link_method': link_method,
-                                                        'rank_filter': 'false' if rank_filter is None else rank_filter
-                                                    })
+    opts = {
+                'coverN': cover_elem_count,
+                'coverOverlap': cover_overlap,
+                'component_method': comp_method,
+                'link_method': link_method,
+                'rank_filter': 'false' if rank_filter is None else rank_filter
+            }
+    if no_strip: opts['no_strip'] = 'true'
+
+    mog_cf = get_mog_path(dataset, datafile, filter_func, opts)
+
+    # print("generate: " + mog_cf)
 
     if os.path.exists(mog_cf):
         print("  >> found " + mog_cf + " in cache")
@@ -74,7 +90,8 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
 
     # Construct & save MOG
     mog.build_mog(graph, values, cover, comp_method, link_method, verbose=graph.number_of_nodes() > 1000)
-    mog.strip_components_from_nodes()
+    if not no_strip:
+        mog.strip_components_from_nodes()
     mog.save_json(mog_cf)
 
     print(" >> MOG Node Count: " + str(mog.number_of_nodes()))
@@ -98,13 +115,16 @@ def generate_mog(dataset, datafile, filter_func, cover_elem_count, cover_overlap
 
 
 def get_mog(params):
-    print("asdf")
+
+    if 'no_strip' not in params: params['no_strip'] = 'False'
     mog, mog_cf = generate_mog(params['dataset'], params['datafile'],
                                params['filter_func'],
                                params['coverN'], params['coverOverlap'],
                                params['component_method'],
-                               params['link_method'], params['rank_filter'])
+                               params['link_method'], params['rank_filter'],
+                               no_strip=(params['no_strip'].lower() == 'true') )
 
+    # Filter the M
     node_size_filter = int(params['mapper_node_size_filter'])
     if node_size_filter > 0:
         mog.filter_node_size(node_size_filter)

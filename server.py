@@ -8,6 +8,10 @@ from flask import request
 from flask import send_file
 from flask import send_from_directory
 
+from skeletonizer import skeletonizer
+import mog.graph_io as GraphIO
+
+
 app = Flask(__name__, static_url_path="/docs", static_folder='docs')
 
 
@@ -84,16 +88,21 @@ def update_graph():
 def update_mog():
     # Check that the request is valid
     if request_valid(True, True, True):
+        no_strip = request.args.get('no_strip')
+        opts = {
+            'component_method' : request.args.get('component_method'),
+            'link_method': request.args.get('link_method'),
+            'coverN': request.args.get('coverN'),
+            'rank_filter': request.args.get('rank_filter'),
+            'coverOverlap': request.args.get('coverOverlap')
+        }
+        if no_strip and no_strip.lower() == 'true': opts['no_strip'] = 'true'
+
         filename = cache.get_mog_path(request.args.get('dataset'),
                                       request.args.get('datafile'),
                                       request.args.get('filter_func'),
-                                      {
-                                          'component_method' : request.args.get('component_method'),
-                                          'link_method': request.args.get('link_method'),
-                                          'coverN': request.args.get('coverN'),
-                                          'rank_filter': request.args.get('rank_filter'),
-                                          'coverOverlap': request.args.get('coverOverlap')
-                                      })
+                                      opts)
+
         with open(filename, 'w') as outfile:
             json.dump(request.json, outfile)
         return "{'result':'ok'}"
@@ -117,6 +126,45 @@ def get_mog():
         return "{'result':'failed'}"
     else:
         return cache.get_mog(request.args.to_dict())
+
+
+@app.route('/update_cluster', methods=['GET', 'POST'])
+def update_cluster():
+    # Check that the request is valid
+    if not request_valid(True, True, False):
+        return "{'result':'failed'}"
+
+    cache_path = cache.get_cluster_path( request.args.get('datafile'),
+                                       { 'component_method': request.args.get('component_method'),
+                                        'resolution': float(request.args.get('resolution')) } )
+
+    with open(cache_path, 'w') as outfile:
+        json.dump(request.json, outfile)
+
+    return "{'result':'ok'}"
+
+
+
+@app.route('/cluster', methods=['GET', 'POST'])
+def get_cluster():
+    # Check that the request is valid
+    if not request_valid(True, True, False):
+        print("Invalid request")
+        return "{'result':'failed'}"
+
+    cache_path = cache.get_cluster_path( request.args.get('datafile'),
+                                       { 'component_method': request.args.get('component_method'),
+                                        'resolution': float(request.args.get('resolution')) } )
+    if os.path.exists(cache_path):
+        print("  >> found " + cache_path + " in cache")
+        return send_file(cache_path)
+
+    path = cache.get_graph_path(request.args.to_dict())
+
+    sk = skeletonizer.Skeltonizer( )
+    sk.build_skeleton(GraphIO.read_json_graph(path)[1], request.args.get('component_method'), float(request.args.get('resolution')), True)
+    sk.save_json(cache_path)
+    return sk.to_json()
 
 
 if __name__ == '__main__':

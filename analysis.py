@@ -72,14 +72,14 @@ def generate_mog_profile(dataset,datafile):
     ret = 'filter_func,cover_elem_count,component_method,connectivity_method,ranked,nodes,edges,compute_time\n'
     graph_data, graph = GraphIO.read_json_graph('docs/data/' + dataset + "/" + datafile)
     for ff in data.data_sets[dataset][datafile]:
-        levels = [2,3,4,6,8,10,20]
+        levels = [2,3,4,6,8,10,20,30,40]
         #for coverN in range(2,20):
         for coverN in levels:
             mog, mog_cf = cache.generate_mog( dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'false' )
             ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
             mog, mog_cf = cache.generate_mog(dataset, datafile, ff, coverN, 0, 'connected_components', 'connectivity', 'true')
             ret += ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,true' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
-            if graph.number_of_nodes() < 100000:
+            if graph.number_of_nodes() < 50000:
                 mog, mog_cf = cache.generate_mog( dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'false' )
                 ret += ff + ',' + str(coverN) + ',' + 'modularity,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
                 mog, mog_cf = cache.generate_mog(dataset, datafile, ff, coverN, 0, 'modularity', 'connectivity', 'true')
@@ -92,12 +92,33 @@ def generate_mog_profile(dataset,datafile):
         outfile.write(ret)
 
 
+
+def generate_mog_perf():
+    ret = 'datafile,df_nodes,filter_func,cover_elem_count,component_method,connectivity_method,ranked,nodes,edges,compute_time\n'
+    for ds in ['small','medium','large']:
+        for df in data.data_sets[ds]:
+            graph_data, graph = GraphIO.read_json_graph('docs/data/' + ds + "/" + df)
+            for ff in data.data_sets[ds][df]:
+                levels = [2,20]
+                for coverN in levels:
+                    mog, mog_cf = cache.generate_mog( ds, df, ff, coverN, 0, 'connected_components', 'connectivity', 'false' )
+                    ret += '"' + df + '",' + str(graph.number_of_nodes()) + ',' + ff + ',' + str(coverN) + ',' + 'connected_components,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+                    if graph.number_of_nodes() < 50000:
+                        mog, mog_cf = cache.generate_mog( ds, df, ff, coverN, 0, 'modularity', 'connectivity', 'false' )
+                        ret += '"' + df + '",' + str(graph.number_of_nodes()) + ','  + ff + ',' + str(coverN) + ',' + 'modularity,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+                        mog, mog_cf = cache.generate_mog( ds, df, ff, coverN, 0, 'async_label_prop', 'connectivity', 'false' )
+                        ret += '"' + df + '",' + str(graph.number_of_nodes()) + ','  + ff + ',' + str(coverN) + ',' + 'async_label_prop,connectivity,false' + ',' + str(mog.number_of_nodes()) + ',' + str(mog.number_of_edges()) + ',' + str(mog.info['compute_time']) + '\n'
+    with open("analysis/mog_perf.csv",'w') as outfile:
+        outfile.write(ret)
+
+
 if __name__ == '__main__':
     if not os.path.exists("analysis"): os.mkdir("analysis")
     if not os.path.exists("analysis/mog"): os.mkdir("analysis/mog")
     data.scan_datasets()
-    generate_filter_summary(False)
-    generate_graph_summary(False)
+    generate_filter_summary(True)
+    generate_graph_summary(True)
     for ds in ['small','medium','large']:
         for df in data.data_sets[ds]:
             generate_mog_profile(ds,df)
+    generate_mog_perf()
