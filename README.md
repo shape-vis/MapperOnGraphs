@@ -1,4 +1,4 @@
-# MapperOnGraphs
+# Homology-Preserving Multi-scale Graph Skeletonization Using Mapper on Graphs
 
 Mapper on Graphs for Network Visualization
 Mustafa Hajij, Paul Rosen, Bei Wang
